@@ -1,0 +1,735 @@
+﻿=== KHSMIS ΓÇö GitHub Push ===
+
+[1/7] Setting git identity...
+[2/7] Initialising repository...
+Reinitialized existing Git repository in C:/xampp/htdocs/KARNHIGHSCHOOL/.git/
+[3/7] Removing old remote (if any)...
+[4/7] Adding remote...
+[5/7] Staging all files...
+cmd : warning: in the working copy of '.bolt/config.json', LF will be replaced 
+by CRLF the next time Git touches it
+At line:1 char:1
++ cmd /c "c:\xampp\htdocs\KARNHIGHSCHOOL\push_to_github.bat" 2>&1 | Out ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warning: in the... Git touches it 
+   :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'about.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'academics.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'admin/academic_years.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/academics.php', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'admin/admission_decisions.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/announcements.php', LF will be replaced 
+by CRLF the next time Git touches it
+warning: in the working copy of 'admin/applications.php', LF will be replaced 
+by CRLF the next time Git touches it
+warning: in the working copy of 'admin/approval_center.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/attendance.php', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'admin/audit_logs.php', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'admin/broadsheets.php', LF will be replaced 
+by CRLF the next time Git touches it
+warning: in the working copy of 'admin/classes.php', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'admin/dashboards/accountant.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/dashboards/default_dash.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/dashboards/discipline_dash.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/dashboards/librarian_dash.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/dashboards/principal.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/dashboards/registrar.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/dashboards/school_admin.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/dashboards/sys_admin.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/dashboards/teacher_dash.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/dashboards/vice_principal.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/discipline.php', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'admin/documents.php', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'admin/entrance_exams.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/events_admin.php', LF will be replaced 
+by CRLF the next time Git touches it
+warning: in the working copy of 'admin/fee_structures.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/finance.php', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'admin/guardians.php', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'admin/index.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'admin/library.php', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'admin/login.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'admin/logout.php', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'admin/marks_approval.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/marks_entry.php', LF will be replaced 
+by CRLF the next time Git touches it
+warning: in the working copy of 'admin/messages.php', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'admin/promotion.php', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'admin/report_cards.php', LF will be replaced 
+by CRLF the next time Git touches it
+warning: in the working copy of 'admin/reports.php', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'admin/results.php', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'admin/roles/README.md', LF will be replaced 
+by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/_role_header.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/_shared.php', LF will be replaced 
+by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/accountant/dashboard.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/accountant/fee_structures.php', 
+LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/accountant/payments.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/accountant/reports.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 
+'admin/roles/accountant/student_statements.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'admin/roles/class_teacher/announcements.php', 
+LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/class_teacher/attendance.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/class_teacher/dashboard.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/class_teacher/discipline.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/class_teacher/marks_entry.php', 
+LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/class_teacher/report_cards.php', 
+LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/class_teacher/results.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/class_teacher/students.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/class_teacher/timetable.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 
+'admin/roles/discipline_officer/announcements.php', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 
+'admin/roles/discipline_officer/dashboard.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 
+'admin/roles/discipline_officer/incidents.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'admin/roles/discipline_officer/students.php', 
+LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/finance_officer/dashboard.php', 
+LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/finance_officer/payments.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 
+'admin/roles/finance_officer/student_statements.php', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/ict_officer/audit_logs.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/ict_officer/dashboard.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/ict_officer/settings.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/ict_officer/users.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/librarian/books.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/librarian/borrowing.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/librarian/dashboard.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/librarian/reports.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/librarian/students.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/principal/announcements.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/principal/applications.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/principal/approvals.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/principal/dashboard.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/principal/discipline.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/principal/finance.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/principal/marks_approval.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/principal/promotion.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/principal/report_cards.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/principal/settings.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/principal/students.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/principal/teachers.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 
+'admin/roles/registrar/admission_decisions.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'admin/roles/registrar/applications.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/registrar/attendance.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/registrar/dashboard.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/registrar/documents.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/registrar/entrance_exams.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/registrar/guardians.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/registrar/promotion.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/registrar/report_cards.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/registrar/reports.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/registrar/students.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/school_admin/academic_years.php', 
+LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/school_admin/announcements.php', 
+LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/school_admin/applications.php', 
+LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/school_admin/approvals.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/school_admin/classes.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/school_admin/dashboard.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/school_admin/events.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/school_admin/finance.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/school_admin/reports.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/school_admin/settings.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/school_admin/students.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/school_admin/subjects.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/school_admin/teachers.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/school_admin/timetable.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/sys_admin/audit_logs.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/sys_admin/dashboard.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/sys_admin/reports.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/sys_admin/roles.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/sys_admin/schools.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/sys_admin/settings.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/sys_admin/users.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/teacher/attendance.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/teacher/dashboard.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/teacher/marks_entry.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/teacher/report_cards.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/teacher/results.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/teacher/students.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/teacher/timetable.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 
+'admin/roles/vice_principal/announcements.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'admin/roles/vice_principal/approvals.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/vice_principal/attendance.php', 
+LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/vice_principal/broadsheets.php', 
+LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/vice_principal/dashboard.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/vice_principal/discipline.php', 
+LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 
+'admin/roles/vice_principal/marks_approval.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'admin/roles/vice_principal/promotion.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/vice_principal/report_cards.php', 
+LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/vice_principal/results.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/vice_principal/students.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/roles/vice_principal/timetable.php', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/search.php', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'admin/semesters.php', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'admin/settings.php', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'admin/student_statements.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/students.php', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'admin/subjects.php', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'admin/teacher_assignments.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/teachers_admin.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'admin/timetable.php', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'admin/users.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'admissions.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'application-status.php', LF will be replaced 
+by CRLF the next time Git touches it
+warning: in the working copy of 'apply.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'assets/css/public.css', LF will be replaced 
+by CRLF the next time Git touches it
+warning: in the working copy of 'assets/css/style.css', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'assets/js/main.js', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'assets/js/public.js', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'config/db.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'contact.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'eslint.config.js', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'events.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'exam/result.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'exam/save_answers.php', LF will be replaced 
+by CRLF the next time Git touches it
+warning: in the working copy of 'exam/submit_exam.php', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'exam/take_exam.php', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'facilities.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'faq.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'gallery.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'includes/403.php', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'includes/admin_footer.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'includes/admin_header.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'includes/footer.php', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'includes/header.php', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'index.html', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'index.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'letters/admission_letter.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'letters/entrance_letter.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'letters/receipt_pdf.php', LF will be replaced 
+by CRLF the next time Git touches it
+warning: in the working copy of 'letters/report_card_pdf.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'login.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'migrate.sql', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'news.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'package-lock.json', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'package.json', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'portal/parent/announcements.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'portal/parent/child_results.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'portal/parent/fees.php', LF will be replaced 
+by CRLF the next time Git touches it
+warning: in the working copy of 'portal/parent/index.php', LF will be replaced 
+by CRLF the next time Git touches it
+warning: in the working copy of 'portal/student/attendance.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'portal/student/fees.php', LF will be replaced 
+by CRLF the next time Git touches it
+warning: in the working copy of 'portal/student/index.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'portal/student/my_results.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'portal/student/report_card.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'portal/student/timetable.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'portal/teacher/announcements.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'portal/teacher/enter_marks.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'portal/teacher/index.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'portal/teacher/my_classes.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'portal/teacher/students.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'portal/teacher/take_attendance.php', LF will 
+be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'portal/teacher/timetable.php', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'postcss.config.js', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'privacy.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'programs.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'push_to_github.bat', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'roles_setup.sql', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'seed_data.sql', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'src/App.tsx', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'src/index.css', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'src/lib/supabase.ts', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'src/main.tsx', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'src/vite-env.d.ts', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'submit_application.php', LF will be replaced 
+by CRLF the next time Git touches it
+warning: in the working copy of 
+'supabase/migrations/20260904182303_create_karn_applications.sql', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 'tailwind.config.js', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'teachers.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'terms.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'tsconfig.app.json', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'tsconfig.json', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'tsconfig.node.json', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'uploads/.htaccess', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'vite.config.ts', LF will be replaced by CRLF 
+the next time Git touches it
+[6/7] Committing...
+[main (root-commit) 3cb4b54] KHSMIS v1.0 ╬ô├ç├╢ Complete PHP/MySQL school management system for Karn High School, Liberia. Includes public website, admissions portal, entrance exams, academic management, attendance, marks workflow, report cards, finance, portals for all roles, and full RBAC.
+ 227 files changed, 19858 insertions(+)
+ create mode 100644 .bolt/config.json
+ create mode 100644 .gitignore
+ create mode 100644 README.md
+ create mode 100644 about.php
+ create mode 100644 academics.php
+ create mode 100644 admin/academic_years.php
+ create mode 100644 admin/academics.php
+ create mode 100644 admin/admission_decisions.php
+ create mode 100644 admin/announcements.php
+ create mode 100644 admin/applications.php
+ create mode 100644 admin/approval_center.php
+ create mode 100644 admin/attendance.php
+ create mode 100644 admin/audit_logs.php
+ create mode 100644 admin/broadsheets.php
+ create mode 100644 admin/classes.php
+ create mode 100644 admin/dashboards/accountant.php
+ create mode 100644 admin/dashboards/default_dash.php
+ create mode 100644 admin/dashboards/discipline_dash.php
+ create mode 100644 admin/dashboards/librarian_dash.php
+ create mode 100644 admin/dashboards/principal.php
+ create mode 100644 admin/dashboards/registrar.php
+ create mode 100644 admin/dashboards/school_admin.php
+ create mode 100644 admin/dashboards/sys_admin.php
+ create mode 100644 admin/dashboards/teacher_dash.php
+ create mode 100644 admin/dashboards/vice_principal.php
+ create mode 100644 admin/discipline.php
+ create mode 100644 admin/documents.php
+ create mode 100644 admin/entrance_exams.php
+ create mode 100644 admin/events_admin.php
+ create mode 100644 admin/fee_structures.php
+ create mode 100644 admin/finance.php
+ create mode 100644 admin/guardians.php
+ create mode 100644 admin/index.php
+ create mode 100644 admin/library.php
+ create mode 100644 admin/login.php
+ create mode 100644 admin/logout.php
+ create mode 100644 admin/marks_approval.php
+ create mode 100644 admin/marks_entry.php
+ create mode 100644 admin/messages.php
+ create mode 100644 admin/promotion.php
+ create mode 100644 admin/report_cards.php
+ create mode 100644 admin/reports.php
+ create mode 100644 admin/results.php
+ create mode 100644 admin/roles.php
+ create mode 100644 admin/roles/README.md
+ create mode 100644 admin/roles/_role_header.php
+ create mode 100644 admin/roles/_shared.php
+ create mode 100644 admin/roles/accountant/dashboard.php
+ create mode 100644 admin/roles/accountant/fee_structures.php
+ create mode 100644 admin/roles/accountant/payments.php
+ create mode 100644 admin/roles/accountant/reports.php
+ create mode 100644 admin/roles/accountant/student_statements.php
+ create mode 100644 admin/roles/class_teacher/announcements.php
+ create mode 100644 admin/roles/class_teacher/attendance.php
+ create mode 100644 admin/roles/class_teacher/dashboard.php
+ create mode 100644 admin/roles/class_teacher/discipline.php
+ create mode 100644 admin/roles/class_teacher/marks_entry.php
+ create mode 100644 admin/roles/class_teacher/report_cards.php
+ create mode 100644 admin/roles/class_teacher/results.php
+ create mode 100644 admin/roles/class_teacher/students.php
+ create mode 100644 admin/roles/class_teacher/timetable.php
+ create mode 100644 admin/roles/discipline_officer/announcements.php
+ create mode 100644 admin/roles/discipline_officer/dashboard.php
+ create mode 100644 admin/roles/discipline_officer/incidents.php
+ create mode 100644 admin/roles/discipline_officer/students.php
+ create mode 100644 admin/roles/finance_officer/dashboard.php
+ create mode 100644 admin/roles/finance_officer/payments.php
+ create mode 100644 admin/roles/finance_officer/student_statements.php
+ create mode 100644 admin/roles/ict_officer/audit_logs.php
+ create mode 100644 admin/roles/ict_officer/dashboard.php
+ create mode 100644 admin/roles/ict_officer/settings.php
+ create mode 100644 admin/roles/ict_officer/users.php
+ create mode 100644 admin/roles/librarian/books.php
+ create mode 100644 admin/roles/librarian/borrowing.php
+ create mode 100644 admin/roles/librarian/dashboard.php
+ create mode 100644 admin/roles/librarian/reports.php
+ create mode 100644 admin/roles/librarian/students.php
+ create mode 100644 admin/roles/principal/announcements.php
+ create mode 100644 admin/roles/principal/applications.php
+ create mode 100644 admin/roles/principal/approvals.php
+ create mode 100644 admin/roles/principal/dashboard.php
+ create mode 100644 admin/roles/principal/discipline.php
+ create mode 100644 admin/roles/principal/finance.php
+ create mode 100644 admin/roles/principal/marks_approval.php
+ create mode 100644 admin/roles/principal/promotion.php
+ create mode 100644 admin/roles/principal/report_cards.php
+ create mode 100644 admin/roles/principal/settings.php
+ create mode 100644 admin/roles/principal/students.php
+ create mode 100644 admin/roles/principal/teachers.php
+ create mode 100644 admin/roles/registrar/admission_decisions.php
+ create mode 100644 admin/roles/registrar/applications.php
+ create mode 100644 admin/roles/registrar/attendance.php
+ create mode 100644 admin/roles/registrar/dashboard.php
+ create mode 100644 admin/roles/registrar/documents.php
+ create mode 100644 admin/roles/registrar/entrance_exams.php
+ create mode 100644 admin/roles/registrar/guardians.php
+ create mode 100644 admin/roles/registrar/promotion.php
+ create mode 100644 admin/roles/registrar/report_cards.php
+ create mode 100644 admin/roles/registrar/reports.php
+ create mode 100644 admin/roles/registrar/students.php
+ create mode 100644 admin/roles/school_admin/academic_years.php
+ create mode 100644 admin/roles/school_admin/announcements.php
+ create mode 100644 admin/roles/school_admin/applications.php
+ create mode 100644 admin/roles/school_admin/approvals.php
+ create mode 100644 admin/roles/school_admin/classes.php
+ create mode 100644 admin/roles/school_admin/dashboard.php
+ create mode 100644 admin/roles/school_admin/events.php
+ create mode 100644 admin/roles/school_admin/finance.php
+ create mode 100644 admin/roles/school_admin/reports.php
+ create mode 100644 admin/roles/school_admin/settings.php
+ create mode 100644 admin/roles/school_admin/students.php
+ create mode 100644 admin/roles/school_admin/subjects.php
+ create mode 100644 admin/roles/school_admin/teachers.php
+ create mode 100644 admin/roles/school_admin/timetable.php
+ create mode 100644 admin/roles/sys_admin/audit_logs.php
+ create mode 100644 admin/roles/sys_admin/dashboard.php
+ create mode 100644 admin/roles/sys_admin/reports.php
+ create mode 100644 admin/roles/sys_admin/roles.php
+ create mode 100644 admin/roles/sys_admin/schools.php
+ create mode 100644 admin/roles/sys_admin/settings.php
+ create mode 100644 admin/roles/sys_admin/users.php
+ create mode 100644 admin/roles/teacher/attendance.php
+ create mode 100644 admin/roles/teacher/dashboard.php
+ create mode 100644 admin/roles/teacher/marks_entry.php
+ create mode 100644 admin/roles/teacher/report_cards.php
+ create mode 100644 admin/roles/teacher/results.php
+ create mode 100644 admin/roles/teacher/students.php
+ create mode 100644 admin/roles/teacher/timetable.php
+ create mode 100644 admin/roles/vice_principal/announcements.php
+ create mode 100644 admin/roles/vice_principal/approvals.php
+ create mode 100644 admin/roles/vice_principal/attendance.php
+ create mode 100644 admin/roles/vice_principal/broadsheets.php
+ create mode 100644 admin/roles/vice_principal/dashboard.php
+ create mode 100644 admin/roles/vice_principal/discipline.php
+ create mode 100644 admin/roles/vice_principal/marks_approval.php
+ create mode 100644 admin/roles/vice_principal/promotion.php
+ create mode 100644 admin/roles/vice_principal/report_cards.php
+ create mode 100644 admin/roles/vice_principal/results.php
+ create mode 100644 admin/roles/vice_principal/students.php
+ create mode 100644 admin/roles/vice_principal/timetable.php
+ create mode 100644 admin/search.php
+ create mode 100644 admin/semesters.php
+ create mode 100644 admin/settings.php
+ create mode 100644 admin/student_statements.php
+ create mode 100644 admin/students.php
+ create mode 100644 admin/subjects.php
+ create mode 100644 admin/teacher_assignments.php
+ create mode 100644 admin/teachers_admin.php
+ create mode 100644 admin/timetable.php
+ create mode 100644 admin/users.php
+ create mode 100644 admissions.php
+ create mode 100644 application-status.php
+ create mode 100644 apply.php
+ create mode 100644 assets/css/public.css
+ create mode 100644 assets/css/style.css
+ create mode 100644 assets/images/logo.jpg
+ create mode 100644 assets/images/logo.png
+ create mode 100644 assets/js/main.js
+ create mode 100644 assets/js/public.js
+ create mode 100644 config/db.php
+ create mode 100644 contact.php
+ create mode 100644 db_setup.sql
+ create mode 100644 eslint.config.js
+ create mode 100644 events.php
+ create mode 100644 exam/result.php
+ create mode 100644 exam/save_answers.php
+ create mode 100644 exam/submit_exam.php
+ create mode 100644 exam/take_exam.php
+ create mode 100644 facilities.php
+ create mode 100644 faq.php
+ create mode 100644 gallery.php
+ create mode 100644 includes/403.php
+ create mode 100644 includes/admin_footer.php
+ create mode 100644 includes/admin_header.php
+ create mode 100644 includes/footer.php
+ create mode 100644 includes/header.php
+ create mode 100644 index.html
+ create mode 100644 index.php
+ create mode 100644 letters/admission_letter.php
+ create mode 100644 letters/entrance_letter.php
+ create mode 100644 letters/receipt_pdf.php
+ create mode 100644 letters/report_card_pdf.php
+ create mode 100644 login.php
+ create mode 100644 migrate.sql
+ create mode 100644 news.php
+ create mode 100644 package-lock.json
+ create mode 100644 package.json
+ create mode 100644 portal/parent/announcements.php
+ create mode 100644 portal/parent/child_results.php
+ create mode 100644 portal/parent/fees.php
+ create mode 100644 portal/parent/index.php
+ create mode 100644 portal/student/attendance.php
+ create mode 100644 portal/student/fees.php
+ create mode 100644 portal/student/index.php
+ create mode 100644 portal/student/my_results.php
+ create mode 100644 portal/student/report_card.php
+ create mode 100644 portal/student/timetable.php
+ create mode 100644 portal/teacher/announcements.php
+ create mode 100644 portal/teacher/enter_marks.php
+ create mode 100644 portal/teacher/index.php
+ create mode 100644 portal/teacher/my_classes.php
+ create mode 100644 portal/teacher/students.php
+ create mode 100644 portal/teacher/take_attendance.php
+ create mode 100644 portal/teacher/timetable.php
+ create mode 100644 postcss.config.js
+ create mode 100644 privacy.php
+ create mode 100644 programs.php
+ create mode 100644 public/assets/images/logo.jpg
+ create mode 100644 push_result.txt
+ create mode 100644 push_to_github.bat
+ create mode 100644 roles_setup.sql
+ create mode 100644 seed_data.sql
+ create mode 100644 src/App.tsx
+ create mode 100644 src/index.css
+ create mode 100644 src/lib/supabase.ts
+ create mode 100644 src/main.tsx
+ create mode 100644 src/vite-env.d.ts
+ create mode 100644 submit_application.php
+ create mode 100644 supabase/migrations/20260904182303_create_karn_applications.sql
+ create mode 100644 tailwind.config.js
+ create mode 100644 teachers.php
+ create mode 100644 terms.php
+ create mode 100644 tsconfig.app.json
+ create mode 100644 tsconfig.json
+ create mode 100644 tsconfig.node.json
+ create mode 100644 uploads/.htaccess
+ create mode 100644 vite.config.ts
+[7/7] Pushing to GitHub (main branch)...
+remote: error: GH013: Repository rule violations found for refs/heads/main.    
+    
+remote: 
+remote: - GITHUB PUSH PROTECTION        
+remote:   ΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇö
+ΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇö        
+remote:     Resolve the following violations before pushing again        
+remote: 
+remote:     - Push cannot contain secrets        
+remote: 
+remote:             
+remote:      (?) Learn how to resolve a blocked push        
+remote:      https://docs.github.com/code-security/secret-scanning/working-with
+-secret-scanning-and-push-protection/working-with-push-protection-from-the-comm
+and-line#resolving-a-blocked-push        
+remote:             
+remote:             
+remote:       ΓÇöΓÇö GitHub Personal Access Token 
+ΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇö        
+remote:        locations:        
+remote:          - commit: 3cb4b54c79dcbed6311a685e212c61cab645af7d        
+remote:            path: push_to_github.bat:6        
+remote:             
+remote:        (?) To push, remove secret from commit(s) or follow this URL to 
+allow the secret.        
+remote:        https://github.com/Archie-ctr/KARNHIGHSCHOOL1/security/secret-sc
+anning/unblock-secret/3IvKuKGN8ZHJzksZiuqOkqCdZou        
+remote:             
+remote: 
+remote: 
+To https://github.com/Archie-ctr/KARNHIGHSCHOOL1.git
+ ! [remote rejected] main -> main (push declined due to repository rule 
+violations)
+error: failed to push some refs to 
+'https://github.com/Archie-ctr/KARNHIGHSCHOOL1.git'
+
+=== DONE ===
+Repository: https://github.com/Archie-ctr/KARNHIGHSCHOOL1

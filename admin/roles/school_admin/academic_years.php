@@ -1,0 +1,1 @@
+<?php $pageTitle='Academic Years'; $activeAdmin='academic_years'; $requiredPerm='academics.manage_years'; require_once dirname(__DIR__).'/_shared.php'; require_once dirname(__DIR__,2).'/academic_years.php';

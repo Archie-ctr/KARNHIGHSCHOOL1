@@ -1,0 +1,1 @@
+<?php $pageTitle='Approval Center'; $activeAdmin='approval_center'; $requiredPerm='approvals.act'; require_once dirname(__DIR__).'/_shared.php'; require_once dirname(__DIR__,2).'/approval_center.php';

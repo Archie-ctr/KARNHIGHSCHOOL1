@@ -1,0 +1,8 @@
+# Prevent direct execution of scripts in uploads
+<FilesMatch "\.(php|php3|php4|php5|phtml|pl|py|cgi|asp|aspx|exe|sh|bat)$">
+    Deny from all
+</FilesMatch>
+# Allow only image and PDF
+<FilesMatch "\.(jpg|jpeg|png|gif|pdf)$">
+    Allow from all
+</FilesMatch>

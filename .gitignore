@@ -1,0 +1,45 @@
+# Dependencies / build tools (React/Vite era — no longer used but kept clean)
+node_modules/
+dist/
+.env
+.env.local
+
+# XAMPP / PHP uploads (keep structure, not user data)
+uploads/*
+!uploads/.htaccess
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+*.swp
+*.swo
+
+# PHP error logs
+*.log
+error_log
+
+# Temp / test files
+seed_result.txt
+seed_marks_result.txt
+lint_results.txt
+verify_result.txt
+pub_check.txt
+roles_result.txt
+reset_result.txt
+migrate_results.txt
+schema_check.txt
+hash_update.txt
+push_result.txt
+
+# Git helper scripts (contain credentials — never commit)
+push_to_github.bat
+push2.bat
+push3.bat
+*.bat
+
+# Keep uploads folder tracked (structure only)
+!uploads/

@@ -1,0 +1,1 @@
+<?php $pageTitle='Admission Decisions'; $activeAdmin='admissions_mgr'; $requiredPerm='admissions.recommend'; require_once dirname(__DIR__).'/_shared.php'; require_once dirname(__DIR__,2).'/admission_decisions.php';

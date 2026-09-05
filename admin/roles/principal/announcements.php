@@ -1,0 +1,1 @@
+<?php $pageTitle='Announcements'; $activeAdmin='announcements'; $requiredPerm='comms.create_announcement'; require_once dirname(__DIR__).'/_shared.php'; require_once dirname(__DIR__,2).'/announcements.php';

@@ -1,0 +1,1 @@
+<?php $pageTitle='Entrance Exams'; $activeAdmin='entrance_exams'; $requiredPerm='admissions.manage_entrance'; require_once dirname(__DIR__).'/_shared.php'; require_once dirname(__DIR__,2).'/entrance_exams.php';

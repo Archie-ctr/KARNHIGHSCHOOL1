@@ -1,0 +1,1 @@
+<?php $pageTitle='Student Documents'; $activeAdmin='documents'; $requiredPerm='students.manage_documents'; require_once dirname(__DIR__).'/_shared.php'; require_once dirname(__DIR__,2).'/documents.php';
