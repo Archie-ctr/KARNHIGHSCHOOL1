@@ -1,77 +1,51 @@
 <?php
-require_once __DIR__ . '/config/db.php';
-$pageTitle = 'News & Events';
-$activeNav = 'news';
-include __DIR__ . '/includes/header.php';
-
-$articles = [
-  [
-    'tag'  => 'School life',
-    'date' => 'Sep 02, 2026',
-    'title'=> 'Welcome back, KHS community',
-    'text' => 'A new academic year begins with fresh energy, new goals and the same unwavering commitment to excellence. We are delighted to welcome all returning and new students.',
-    'color'=> 'var(--primary-soft)',
-  ],
-  [
-    'tag'  => 'Admissions',
-    'date' => 'Aug 18, 2026',
-    'title'=> '2026/2027 applications are now open',
-    'text' => 'Take the first step toward a brighter future. Our online application portal is now open for the 2026/2027 academic year. Apply early to secure your place.',
-    'color'=> 'var(--accent-soft)',
-  ],
-  [
-    'tag'  => 'Community',
-    'date' => 'Jul 28, 2026',
-    'title'=> 'KHS celebrates another year of impact',
-    'text' => 'We are proud of the students, families and educators who make our community exceptional. This year\'s graduation ceremony was a proud moment for all of Karnplay.',
-    'color'=> 'var(--gold-soft)',
-  ],
-  [
-    'tag'  => 'Academics',
-    'date' => 'Jul 10, 2026',
-    'title'=> 'WASSCE results: another year of distinction',
-    'text' => 'Our Grade 12 students achieved outstanding results in the West African Senior School Certificate Examinations. We congratulate every student on their hard work.',
-    'color'=> 'var(--blue-soft)',
-  ],
-  [
-    'tag'  => 'School life',
-    'date' => 'Jun 20, 2026',
-    'title'=> 'End-of-year prize giving ceremony',
-    'text' => 'Students across all grades were recognised for academic excellence, leadership and community service at our annual prize giving event.',
-    'color'=> 'var(--primary-soft)',
-  ],
-  [
-    'tag'  => 'Community',
-    'date' => 'May 15, 2026',
-    'title'=> 'Inter-school sports day recap',
-    'text' => 'KHS athletes competed brilliantly at the Nimba County inter-school sports day, bringing home medals in athletics, football and debate.',
-    'color'=> 'var(--green-soft)',
-  ],
-];
+require_once __DIR__.'/config/db.php';
+$pageTitle='News'; $activeNav='news';
+$metaDesc='Latest news and announcements from Karn High School, Karnplay, Nimba, Liberia.';
+try{$anns=db()->query("SELECT title,message,published_at,target FROM announcements WHERE is_public=1 AND (expires_at IS NULL OR expires_at>NOW()) ORDER BY published_at DESC LIMIT 12")->fetchAll();}catch(Throwable $e){$anns=[];}
+include __DIR__.'/includes/header.php';
 ?>
-
-<main class="inner-page">
-  <div class="container inner-hero">
-    <div class="eyebrow">News &amp; events <span></span></div>
-    <h1>What's happening<br><em>at KHS.</em></h1>
+<section class="page-hero">
+  <div class="wrap ph-body">
+    <nav class="bc" aria-label="Breadcrumb"><a href="<?=BASE_URL?>/">Home</a><span class="bc-sep">/</span><span>News</span></nav>
+    <div class="eyebrow inv">News &amp; Announcements</div>
+    <h1 class="ph-h">What's happening<br><em>at KHS.</em></h1>
   </div>
-
-  <div class="container" style="padding-bottom:80px">
+</section>
+<section class="sec bg-white">
+  <div class="wrap">
+    <?php if(empty($anns)): ?>
+    <div style="text-align:center;padding:56px 0">
+      <div style="font-size:3rem;margin-bottom:16px">📰</div>
+      <p class="body">No announcements at this time. Check back soon.</p>
+    </div>
+    <?php else: ?>
     <div class="news-grid">
-      <?php foreach ($articles as $a): ?>
+      <?php foreach($anns as $a): ?>
       <article class="news-card">
-        <div class="news-image" style="background:linear-gradient(135deg,<?= $a['color'] ?>,var(--bg-soft))">
-          <span class="tag"><?= e($a['tag']) ?></span>
-          <span style="font-size:40px;opacity:.15">&#128197;</span>
+        <div class="news-thumb"><span class="news-chip">📢 <?= e(ucfirst($a['target']??'Notice')) ?></span></div>
+        <div class="news-body">
+          <div class="news-date"><?= date('F d, Y',strtotime($a['published_at'])) ?></div>
+          <h3><?= e($a['title']) ?></h3>
+          <p><?= e(mb_substr($a['message'],0,130)).(mb_strlen($a['message'])>130?'…':'') ?></p>
         </div>
-        <small><?= e($a['date']) ?></small>
-        <h3><?= e($a['title']) ?></h3>
-        <p><?= e($a['text']) ?></p>
-        <span class="text-link" style="padding:0 24px 24px;display:flex">Read story &rarr;</span>
       </article>
       <?php endforeach; ?>
     </div>
+    <?php endif; ?>
   </div>
-</main>
-
-<?php include __DIR__ . '/includes/footer.php'; ?>
+</section>
+<section class="cta-band">
+  <div class="wrap"><div class="cta-row">
+    <div class="cta-copy">
+      <div class="eyebrow">Stay Connected</div>
+      <h2 class="cta-h">Never miss a<br><em>school update.</em></h2>
+      <p>Contact us to be added to our parent communication list.</p>
+      <div class="cta-acts">
+        <a href="<?=BASE_URL?>/contact.php" class="btn btn-white btn-lg">Contact Us →</a>
+        <a href="<?=BASE_URL?>/events.php"  class="btn btn-ghost">Upcoming Events</a>
+      </div>
+    </div>
+  </div></div>
+</section>
+<?php include __DIR__.'/includes/footer.php'; ?>

@@ -1,11 +1,11 @@
 <?php
-if (!isset($pageTitle))  $pageTitle = '';
-if (!isset($activeNav))  $activeNav = '';
-if (!isset($metaDesc))   $metaDesc  = 'Karn High School — '.setting('school_tagline','Building Knowledge, Character and a Better Future').' | Karnplay, Nimba, Liberia';
+if (!isset($pageTitle)) $pageTitle = '';
+if (!isset($activeNav)) $activeNav = '';
+if (!isset($metaDesc))  $metaDesc  = 'Karn High School — '.setting('school_tagline','Building Knowledge, Character and a Better Future').' | Karnplay, Nimba, Liberia';
 
-$siteName = setting('school_name',  'KARN HIGH SCHOOL');
-$phone    = setting('school_phone', '+231 886 417 711');
-$ayName   = currentAcademicYearName();
+$siteName  = setting('school_name',  'KARN HIGH SCHOOL');
+$phone     = setting('school_phone', '+231 886 417 711');
+$ayName    = currentAcademicYearName();
 $fullTitle = $pageTitle ? e($pageTitle).' — '.$siteName : $siteName;
 
 $navItems = [
@@ -27,60 +27,54 @@ $navItems = [
   <meta property="og:title"       content="<?= $fullTitle ?>"/>
   <meta property="og:description" content="<?= e($metaDesc) ?>"/>
   <meta property="og:type"        content="website"/>
-  <meta name="theme-color"        content="#8a162d"/>
+  <meta name="theme-color"        content="#861530"/>
   <title><?= $fullTitle ?></title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;0,800;1,600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/public.css"/>
 </head>
 <body>
 
-<!-- Skip to content (accessibility) -->
-<a href="#main-content" style="position:absolute;top:-100px;left:0;padding:8px 16px;background:var(--c-red);color:#fff;font-weight:700;z-index:9999;border-radius:0 0 8px 0;transition:top .2s" onfocus="this.style.top='0'" onblur="this.style.top='-100px'">Skip to content</a>
+<a href="#main" class="skip-link">Skip to content</a>
 
-<!-- Topbar -->
+<!-- ── Topbar ─────────────────────────────────────────────── -->
 <div class="topbar" role="banner">
-  <div class="topbar-inner">
+  <div class="topbar-row">
     <span>📞 <?= e($phone) ?></span>
-    <span class="topbar-div" aria-hidden="true"></span>
+    <span class="t-sep" aria-hidden="true"></span>
     <span>Admissions open — <?= e($ayName) ?></span>
     <div class="topbar-right">
-      <span><?= e(setting('office_hours','Mon–Fri, 8:00am–4:00pm')) ?></span>
-      <a href="<?= BASE_URL ?>/login.php">Portal Login →</a>
+      <span><?= e(setting('office_hours','Mon–Fri 8am–4pm')) ?></span>
+      <a href="<?= BASE_URL ?>/login.php">Staff Login →</a>
     </div>
   </div>
 </div>
 
-<!-- Main navigation -->
-<header class="site-header" role="navigation">
-  <div class="nav-container">
-    <!-- Brand -->
+<!-- ── Nav ───────────────────────────────────────────────── -->
+<header class="site-header" id="site-header">
+  <nav class="nav-row" aria-label="Main navigation">
     <a href="<?= BASE_URL ?>/" class="nav-brand" aria-label="<?= e($siteName) ?> — Home">
-      <img src="<?= BASE_URL ?>/assets/images/logo.jpg" alt="" class="nav-brand-logo" width="44" height="44"/>
-      <div class="nav-brand-text">
-        <strong><?= e($siteName) ?></strong>
-        <small>Karnplay, Nimba, Liberia</small>
+      <img src="<?= BASE_URL ?>/assets/images/logo.jpg" alt="" class="nav-logo" width="42" height="42" loading="eager"/>
+      <div>
+        <span class="nav-name"><?= e($siteName) ?></span>
+        <span class="nav-place">Karnplay, Nimba, Liberia</span>
       </div>
     </a>
 
-    <!-- Desktop + Mobile nav links -->
-    <nav id="mainNav" class="nav-links" aria-label="Main navigation">
+    <ul class="nav-links" id="navMenu" role="list">
       <?php foreach ($navItems as $key => [$label, $href]): ?>
-        <a href="<?= $href ?>" <?= $activeNav === $key ? 'class="nav-active" aria-current="page"' : '' ?>>
-          <?= $label ?>
-        </a>
+      <li><a href="<?= $href ?>" <?= $activeNav === $key ? 'class="on" aria-current="page"' : '' ?>><?= $label ?></a></li>
       <?php endforeach; ?>
-      <a href="<?= BASE_URL ?>/apply.php" class="nav-apply">Apply Now</a>
-    </nav>
+      <li><a href="<?= BASE_URL ?>/apply.php" class="nav-cta">Apply Now</a></li>
+    </ul>
 
-    <!-- Hamburger (mobile) -->
-    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="mainNav">
+    <button class="nav-btn" id="navBtn" aria-label="Open menu" aria-expanded="false" aria-controls="navMenu">
       <span aria-hidden="true"></span>
       <span aria-hidden="true"></span>
       <span aria-hidden="true"></span>
     </button>
-  </div>
+  </nav>
 </header>
 
-<main id="main-content">
+<main id="main">
