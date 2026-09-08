@@ -550,15 +550,31 @@ $sidebarAllowlist = [
 
   // ── ICT Officer ───────────────────────────────────────────────
   // System support: user accounts, audit logs, settings only.
-  // No roles.manage. No academic/finance/marks operations.
+  // ── ICT Officer ───────────────────────────────────────────────
+  // School technology and technical/infrastructure management.
+  // Responsible for: computers, network, internet, school devices,
+  // smart classrooms, system & user technical support, device inventory.
+  // Can: manage user accounts (technical support), view audit logs
+  //   for system monitoring, manage system/school settings.
+  // IMPORTANT: ICT Officer must NOT have access to student marks,
+  //   financial records, academic assessments, or student personal data
+  //   beyond what is needed for account support.
+  // Cannot: manage roles/permissions, access finance, view marks,
+  //   access admissions, discipline, or library records.
   'ict_officer' => [
     'dashboard',
+
+    // Communications — view school notices
     '_sep_comms',
-    'announcements',
+    'announcements',         // view school-wide announcements
+
+    // System — technical management only
     '_sep_system',
-    'users',
-    'audit_logs',
-    'settings',
+    'users',                 // user account support (reset passwords, troubleshoot)
+    'audit_logs',            // system monitoring, security, troubleshooting
+    'settings',              // system configuration, school tech settings
+    // No: roles (no roles.manage permission)
+    // No: reports (no financial/academic reporting access)
   ],
 ];
 
