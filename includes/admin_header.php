@@ -83,11 +83,71 @@ $sidebar = [
   'settings'         => ['Settings',           '⚙️', BASE_URL.'/admin/settings.php',            'system.settings'],
 ];
 
+// ── Per-role sidebar allowlists ───────────────────────────────
+// Defines exactly which sidebar keys each role may see.
+// Roles NOT listed here fall through to the normal permission check.
+// 'always' keys (dashboard) are added automatically for every role.
+$sidebarAllowlist = [
+
+  // ── System Administrator ──────────────────────────────────────
+  // Technical/system management only. Should NOT see marks entry,
+  // finance, attendance, approval workflows, or student operations.
+  'sys_admin'   => [
+    'dashboard',
+    // Configuration
+    '_sep_academics',   // shown as section header
+    'academic_years',   // Academic year setup
+    'classes',          // Grade / class configuration
+    'subjects',         // Subject configuration
+    'teachers',         // View teacher list
+    'assignments',      // Teacher assignments
+    // Communications (oversight only)
+    '_sep_comms',
+    'announcements',
+    'events',
+    'messages',
+    // System management
+    '_sep_system',
+    'users',            // User accounts
+    'roles',            // Roles & permissions
+    'audit_logs',       // Audit logs / security
+    'reports',          // System reports
+    'settings',         // System configuration & school configuration
+  ],
+
+  // super_admin = same as sys_admin (legacy alias)
+  'super_admin' => [
+    'dashboard',
+    '_sep_academics',
+    'academic_years',
+    'classes',
+    'subjects',
+    'teachers',
+    'assignments',
+    '_sep_comms',
+    'announcements',
+    'events',
+    'messages',
+    '_sep_system',
+    'users',
+    'roles',
+    'audit_logs',
+    'reports',
+    'settings',
+  ],
+];
+
 // Helper: should a sidebar item be shown?
 function sidebarVisible(string|array $perm): bool {
     if ($perm === 'always') return true;
     if (is_array($perm)) return canAny($perm);
     return can($perm);
+}
+
+// Helper: is this key allowed for the current role's allowlist (if any)?
+function sidebarAllowed(string $key, string $role, array $allowlist): bool {
+    if (!isset($allowlist[$role])) return true; // no allowlist → use permission check
+    return in_array($key, $allowlist[$role], true);
 }
 ?>
 <!DOCTYPE html>
@@ -125,11 +185,15 @@ function sidebarVisible(string|array $perm): bool {
       <?php
         // Separator
         if ($perm === 'sep') {
+            // Only emit separator if the role's allowlist includes it
+            if (!sidebarAllowed($key, $role, $sidebarAllowlist)) continue;
             echo '<div class="sidebar-sep">'.e($label).'</div>';
             continue;
         }
-        // Permission check
-        if (!sidebarVisible($perm)) continue;
+        // Allowlist check (sys_admin and other role-restricted roles)
+        if (!sidebarAllowed($key, $role, $sidebarAllowlist)) continue;
+        // Permission check (all roles without an allowlist, or roles with one that passed above)
+        if ($perm !== 'always' && !sidebarVisible($perm)) continue;
 
         $isActive = ($activeAdmin === $key);
         $badge    = '';
