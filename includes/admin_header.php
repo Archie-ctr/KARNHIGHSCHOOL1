@@ -489,16 +489,31 @@ $sidebarAllowlist = [
   ],
 
   // ── Discipline Officer ────────────────────────────────────────
-  // Manages disciplinary incidents only.
-  // No academics, marks, finance, library, system.
+  // Student discipline and behavioral management.
+  // Responsible for: discipline cases, incident reports, investigations,
+  // student warnings, disciplinary history, parent notifications,
+  // recommendations for disciplinary action.
+  // Workflow: Incident → Discipline Officer (investigate & recommend)
+  //           → Vice Principal → Principal → Final Decision.
+  // Can: log incidents, record warnings, document investigations,
+  //   prepare recommendations, track disciplinary history.
+  // Cannot: approve or finalize disciplinary actions (→ VP/Principal),
+  //   access academic records, finance, or system configuration.
   'discipline_officer' => [
     'dashboard',
+
+    // Students — look up students for incidents and disciplinary history
     '_sep_students',
-    'students',
+    'students',              // view student profiles and disciplinary history
+
+    // Operations — full discipline management
     '_sep_ops',
-    'discipline',
+    'discipline',            // incidents, investigations, warnings,
+                             // recommendations, parent notifications
+
+    // Communications — school-wide notices
     '_sep_comms',
-    'announcements',
+    'announcements',         // view school announcements
   ],
 
   // ── Librarian ─────────────────────────────────────────────────
