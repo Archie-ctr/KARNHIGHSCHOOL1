@@ -353,27 +353,49 @@ $sidebarAllowlist = [
   ],
 
   // ── Registrar ─────────────────────────────────────────────────
-  // Manages student registration, admissions, and academic records.
-  // No marks entry/approval, no finance, no discipline, no system.
+  // ── Registrar ─────────────────────────────────────────────────
+  // Official student records and enrollment authority.
+  // Responsible for: student applications, registration, admission
+  // processing, student profiles, enrollment/re-enrollment, transfers,
+  // withdrawals, student documents, IDs, academic records, transcripts,
+  // graduation/promotion lists, certificates.
+  // Can: create/update student records, verify documents, process
+  //   applications, prepare admission & promotion recommendations.
+  // Cannot: finalize admission decisions (→ Principal), change exam
+  //   results, approve major disciplinary actions.
   'registrar' => [
     'dashboard',
+
+    // Admissions — process applications, prepare recommendations
     '_sep_admissions',
-    'applications',
-    'entrance_exams',
-    'admissions_mgr',      // perm gate (admissions.approve) hides if not granted
+    'applications',          // student applications & admission processing
+    'entrance_exams',        // manage entrance exam scheduling
+    'admissions_mgr',        // prepare recommendations (final approval → Principal)
+
+    // Students — registration, profiles, enrollment, transfers
     '_sep_students',
-    'students',
-    'guardians',
-    'documents',
-    'promotion',
+    'students',              // student profiles, enrollment, re-enrollment
+    'guardians',             // guardian records (part of enrollment)
+    'documents',             // student documents, IDs, certificates
+    'promotion',             // prepare promotion & graduation lists
+
+    // Academics — view-only for enrollment placement context
+    '_sep_academics',
+    'classes',               // view class structure for enrollment placement
+    'subjects',              // view subjects for academic records
+    'timetable',             // view timetable for scheduling context
+
+    // Assessment — academic records & transcripts
     '_sep_assessment',
-    'report_cards',        // view/print only
-    '_sep_ops',
-    'attendance',          // view/export only
+    'report_cards',          // academic records, transcripts, certificates
+
+    // Communications — school-wide announcements (view)
     '_sep_comms',
     'announcements',
+
+    // System — records & reports
     '_sep_system',
-    'reports',
+    'reports',               // enrollment, admission, graduation reports
   ],
 
   // ── Accountant / Bursar ───────────────────────────────────────
