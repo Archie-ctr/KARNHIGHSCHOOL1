@@ -75,6 +75,7 @@ $sidebar = [
   'executive_reports'=> ['Executive Reports',  '📈', BASE_URL.'/admin/executive_reports.php',   'reports.view'],
   'library'          => ['Library',            '📖', BASE_URL.'/admin/library.php',             'library.view'],
   'discipline'       => ['Discipline',         '⚖️', BASE_URL.'/admin/discipline.php',          'discipline.view'],
+  'vp_academic'      => ['Academic Overview',  '📊', BASE_URL.'/admin/vp_academic_overview.php','marks.view'],
 
   // ── COMMUNICATIONS
   '_sep_comms'       => ['COMMUNICATIONS', null, null, 'sep'],
@@ -279,10 +280,11 @@ $sidebarAllowlist = [
     'dashboard',
     'approval_center',       // approves marks, attendance, discipline, promotion
 
-    // Students — student affairs, attendance monitoring, promotion
+    // Students — student affairs, attendance, promotion, welfare
     '_sep_students',
-    'students',              // student monitoring
+    'students',              // student directory & monitoring
     'documents',             // student academic documents
+    'student_stats',         // enrollment & performance statistics
     'promotion',             // promotion recommendations & approval
 
     // Academics — full academic oversight
@@ -293,19 +295,20 @@ $sidebarAllowlist = [
     'assignments',           // teacher-class assignments
     'timetable',             // timetable supervision
 
-    // Assessment — review teacher submissions, academic performance
+    // Assessment — review & approve teacher submissions
     '_sep_assessment',
     'marks_approval',        // review & approve teacher mark submissions
     'results',               // academic performance oversight
     'broadsheets',           // class/school broadsheets
     'report_cards',          // report card oversight
 
-    // Operations — attendance, exams, discipline
+    // Operations — attendance (student + teacher), exams, discipline
     '_sep_ops',
     'attendance',            // student attendance monitoring
     'staff_attendance',      // teacher attendance oversight
     'exams',                 // examination supervision & records
     'discipline',            // disciplinary recommendations & approval
+    'vp_academic',           // academic overview hub (new)
 
     // Communications
     '_sep_comms',
@@ -315,7 +318,7 @@ $sidebarAllowlist = [
 
     // System — reporting
     '_sep_system',
-    'reports',               // academic & operational reports
+    'reports',               // academic, attendance, teacher, discipline reports
   ],
 
   // vice_principal_alt = legacy alias — identical to vice_principal
@@ -325,6 +328,7 @@ $sidebarAllowlist = [
     '_sep_students',
     'students',
     'documents',
+    'student_stats',
     'promotion',
     '_sep_academics',
     'classes',
@@ -339,8 +343,10 @@ $sidebarAllowlist = [
     'report_cards',
     '_sep_ops',
     'attendance',
+    'staff_attendance',
     'exams',
     'discipline',
+    'vp_academic',
     '_sep_comms',
     'announcements',
     'events',
@@ -356,6 +362,7 @@ $sidebarAllowlist = [
     '_sep_students',
     'students',
     'documents',
+    'student_stats',
     'promotion',
     '_sep_academics',
     'classes',
@@ -370,8 +377,10 @@ $sidebarAllowlist = [
     'report_cards',
     '_sep_ops',
     'attendance',
+    'staff_attendance',
     'exams',
     'discipline',
+    'vp_academic',
     '_sep_comms',
     'announcements',
     'events',
