@@ -69,6 +69,10 @@ $sidebar = [
   'staff_attendance' => ['Staff Attendance',   '📆', BASE_URL.'/admin/staff_attendance.php',    'teachers.view'],
   'exams'            => ['Examinations',       '📝', BASE_URL.'/admin/entrance_exams.php',      'exams.view'],
   'finance'          => ['Finance',            '💰', BASE_URL.'/admin/finance.php',             'finance.view'],
+  'expenses'         => ['Expenses & Budget',  '💸', BASE_URL.'/admin/expenses.php',            'finance.view'],
+  'student_transfers'=> ['Transfers & Withdrawals','➡️',BASE_URL.'/admin/student_transfers.php','students.view'],
+  'graduation'       => ['Graduation',         '🎓', BASE_URL.'/admin/graduation.php',          'promotion.view'],
+  'executive_reports'=> ['Executive Reports',  '📈', BASE_URL.'/admin/executive_reports.php',   'reports.view'],
   'library'          => ['Library',            '📖', BASE_URL.'/admin/library.php',             'library.view'],
   'discipline'       => ['Discipline',         '⚖️', BASE_URL.'/admin/discipline.php',          'discipline.view'],
 
@@ -194,8 +198,6 @@ $sidebarAllowlist = [
   ],
 
   // ── Principal ─────────────────────────────────────────────────
-  // Senior academic/administrative authority. Final approver.
-  // ── Principal ─────────────────────────────────────────────────
   // Head of the school and final institutional authority.
   // Responsible for: overall school management, academic oversight,
   // staff oversight, student affairs, financial oversight, discipline,
@@ -207,53 +209,61 @@ $sidebarAllowlist = [
     'dashboard',
     'approval_center',       // final approver on ALL workflows
 
-    // Admissions — approve, reject, manage entrance exams
+    // Admissions
     '_sep_admissions',
-    'applications',          // view all applications
-    'entrance_exams',        // examination oversight
-    'admissions_mgr',        // admissions approval / rejection
+    'applications',
+    'entrance_exams',
+    'admissions_mgr',
 
-    // Students — student affairs
+    // Students — full oversight
     '_sep_students',
-    'students',              // all student records
-    'guardians',             // guardian records
-    'documents',             // student documents
-    'promotion',             // promotion & graduation approval
+    'students',
+    'guardians',
+    'documents',
+    'student_idcards',       // print student IDs
+    'student_stats',         // enrollment analytics
+    'promotion',             // promotion approval
+    'student_transfers',     // transfers & withdrawals approval
 
-    // Academics — academic oversight
+    // Academics
     '_sep_academics',
-    'academic_years',        // academic calendar oversight
-    'classes',               // class/grade structure
-    'subjects',              // subject oversight
-    'teachers',              // staff oversight
-    'assignments',           // teacher assignments
-    'timetable',             // timetable oversight
+    'academic_years',
+    'classes',
+    'subjects',
+    'departments',           // departments & houses
+    'teachers',
+    'assignments',
+    'timetable',
 
-    // Assessment — review & approve, NOT enter
+    // Assessment
     '_sep_assessment',
-    'marks_approval',        // approve/reject submitted marks
-    'results',               // examination results oversight
-    'broadsheets',           // official broadsheets
-    'report_cards',          // approve & publish report cards
+    'marks_approval',
+    'results',
+    'broadsheets',
+    'report_cards',
 
-    // Operations — financial oversight, discipline, attendance, exams
+    // Operations
     '_sep_ops',
-    'attendance',            // attendance oversight
-    'exams',                 // examination oversight
-    'finance',               // financial oversight: major expenses, fee waivers
-    'discipline',            // approve major disciplinary actions
-    'library',               // library oversight
+    'attendance',
+    'staff_attendance',      // teacher attendance oversight
+    'exams',
+    'finance',               // financial dashboard
+    'expenses',              // expense & fee waiver approvals
+    'graduation',            // graduation approval
+    'discipline',
+    'library',
 
-    // Communications — announcements, policy, events
+    // Communications
     '_sep_comms',
-    'announcements',         // official school announcements
-    'events',                // school events
-    'messages',              // communications oversight
+    'announcements',
+    'events',
+    'messages',
 
-    // System — staff user management, official reports
+    // System — reports & staff management
     '_sep_system',
-    'users',                 // staff oversight (view/manage user accounts)
-    'reports',               // official school-wide reports
+    'users',
+    'executive_reports',     // principal analytics dashboard
+    'reports',               // data exports
   ],
 
   // ── Vice Principal ────────────────────────────────────────────
