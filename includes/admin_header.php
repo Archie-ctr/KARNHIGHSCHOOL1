@@ -73,6 +73,8 @@ $sidebar = [
   'student_transfers'=> ['Transfers & Withdrawals','➡️',BASE_URL.'/admin/student_transfers.php','students.view'],
   'graduation'       => ['Graduation',         '🎓', BASE_URL.'/admin/graduation.php',          'promotion.view'],
   'executive_reports'=> ['Executive Reports',  '📈', BASE_URL.'/admin/executive_reports.php',   'reports.view'],
+  'accounting'       => ['Accounting',         '📒', BASE_URL.'/admin/accounting.php',          'finance.view'],
+  'finance_reports'  => ['Financial Reports',  '📊', BASE_URL.'/admin/finance_reports.php',     'finance.view'],
   'library'          => ['Library',            '📖', BASE_URL.'/admin/library.php',             'library.view'],
   'discipline'       => ['Discipline',         '⚖️', BASE_URL.'/admin/discipline.php',          'discipline.view'],
   'vp_academic'      => ['Academic Overview',  '📊', BASE_URL.'/admin/vp_academic_overview.php','marks.view'],
@@ -453,8 +455,6 @@ $sidebarAllowlist = [
   //   reconcile accounts, prepare financial reports.
   // Cannot: delete financial transactions, approve own expenses,
   //   approve major financial adjustments (→ Principal).
-  // All finance work lives inside the Finance module (fee structures,
-  // payments, receipts, invoices, balances, reconciliation, reports).
   'accountant' => [
     'dashboard',
 
@@ -464,14 +464,16 @@ $sidebarAllowlist = [
 
     // Operations — all financial management
     '_sep_ops',
-    'finance',               // fees, payments, receipts, invoices, balances,
-                             // reconciliation, expense requests, fee structures
+    'finance',               // payments ledger & recording
+    'expenses',              // expense requests & fee waivers
+    'accounting',            // cashbook, reconciliation, monthly summaries
+    'finance_reports',       // financial reports (daily, outstanding, income vs expenses)
 
     // Communications — school-wide notices
     '_sep_comms',
     'announcements',
 
-    // System — financial reports
+    // System — financial reports & exports
     '_sep_system',
     'reports',               // daily collections, financial reports, summaries
   ],
