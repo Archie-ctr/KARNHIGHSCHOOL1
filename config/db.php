@@ -131,6 +131,7 @@ function isAccountant(): bool    { return hasRole(['sys_admin','super_admin','sc
 function isLibrarian(): bool     { return hasRole(['sys_admin','super_admin','school_admin','principal','librarian']); }
 function isTeacher(): bool       { return hasRole(['teacher','class_teacher']); }
 function isClassTeacher(): bool  { return hasRole('class_teacher'); }
+function isApplicant(): bool     { return hasRole('applicant'); }
 // Legacy compat
 function isAcademicDean(): bool  { return isVicePrincipal(); }
 
@@ -249,6 +250,7 @@ function portalRedirect(): never {
         'parent'            => BASE_URL.'/portal/parent/',
         'teacher'           => BASE_URL.'/portal/teacher/',
         'class_teacher'     => BASE_URL.'/portal/teacher/',
+        'applicant'         => BASE_URL.'/portal/applicant/',
     ];
     redirect($map[$role] ?? BASE_URL.'/admin/index.php');
 }

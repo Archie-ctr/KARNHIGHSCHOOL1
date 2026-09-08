@@ -34,6 +34,8 @@ INSERT INTO roles (id, name, label, description) VALUES
 -- Users
 (13, 'student',             'Student',                 'Views own academic, attendance, fee, and announcement information.'),
 (14, 'parent',              'Parent / Guardian',       'Views their child''s academic, attendance, and fee information.'),
+-- Applicant (separate portal — no access to student records)
+(18, 'applicant',           'Applicant',               'Prospective student. Fills form, tracks status, takes entrance exam, downloads admission letter.'),
 -- Legacy compat aliases
 (15, 'academic_dean',       'Academic Dean',           'Legacy alias — maps to Vice Principal.'),
 (16, 'super_admin',         'Super Admin',             'Legacy alias — maps to System Administrator.'),
@@ -265,6 +267,11 @@ INSERT INTO role_permissions (role_id, permission_id)
 SELECT 14, id FROM permissions WHERE id IN (
   1, 16,35,53,60,61,69,88,100,110
 );
+
+-- applicant (18): Own application only — no access to student records
+-- Applicants use a dedicated portal; they have no permissions in the admin system.
+-- All their capabilities are handled in portal/applicant/ by checking session + application ownership.
+-- No role_permissions entries needed — portal pages do direct DB lookups scoped to their application.
 
 -- Legacy aliases: same as their equivalent
 INSERT INTO role_permissions (role_id, permission_id)

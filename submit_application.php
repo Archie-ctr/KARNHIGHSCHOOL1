@@ -160,10 +160,71 @@ if (!$isJson && !empty($_FILES)) {
     }
 }
 
+// ── Auto-create applicant user account ────────────────────────
+// Creates a user with role 'applicant' so they can log in to the
+// applicant portal to track status, upload docs, take exam, etc.
+$portalPassword = null;
+$applicantUserId = null;
+$applicantEmail  = $g('email') ?: null;
+
+if ($applicantEmail) {
+    try {
+        // Only create if no account already exists for this email
+        $existing = db()->prepare("SELECT id FROM users WHERE email=? LIMIT 1");
+        $existing->execute([$applicantEmail]);
+        $existingUser = $existing->fetchColumn();
+
+        if (!$existingUser) {
+            // Generate a random 8-char password
+            $portalPassword = strtoupper(substr(bin2hex(random_bytes(4)), 0, 8));
+            $hash = password_hash($portalPassword, PASSWORD_DEFAULT);
+            $fullName = trim($g('firstName').' '.$g('lastName'));
+            $phone    = $g('phone');
+
+            // Get applicant role id
+            $roleId = db()->query("SELECT id FROM roles WHERE name='applicant' LIMIT 1")->fetchColumn() ?: 18;
+
+            db()->prepare(
+                "INSERT INTO users (name, email, phone, password_hash, role_id, is_active)
+                 VALUES (?, ?, ?, ?, ?, 1)"
+            )->execute([$fullName, $applicantEmail, $phone, $hash, $roleId]);
+
+            $applicantUserId = (int)db()->lastInsertId();
+
+            // Link application to user
+            db()->prepare(
+                "UPDATE applications SET user_id=? WHERE id=?"
+            )->execute([$applicantUserId, $appId]);
+        } else {
+            // Link existing user to this application
+            db()->prepare(
+                "UPDATE applications SET user_id=? WHERE id=?"
+            )->execute([$existingUser, $appId]);
+            $applicantUserId = $existingUser;
+        }
+    } catch (Throwable $e) {
+        error_log('Applicant account creation error: '.$e->getMessage());
+        // Non-fatal — application was saved, account creation failed silently
+    }
+}
+
 // ── Success response ──────────────────────────────────────────
 if ($isJson) {
-    json_out(['success'=>true,'application_number'=>$appNumber,'message'=>'Application submitted successfully.']);
+    $resp = ['success'=>true,'application_number'=>$appNumber,'message'=>'Application submitted successfully.'];
+    if ($portalPassword) $resp['portal_password'] = $portalPassword;
+    json_out($resp);
 } else {
-    flash('success','Your application has been submitted. Application number: '.$appNumber);
+    // Build success message with portal login info if account was created
+    if ($portalPassword && $applicantEmail) {
+        $msg = 'Your application has been submitted. Application number: '.$appNumber.'. '.
+               'A portal account has been created for '.$applicantEmail.' — '.
+               'temporary password: '.$portalPassword.'. Please log in at '.BASE_URL.'/login.php?tab=applicant to track your application.';
+    } else {
+        $msg = 'Your application has been submitted. Application number: '.$appNumber.'.';
+        if ($applicantEmail && $applicantUserId) {
+            $msg .= ' Log in with your existing account to track your application.';
+        }
+    }
+    flash('success', $msg);
     redirect(BASE_URL.'/application-status.php?submitted=1&num='.urlencode($appNumber));
 }

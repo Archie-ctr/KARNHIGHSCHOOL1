@@ -103,9 +103,10 @@ $schoolName = setting('school_name','KARN HIGH SCHOOL');
 
         <!-- Role tabs -->
         <div class="login-tabs">
-          <a href="?tab=staff"   class="login-tab <?= $tab==='staff'   ?'active':'' ?>">Staff</a>
-          <a href="?tab=student" class="login-tab <?= $tab==='student' ?'active':'' ?>">Student</a>
-          <a href="?tab=parent"  class="login-tab <?= $tab==='parent'  ?'active':'' ?>">Parent</a>
+          <a href="?tab=staff"      class="login-tab <?= $tab==='staff'      ?'active':'' ?>">Staff</a>
+          <a href="?tab=student"    class="login-tab <?= $tab==='student'    ?'active':'' ?>">Student</a>
+          <a href="?tab=parent"     class="login-tab <?= $tab==='parent'     ?'active':'' ?>">Parent</a>
+          <a href="?tab=applicant"  class="login-tab <?= $tab==='applicant'  ?'active':'' ?>">Applicant</a>
         </div>
 
         <?php if ($error): ?>
@@ -131,6 +132,12 @@ $schoolName = setting('school_name','KARN HIGH SCHOOL');
                      placeholder="+231 ... or email"
                      value="<?= e($_POST['email'] ?? '') ?>"/>
             </label>
+          <?php elseif ($tab === 'applicant'): ?>
+            <label>Email address
+              <input type="email" name="email" required autocomplete="email"
+                     placeholder="Email used in your application"
+                     value="<?= e($_POST['email'] ?? '') ?>"/>
+            </label>
           <?php else: ?>
             <label>Email address
               <input type="email" name="email" required autocomplete="email"
@@ -150,6 +157,9 @@ $schoolName = setting('school_name','KARN HIGH SCHOOL');
         <div class="login-links">
           <a href="<?= BASE_URL ?>/apply.php">New student? Apply for admission</a>
           <a href="<?= BASE_URL ?>/application-status.php">Track application status</a>
+          <?php if ($tab === 'applicant'): ?>
+          <a href="<?= BASE_URL ?>/apply.php" style="color:var(--primary);font-weight:600">Haven't applied yet? Start here →</a>
+          <?php endif; ?>
         </div>
 
         <div class="demo-credentials">
@@ -161,7 +171,7 @@ $schoolName = setting('school_name','KARN HIGH SCHOOL');
             <span>Vice Principal:</span> <code>vp@karnhighschool.edu.lr</code>
             <span>Registrar:</span>      <code>registrar@karnhighschool.edu.lr</code>
             <span>Accountant:</span>     <code>accountant@karnhighschool.edu.lr</code>
-            <span>Fin. Officer:</span>   <code>finance@karnhighschool.edu.lr</code>
+            <span>Finance:</span>        <code>finance@karnhighschool.edu.lr</code>
             <span>Teacher:</span>        <code>teacher@karnhighschool.edu.lr</code>
             <span>Class Teacher:</span>  <code>classteacher@karnhighschool.edu.lr</code>
             <span>Discipline:</span>     <code>discipline@karnhighschool.edu.lr</code>
@@ -169,6 +179,7 @@ $schoolName = setting('school_name','KARN HIGH SCHOOL');
             <span>ICT Officer:</span>    <code>ict@karnhighschool.edu.lr</code>
             <span>Student:</span>        <code>student@karnhighschool.edu.lr</code>
             <span>Parent:</span>         <code>parent@karnhighschool.edu.lr</code>
+            <span>Applicant:</span>      <code>(email used when applying — see apply.php)</code>
           </div>
         </div>
 
