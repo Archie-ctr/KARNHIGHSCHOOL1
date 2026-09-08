@@ -1,6 +1,6 @@
 <?php
 require_once dirname(__DIR__,2).'/config/db.php';
-requireAuth(); requireRole('teacher');
+requireAuth(); requireRole(['teacher','class_teacher']);
 $pdo=$db=db(); $user=currentUser(); $ayId=currentAcademicYearId(); $ay=currentAcademicYearName();
 
 $teacher=$pdo->prepare("SELECT * FROM teachers WHERE user_id=? LIMIT 1"); $teacher->execute([$user['id']]); $teacher=$teacher->fetch();
