@@ -416,20 +416,40 @@ $sidebarAllowlist = [
   // ── Teacher ──────────────────────────────────────────────────
   // Manages own classes: marks entry, attendance, results, timetable.
   // No admissions, academic config, finance, discipline, system.
+  // ── Teacher ──────────────────────────────────────────────────
+  // Teaching and student assessment for assigned classes/subjects.
+  // Responsible for: attendance, marks entry, classwork, assignments,
+  // quizzes, tests, grades, class performance, learning materials.
+  // Can: view own students, take attendance, enter/update/submit marks,
+  //   create assignments/quizzes, grade work, view class performance.
+  // Cannot: approve own marks, publish results, change locked results,
+  //   modify another teacher's class, change official student records.
   'teacher' => [
     'dashboard',
+
+    // Students — assigned students only (scoped at page level)
     '_sep_students',
-    'students',
+    'students',              // view assigned students
+
+    // Academics — own schedule only
     '_sep_academics',
-    'timetable',
+    'timetable',             // view own teaching timetable
+
+    // Assessment — enter, update, submit marks; view class performance
     '_sep_assessment',
-    'marks_entry',
-    'results',
-    'report_cards',
+    'marks_entry',           // enter & update draft marks, submit for review
+    'results',               // view class performance (own classes only)
+    // No: marks_approval (cannot approve own marks)
+    // No: report_cards (publishing/approval is VP/Principal)
+    // No: broadsheets (school-wide, not teacher scope)
+
+    // Operations — own class attendance only
     '_sep_ops',
-    'attendance',
+    'attendance',            // take & submit attendance for assigned classes
+
+    // Communications — view school announcements
     '_sep_comms',
-    'announcements',
+    'announcements',         // view school-wide notices
   ],
 
   // ── Class Teacher ─────────────────────────────────────────────
