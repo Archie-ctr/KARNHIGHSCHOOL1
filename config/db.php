@@ -114,7 +114,7 @@ function hasRole(string|array $roles): bool {
 // Staff roles that access the /admin portal
 const STAFF_ROLES = [
     'sys_admin','super_admin','school_admin','principal','vice_principal','vice_principal_alt',
-    'registrar','accountant','finance_officer',
+    'registrar','accountant',
     'teacher','class_teacher',
     'discipline_officer','librarian','ict_officer'
 ];

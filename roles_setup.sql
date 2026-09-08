@@ -1,6 +1,7 @@
 -- ============================================================
 -- KHSMIS — Complete Granular RBAC Setup
--- 17 Roles · 110 Permissions · Full Approval Matrix
+-- 16 Roles · 110 Permissions · Full Approval Matrix
+-- (Finance Officer merged into Accountant / Bursar)
 -- ============================================================
 USE karnhighschool;
 SET FOREIGN_KEY_CHECKS = 0;
@@ -11,7 +12,7 @@ TRUNCATE TABLE permissions;
 TRUNCATE TABLE roles;
 
 -- ============================================================
--- 1. ROLES (17 — 4 removed: academic_coord, exam_officer, dept_head, counselor)
+-- 1. ROLES (16 — finance_officer merged into accountant)
 -- ============================================================
 INSERT INTO roles (id, name, label, description) VALUES
 -- Administration
@@ -21,8 +22,7 @@ INSERT INTO roles (id, name, label, description) VALUES
 (4,  'vice_principal',      'Vice Principal',          'Assists principal with academic/student management. First-level approver.'),
 (5,  'registrar',           'Registrar',               'Manages student registration, admissions, and academic records.'),
 -- Finance
-(6,  'accountant',          'Accountant / Bursar',     'Manages fees, payments, receipts, and financial records.'),
-(7,  'finance_officer',     'Finance Officer',         'Assists accountant with financial transactions and reports.'),
+(6,  'accountant',          'Accountant / Bursar',     'Manages fees, payments, receipts, fee structures, and financial reports.'),
 -- Academic / Teaching
 (8,  'teacher',             'Teacher',                 'Manages assigned classes, subjects, attendance, marks, and assessments.'),
 (9,  'class_teacher',       'Class Teacher',           'Responsible for a specific class: attendance, discipline, communication.'),
@@ -202,18 +202,12 @@ SELECT 5, id FROM permissions WHERE id IN (
   139,140
 );
 
--- accountant (6): Finance only + view students
+-- accountant (6): Full finance access + view/export students + reports
 INSERT INTO role_permissions (role_id, permission_id)
 SELECT 6, id FROM permissions WHERE id IN (
   1, 10,14,
   80,81,82,83,84,85,86,87,
   110, 139,140
-);
-
--- finance_officer (7): Basic payments + receipts
-INSERT INTO role_permissions (role_id, permission_id)
-SELECT 7, id FROM permissions WHERE id IN (
-  1, 10, 80,81,86, 110
 );
 
 -- teacher (8): Own classes only
@@ -290,7 +284,7 @@ UPDATE users SET role_id=3  WHERE email='principal@karnhighschool.edu.lr';
 UPDATE users SET role_id=4  WHERE email='vp@karnhighschool.edu.lr';
 UPDATE users SET role_id=5  WHERE email='registrar@karnhighschool.edu.lr';
 UPDATE users SET role_id=6  WHERE email='accountant@karnhighschool.edu.lr';
-UPDATE users SET role_id=7  WHERE email='finance@karnhighschool.edu.lr';
+UPDATE users SET role_id=6  WHERE email='finance@karnhighschool.edu.lr';
 UPDATE users SET role_id=8  WHERE email='teacher@karnhighschool.edu.lr';
 UPDATE users SET role_id=9  WHERE email='classteacher@karnhighschool.edu.lr';
 UPDATE users SET role_id=10 WHERE email='discipline@karnhighschool.edu.lr';
@@ -307,7 +301,7 @@ INSERT IGNORE INTO users (name, email, phone, password_hash, role_id) VALUES
 ('Grace Flomo',        'vp@karnhighschool.edu.lr',            '+231 880 001 004','$2y$10$qRHPA8KlN8ZV4wTgUV/TneiFgtXGEaiCD7uijgAK0vP7fYZNNKNPC',4),
 ('Mary Kollie',        'registrar@karnhighschool.edu.lr',     '+231 880 001 005','$2y$10$qRHPA8KlN8ZV4wTgUV/TneiFgtXGEaiCD7uijgAK0vP7fYZNNKNPC',5),
 ('Moses Johnson',      'accountant@karnhighschool.edu.lr',    '+231 880 001 006','$2y$10$qRHPA8KlN8ZV4wTgUV/TneiFgtXGEaiCD7uijgAK0vP7fYZNNKNPC',6),
-('Ruth Freeman',       'finance@karnhighschool.edu.lr',       '+231 880 001 007','$2y$10$qRHPA8KlN8ZV4wTgUV/TneiFgtXGEaiCD7uijgAK0vP7fYZNNKNPC',7),
+('Ruth Freeman',       'finance@karnhighschool.edu.lr',       '+231 880 001 007','$2y$10$qRHPA8KlN8ZV4wTgUV/TneiFgtXGEaiCD7uijgAK0vP7fYZNNKNPC',6),
 ('Sarah Williams',     'teacher@karnhighschool.edu.lr',       '+231 880 001 008','$2y$10$qRHPA8KlN8ZV4wTgUV/TneiFgtXGEaiCD7uijgAK0vP7fYZNNKNPC',8),
 ('Robert Brown',       'classteacher@karnhighschool.edu.lr',  '+231 880 001 009','$2y$10$qRHPA8KlN8ZV4wTgUV/TneiFgtXGEaiCD7uijgAK0vP7fYZNNKNPC',9),
 ('James Doe',          'discipline@karnhighschool.edu.lr',    '+231 880 001 010','$2y$10$qRHPA8KlN8ZV4wTgUV/TneiFgtXGEaiCD7uijgAK0vP7fYZNNKNPC',10),

@@ -20,7 +20,6 @@ $dashMap = [
     'academic_dean'      => 'roles/vice_principal/dashboard.php', // legacy alias
     'registrar'          => 'roles/registrar/dashboard.php',
     'accountant'         => 'roles/accountant/dashboard.php',
-    'finance_officer'    => 'roles/finance_officer/dashboard.php',
     'teacher'            => 'roles/teacher/dashboard.php',
     'class_teacher'      => 'roles/class_teacher/dashboard.php',
     'discipline_officer' => 'roles/discipline_officer/dashboard.php',
