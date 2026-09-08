@@ -240,56 +240,65 @@ $sidebarAllowlist = [
   ],
 
   // ── Vice Principal ────────────────────────────────────────────
-  // Assists with academic/student management. First-level approver.
-  // Does NOT enter marks. No finance management, no system config.
+  // ── Vice Principal ────────────────────────────────────────────
+  // Assists the Principal with academic and student affairs.
+  // Responsible for: academic supervision, teacher supervision,
+  // student attendance monitoring, class monitoring, examination
+  // supervision, academic performance, discipline, timetable,
+  // teacher workload, reviewing/approving teacher submissions.
+  // Does NOT manage finances, admissions decisions, or system config.
+  // Does NOT enter marks — reviews and approves teacher submissions.
   'vice_principal' => [
     'dashboard',
-    'approval_center',
-    '_sep_admissions',
-    'applications',        // view/recommend only — admissions_mgr hidden by perm
+    'approval_center',       // approves marks, attendance, discipline, promotion
+
+    // Students — student affairs, attendance monitoring, promotion
     '_sep_students',
-    'students',
-    'guardians',
-    'documents',
-    'promotion',
+    'students',              // student monitoring
+    'documents',             // student academic documents
+    'promotion',             // promotion recommendations & approval
+
+    // Academics — full academic oversight
     '_sep_academics',
-    'academic_years',
-    'classes',
-    'subjects',
-    'teachers',
-    'assignments',
-    'timetable',
+    'classes',               // class monitoring
+    'subjects',              // subject oversight
+    'teachers',              // teacher supervision & workload
+    'assignments',           // teacher-class assignments
+    'timetable',             // timetable supervision
+
+    // Assessment — review teacher submissions, academic performance
     '_sep_assessment',
-    'marks_approval',      // reviews/approves — does NOT enter marks
-    'results',
-    'broadsheets',
-    'report_cards',
+    'marks_approval',        // review & approve teacher mark submissions
+    'results',               // academic performance oversight
+    'broadsheets',           // class/school broadsheets
+    'report_cards',          // report card oversight
+
+    // Operations — attendance, exams, discipline
     '_sep_ops',
-    'attendance',
-    'exams',
-    'discipline',
+    'attendance',            // student attendance monitoring
+    'exams',                 // examination supervision & records
+    'discipline',            // disciplinary recommendations & approval
+
+    // Communications
     '_sep_comms',
-    'announcements',
-    'events',
-    'messages',
+    'announcements',         // academic & school announcements
+    'events',                // school events
+    'messages',              // staff/student communications
+
+    // System — reporting
     '_sep_system',
-    'users',
-    'reports',
+    'reports',               // academic & operational reports
   ],
 
-  // vice_principal_alt = legacy alias for vice_principal
+  // vice_principal_alt = legacy alias — identical to vice_principal
   'vice_principal_alt' => [
     'dashboard',
     'approval_center',
-    '_sep_admissions',
-    'applications',
     '_sep_students',
     'students',
-    'guardians',
     'documents',
     'promotion',
     '_sep_academics',
-    'academic_years',
     'classes',
     'subjects',
     'teachers',
@@ -309,23 +318,18 @@ $sidebarAllowlist = [
     'events',
     'messages',
     '_sep_system',
-    'users',
     'reports',
   ],
 
-  // academic_dean = legacy alias for vice_principal
+  // academic_dean = legacy alias — identical to vice_principal
   'academic_dean' => [
     'dashboard',
     'approval_center',
-    '_sep_admissions',
-    'applications',
     '_sep_students',
     'students',
-    'guardians',
     'documents',
     'promotion',
     '_sep_academics',
-    'academic_years',
     'classes',
     'subjects',
     'teachers',
@@ -345,7 +349,6 @@ $sidebarAllowlist = [
     'events',
     'messages',
     '_sep_system',
-    'users',
     'reports',
   ],
 
