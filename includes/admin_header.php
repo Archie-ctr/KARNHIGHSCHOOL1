@@ -518,15 +518,34 @@ $sidebarAllowlist = [
 
   // ── Librarian ─────────────────────────────────────────────────
   // Manages books, borrowing and returns.
-  // No academics, marks, finance, discipline, system.
+  // ── Librarian ─────────────────────────────────────────────────
+  // Library management.
+  // Responsible for: books, book categories, book copies, student &
+  // teacher borrowing, returns, overdue books, fines, library
+  // inventory, and library reports.
+  // Can: add/edit/remove books, manage categories and copies, issue
+  //   and process returns, track overdue items, apply fines, run
+  //   inventory checks, generate library reports.
+  // Cannot: access academic records, finance, discipline, or system.
   'librarian' => [
     'dashboard',
+
+    // Students — look up student and teacher borrowers
     '_sep_students',
-    'students',            // needed to look up borrowers
+    'students',              // look up borrowers (students & teachers)
+
+    // Operations — full library management
     '_sep_ops',
-    'library',
+    'library',               // books, categories, copies, borrowing,
+                             // returns, overdue, fines, inventory
+
+    // Communications — school-wide notices
     '_sep_comms',
-    'announcements',
+    'announcements',         // view school announcements
+
+    // System — library reports
+    '_sep_system',
+    'reports',               // library inventory, overdue, fines, usage reports
   ],
 
   // ── ICT Officer ───────────────────────────────────────────────
