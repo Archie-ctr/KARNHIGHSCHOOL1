@@ -1,15 +1,37 @@
 <?php
 $pageTitle='Audit Logs'; $activeAdmin='audit_logs';
 require_once dirname(__DIR__).'/includes/admin_header.php';
-requireRole(['principal','super_admin']);
+requireRole(['sys_admin','super_admin','principal','ict_officer']);
 $pdo=db();
-$q=trim($_GET['q']??''); $page=max(1,(int)($_GET['page']??1)); $per=30;
-$wsql=$q?"WHERE (al.action LIKE '%".addslashes($q)."%' OR al.user_name LIKE '%".addslashes($q)."%' OR al.module LIKE '%".addslashes($q)."%')":'';
-$cnt=$pdo->query("SELECT COUNT(*) FROM audit_logs al $wsql")->fetchColumn(); $pg=paginate((int)$cnt,$per,$page);
-$logs=$pdo->query("SELECT * FROM audit_logs al $wsql ORDER BY al.created_at DESC LIMIT $per OFFSET {$pg['offset']}")->fetchAll();
+$q=trim($_GET['q']??''); $module=trim($_GET['module']??''); $action=trim($_GET['action_f']??'');
+$page=max(1,(int)($_GET['page']??1)); $per=30;
+$where=[]; $params=[];
+if ($q)      { $where[]="(al.action LIKE ? OR al.user_name LIKE ? OR al.module LIKE ?)"; $like="%$q%"; array_push($params,$like,$like,$like); }
+if ($module) { $where[]="al.module=?"; $params[]=$module; }
+if ($action) { $where[]="al.action=?"; $params[]=$action; }
+$wsql = $where ? 'WHERE '.implode(' AND ',$where) : '';
+$cnt=$pdo->prepare("SELECT COUNT(*) FROM audit_logs al $wsql"); $cnt->execute($params); $pg=paginate((int)$cnt->fetchColumn(),$per,$page);
+$logsStmt=$pdo->prepare("SELECT * FROM audit_logs al $wsql ORDER BY al.created_at DESC LIMIT $per OFFSET {$pg['offset']}");
+$logsStmt->execute($params); $logs=$logsStmt->fetchAll();
+
+// Filter options
+$modules = $pdo->query("SELECT DISTINCT module FROM audit_logs ORDER BY module")->fetchAll(PDO::FETCH_COLUMN);
+$actions = $pdo->query("SELECT DISTINCT action FROM audit_logs ORDER BY action")->fetchAll(PDO::FETCH_COLUMN);
 ?>
 <div class="page-heading"><div><div class="eyebrow">System <span></span></div><h1>Audit Logs</h1><p>Track all system activity and changes.</p></div></div>
-<form method="get" class="filter-row" style="margin-bottom:14px"><div class="table-search">🔍<input type="search" name="q" placeholder="Action, user, module…" value="<?=e($q)?>"/></div><button class="button button-primary button-sm">Search</button><?php if($q):?><a href="<?=BASE_URL?>/admin/audit_logs.php" class="filter-button">Clear</a><?php endif;?></form>
+<form method="get" class="filter-row" style="margin-bottom:14px">
+  <div class="table-search">🔍<input type="search" name="q" placeholder="Action, user, module…" value="<?=e($q)?>"/></div>
+  <select name="module" class="filter-button" onchange="this.form.submit()">
+    <option value="">All modules</option>
+    <?php foreach ($modules as $m): ?><option value="<?=e($m)?>" <?=$module===$m?'selected':''?>><?=e($m)?></option><?php endforeach; ?>
+  </select>
+  <select name="action_f" class="filter-button" onchange="this.form.submit()">
+    <option value="">All actions</option>
+    <?php foreach ($actions as $a): ?><option value="<?=e($a)?>" <?=$action===$a?'selected':''?>><?=e($a)?></option><?php endforeach; ?>
+  </select>
+  <button class="button button-primary button-sm">Search</button>
+  <?php if($q||$module||$action):?><a href="<?=BASE_URL?>/admin/audit_logs.php" class="filter-button">Clear</a><?php endif;?>
+</form>
 <div class="table-wrap"><table>
   <thead><tr><th>Date/Time</th><th>User</th><th>Action</th><th>Module</th><th>Record</th><th>Changes</th><th>IP</th></tr></thead>
   <tbody><?php if(empty($logs)):?><tr><td colspan="7" style="text-align:center;padding:28px;color:var(--ink-faint)">No logs found.</td></tr>

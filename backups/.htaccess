@@ -1,0 +1,4 @@
+# Deny direct HTTP access to backup files
+# Backups must be downloaded through admin/backup.php only
+Order deny,allow
+Deny from all

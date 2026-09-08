@@ -78,7 +78,10 @@ $sidebar = [
   '_sep_system'      => ['SYSTEM', null, null, 'sep'],
   'users'            => ['Users',              '👥', BASE_URL.'/admin/users.php',               'users.view'],
   'roles'            => ['Roles & Permissions','🔑', BASE_URL.'/admin/roles.php',               'roles.manage'],
+  'security'         => ['Security',           '🔐', BASE_URL.'/admin/security.php',            'system.audit_logs'],
   'audit_logs'       => ['Audit Logs',         '🔍', BASE_URL.'/admin/audit_logs.php',          'system.audit_logs'],
+  'backup'           => ['Backup & Restore',   '💾', BASE_URL.'/admin/backup.php',              'system.backup'],
+  'system_monitor'   => ['System Monitor',     '📊', BASE_URL.'/admin/system_monitor.php',      'system.settings'],
   'reports'          => ['Reports',            '📈', BASE_URL.'/admin/reports.php',             'reports.view'],
   'settings'         => ['Settings',           '⚙️', BASE_URL.'/admin/settings.php',            'system.settings'],
 ];
@@ -110,7 +113,10 @@ $sidebarAllowlist = [
     '_sep_system',
     'users',            // User accounts
     'roles',            // Roles & permissions
+    'security',         // Security centre, login history, account locks
     'audit_logs',       // Audit logs / security
+    'backup',           // Database backup & restore
+    'system_monitor',   // System health & monitoring
     'reports',          // System reports
     'settings',         // System configuration & school configuration
   ],
@@ -131,7 +137,10 @@ $sidebarAllowlist = [
     '_sep_system',
     'users',
     'roles',
+    'security',
     'audit_logs',
+    'backup',
+    'system_monitor',
     'reports',
     'settings',
   ],
