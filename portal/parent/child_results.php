@@ -1,66 +1,139 @@
 <?php
+// ============================================================
+// Parent Portal — Child Grades & Results
+// ============================================================
 require_once dirname(__DIR__,2).'/config/db.php';
 requireAuth(); requireRole('parent');
-$pdo=db(); $user=currentUser(); $ayId=currentAcademicYearId(); $ay=currentAcademicYearName();
 
-// Resolve child — same logic as parent/index.php
-$guardian=$pdo->prepare("SELECT id FROM guardians WHERE user_id=? LIMIT 1"); $guardian->execute([$user['id']]); $guardian=$guardian->fetch();
-$children=[];
-if($guardian){$ch=$pdo->prepare("SELECT s.*,g.name grade_name FROM students s LEFT JOIN grades g ON g.id=s.current_grade_id LEFT JOIN classes c ON c.id=s.current_class_id JOIN student_guardians sg ON sg.student_id=s.id WHERE sg.guardian_id=? ORDER BY s.first_name");$ch->execute([$guardian['id']]);$children=$ch->fetchAll();}
-if(empty($children)){$ch2=$pdo->prepare("SELECT s.*,g.name grade_name FROM students s LEFT JOIN grades g ON g.id=s.current_grade_id WHERE s.status='Active' AND (s.phone=? OR s.email=?) ORDER BY s.first_name");$ch2->execute([$user['phone']??'',$user['email']??'']);$children=$ch2->fetchAll();}
+$activePage = 'results';
+$ayId = currentAcademicYearId();
+$ay   = currentAcademicYearName();
 
-$selChild=(int)($_GET['child_id']??($children[0]['id']??0));
-$child=null; foreach($children as $ch) if($ch['id']==$selChild){$child=$ch;break;}
-$subjects=[]; $bySubject=[]; $configs=[];
-if($child){
-    $subs=$pdo->prepare("SELECT DISTINCT s.id,s.name FROM assessment_scores asc2 JOIN subjects s ON s.id=asc2.subject_id WHERE asc2.student_id=? AND asc2.academic_year_id=? ORDER BY s.name");$subs->execute([$child['id'],$ayId]);$subjects=$subs->fetchAll();
-    foreach($subjects as $sub){$sc=$pdo->prepare("SELECT ac.name cfg_name,asc2.marks_obtained,asc2.max_marks FROM assessment_scores asc2 JOIN assessment_configs ac ON ac.id=asc2.assessment_config_id WHERE asc2.student_id=? AND asc2.subject_id=? AND asc2.academic_year_id=? AND asc2.status IN ('submitted','approved') ORDER BY ac.sequence");$sc->execute([$child['id'],$sub['id'],$ayId]);$bySubject[$sub['id']]=$sc->fetchAll();}
-    foreach($subjects as $sub) foreach($bySubject[$sub['id']] as $sc) $configs[$sc['cfg_name']]=$sc['cfg_name'];
+include __DIR__.'/includes/resolve_child.php';
+
+$subjects  = []; $bySubject = []; $configs = [];
+
+if ($child) {
+    try {
+        $subs = db()->prepare(
+            "SELECT DISTINCT s.id, s.name
+             FROM assessment_scores asc2
+             JOIN subjects s ON s.id = asc2.subject_id
+             WHERE asc2.student_id=? AND asc2.academic_year_id=? ORDER BY s.name"
+        );
+        $subs->execute([$child['id'], $ayId]);
+        $subjects = $subs->fetchAll();
+
+        foreach ($subjects as $sub) {
+            $sc = db()->prepare(
+                "SELECT ac.name cfg_name, asc2.marks_obtained, asc2.max_marks
+                 FROM assessment_scores asc2
+                 JOIN assessment_configs ac ON ac.id = asc2.assessment_config_id
+                 WHERE asc2.student_id=? AND asc2.subject_id=? AND asc2.academic_year_id=?
+                   AND asc2.status IN ('submitted','approved')
+                 ORDER BY ac.sequence"
+            );
+            $sc->execute([$child['id'], $sub['id'], $ayId]);
+            $bySubject[$sub['id']] = $sc->fetchAll();
+        }
+
+        foreach ($subjects as $sub) {
+            foreach ($bySubject[$sub['id']] as $sc) {
+                $configs[$sc['cfg_name']] = $sc['cfg_name'];
+            }
+        }
+    } catch (Throwable $e) {}
 }
 ?>
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Child Results — Parent Portal</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="<?=BASE_URL?>/assets/css/style.css"/></head><body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Results — Parent Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css"/>
+</head>
+<body>
 <div class="portal-grid">
-<aside class="portal-sidebar">
-  <div class="portal-brand"><div class="brand"><img src="<?=BASE_URL?>/assets/images/logo.jpg" alt="KHS"/><span><strong>KHS</strong><small>Parent Portal</small></span></div></div>
-  <nav class="portal-nav">
-    <a href="<?=BASE_URL?>/portal/parent/">🏠 Dashboard</a>
-    <a href="<?=BASE_URL?>/portal/parent/child_results.php<?=$selChild?"?child_id=$selChild":''?>" class="active">📊 Results</a>
-    <a href="<?=BASE_URL?>/portal/parent/fees.php<?=$selChild?"?child_id=$selChild":''?>">💰 Fees</a>
-    <a href="<?=BASE_URL?>/portal/parent/report_card.php<?=$selChild?"?child_id=$selChild":''?>">📑 Report Card</a>
-    <a href="<?=BASE_URL?>/portal/parent/announcements.php">📢 Announcements</a>
-  </nav>
-  <div style="border-top:1px solid var(--line);padding:12px"><a href="<?=BASE_URL?>/admin/logout.php" style="color:var(--error);font-size:13px;font-weight:600">Sign Out</a></div>
-</aside>
+<?php include __DIR__.'/includes/nav.php'; ?>
 <div class="portal-content">
-  <div class="page-heading"><div><h1><?=$child?e($child['first_name']."'s"):'Child'?> Results</h1><p><?=e($ay)?></p></div></div>
-  <?php if(count($children)>1):?>
-  <div class="filter-row" style="margin-bottom:20px">
-    <?php foreach($children as $ch):?><a href="?child_id=<?=$ch['id']?>" class="filter-button" style="<?=$selChild==$ch['id']?'background:var(--primary);color:#fff;border-color:var(--primary)':''?>"><?=e($ch['first_name'])?></a><?php endforeach;?>
+
+  <div class="page-heading">
+    <div>
+      <h1><?= $child ? e($child['first_name'])."'s" : "Child's" ?> Grades &amp; Results</h1>
+      <p><?= e($ay) ?></p>
+    </div>
+    <?php if ($child): ?>
+    <a href="report_card.php?child_id=<?= $child['id'] ?>" class="button button-secondary button-sm">📑 Report Card</a>
+    <?php endif; ?>
   </div>
-  <?php endif;?>
-  <?php if($child&&empty($subjects)):?>
-  <div style="text-align:center;padding:40px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)"><div style="font-size:36px;margin-bottom:12px">📊</div><p style="color:var(--ink-soft)">No results available yet for <?=e($ay)?>.</p></div>
-  <?php elseif($child):?>
-  <div class="table-wrap"><table>
-    <thead><tr><th>Subject</th><?php foreach($configs as $cfg):?><th><?=e($cfg)?></th><?php endforeach;?><th>Avg</th><th>Grade</th></tr></thead>
-    <tbody>
-      <?php foreach($subjects as $sub):
-        $vals=array_filter(array_map(fn($d)=>$d['marks_obtained']!==null?($d['marks_obtained']/$d['max_marks']*100):null,$bySubject[$sub['id']]),fn($v)=>$v!==null);
-        $avg=count($vals)?round(array_sum($vals)/count($vals),1):null; $gl=$avg!==null?gradeLetter($avg,$ayId):'—';
-        $cfgVals=[]; foreach($bySubject[$sub['id']] as $sc) $cfgVals[$sc['cfg_name']]=$sc;
-      ?>
-      <tr>
-        <td><strong><?=e($sub['name'])?></strong></td>
-        <?php foreach($configs as $cfg): $d=$cfgVals[$cfg]??null;?><td><?=$d&&$d['marks_obtained']!==null?fmtMark($d['marks_obtained']).'/'.$d['max_marks']:'—'?></td><?php endforeach;?>
-        <td><strong><?=$avg!==null?$avg.'%':'—'?></strong></td>
-        <td><span class="status <?=in_array($gl,['A','B','C','D'])?'approved':'warning'?>"><?=e($gl)?></span></td>
-      </tr>
-      <?php endforeach;?>
-    </tbody>
-  </table></div>
-  <?php endif;?>
-</div></div>
-<script src="<?=BASE_URL?>/assets/js/main.js"></script></body></html>
+
+  <?php if (empty($children)): ?>
+  <div class="alert alert-warning">No children linked. Please contact the school registrar.</div>
+
+  <?php elseif (!$child): ?>
+  <div class="alert alert-warning">Child not found. <a href="<?= BASE_URL ?>/portal/parent/">Go back</a>.</div>
+
+  <?php elseif (empty($subjects)): ?>
+  <div style="text-align:center;padding:48px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)">
+    <div style="font-size:40px;margin-bottom:12px">📊</div>
+    <h3 style="margin-bottom:6px">No results yet</h3>
+    <p style="color:var(--ink-soft)">Results for <?= e($ay) ?> will appear here once marks are submitted by teachers.</p>
+  </div>
+
+  <?php else: ?>
+  <div class="panel" style="overflow-x:auto;padding:0">
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead>
+        <tr style="background:var(--primary)">
+          <th style="padding:12px 16px;color:#fff;text-align:left;white-space:nowrap">Subject</th>
+          <?php foreach ($configs as $cfg): ?>
+          <th style="padding:12px 10px;color:#fff;text-align:center;white-space:nowrap;font-size:11px"><?= e($cfg) ?></th>
+          <?php endforeach; ?>
+          <th style="padding:12px 10px;color:#fff;text-align:center">Average</th>
+          <th style="padding:12px 10px;color:#fff;text-align:center">Grade</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach ($subjects as $sub):
+          $cfgVals = [];
+          foreach ($bySubject[$sub['id']] as $sc) $cfgVals[$sc['cfg_name']] = $sc;
+          $vals = array_filter(array_map(
+              fn($sc) => ($sc['max_marks'] > 0 && $sc['marks_obtained'] !== null)
+                          ? round($sc['marks_obtained'] / $sc['max_marks'] * 100, 1) : null,
+              $bySubject[$sub['id']]
+          ), fn($v) => $v !== null);
+          $avg = count($vals) ? round(array_sum($vals) / count($vals), 1) : null;
+          $gl  = $avg !== null ? gradeLetter($avg, $ayId) : '—';
+          $glColor = in_array($gl, ['A','B','C','D']) ? 'var(--green)' : 'var(--error)';
+        ?>
+        <tr style="border-bottom:1px solid var(--line-soft)">
+          <td style="padding:10px 16px;font-weight:600"><?= e($sub['name']) ?></td>
+          <?php foreach ($configs as $cfg):
+            $d   = $cfgVals[$cfg] ?? null;
+            $pct = ($d && $d['max_marks'] > 0 && $d['marks_obtained'] !== null)
+                   ? round($d['marks_obtained'] / $d['max_marks'] * 100, 1) : null;
+          ?>
+          <td style="padding:10px;text-align:center;<?= $pct !== null && $pct < 50 ? 'color:var(--error)' : '' ?>">
+            <?= $pct !== null ? $pct.'%' : '<span style="color:var(--line)">—</span>' ?>
+          </td>
+          <?php endforeach; ?>
+          <td style="padding:10px;text-align:center;font-weight:700"><?= $avg !== null ? $avg.'%' : '—' ?></td>
+          <td style="padding:10px;text-align:center">
+            <span style="font-weight:800;font-size:15px;color:<?= $glColor ?>"><?= $gl ?></span>
+          </td>
+        </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+  </div>
+  <p style="margin-top:10px;font-size:12px;color:var(--ink-faint)">
+    ℹ️ Only submitted or approved marks are shown. Grades follow the school's grading scale.
+  </p>
+  <?php endif; ?>
+
+</div>
+</div>
+<script src="<?= BASE_URL ?>/assets/js/main.js"></script>
+</body>
+</html>
