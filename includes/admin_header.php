@@ -137,46 +137,43 @@ $sidebarAllowlist = [
   ],
 
   // ── School Administrator ──────────────────────────────────────
-  // Manages school operations. Full operational access.
-  // Excluded: roles, audit_logs, settings, users.delete (perms 133,135,136,137,138)
+  // ── School Administrator ──────────────────────────────────────
+  // General school administration and operations.
+  // Responsible for: school profile, academic calendar, student
+  // administration, staff records, class/subject setup, school
+  // documents, general reports, announcements, daily operations.
+  // Does NOT: enter marks, approve marks, manage finance,
+  // handle admissions decisions, access library/discipline modules,
+  // or act on approval workflows (submits TO principal instead).
   'school_admin' => [
     'dashboard',
-    'approval_center',
-    '_sep_admissions',
-    'applications',
-    'entrance_exams',
-    'admissions_mgr',
+    // Students — administration and records
     '_sep_students',
     'students',
     'guardians',
     'documents',
     'promotion',
+    // Academics — setup and configuration
     '_sep_academics',
-    'academic_years',
-    'classes',
-    'subjects',
-    'teachers',
-    'assignments',
-    'timetable',
-    '_sep_assessment',
-    'marks_entry',
-    'marks_approval',
-    'results',
-    'broadsheets',
-    'report_cards',
+    'academic_years',   // academic calendar
+    'classes',          // class setup
+    'subjects',         // subject setup
+    'teachers',         // staff records
+    'assignments',      // teacher assignments
+    'timetable',        // timetable coordination
+    // Operations — attendance oversight
     '_sep_ops',
-    'attendance',
-    'exams',
-    'finance',
-    'library',
-    'discipline',
+    'attendance',       // daily operations oversight
+    // Communications — school announcements and events
     '_sep_comms',
-    'announcements',
-    'events',
-    'messages',
+    'announcements',    // school announcements
+    'events',           // school events
+    'messages',         // messages / contact
+    // System — users and reports (no roles/audit/system settings)
     '_sep_system',
-    'users',
-    'reports',
+    'users',            // staff user accounts
+    'reports',          // general reports
+    'settings',         // school profile & configuration
   ],
 
   // ── Principal ─────────────────────────────────────────────────
