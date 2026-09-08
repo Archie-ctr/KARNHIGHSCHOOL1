@@ -41,6 +41,8 @@ $sidebar = [
   'students'         => ['All Students',       '🎓', BASE_URL.'/admin/students.php',            'students.view'],
   'guardians'        => ['Guardians',          '👨‍👩‍👧', BASE_URL.'/admin/guardians.php',           'students.manage_guardians'],
   'documents'        => ['Documents',          '📄', BASE_URL.'/admin/documents.php',           'students.manage_documents'],
+  'student_idcards'  => ['Student ID Cards',   '🪪', BASE_URL.'/admin/student_idcards.php',     'students.view'],
+  'student_stats'    => ['Student Statistics', '📊', BASE_URL.'/admin/student_statistics.php',  'students.view'],
   'promotion'        => ['Promotion',          '⬆️', BASE_URL.'/admin/promotion.php',           'promotion.view'],
 
   // ── ACADEMICS
@@ -48,6 +50,7 @@ $sidebar = [
   'academic_years'   => ['Academic Years',     '📅', BASE_URL.'/admin/academic_years.php',      'academics.manage_years'],
   'classes'          => ['Classes',            '🏫', BASE_URL.'/admin/classes.php',             'academics.manage_classes'],
   'subjects'         => ['Subjects',           '📚', BASE_URL.'/admin/subjects.php',            'academics.manage_subjects'],
+  'departments'      => ['Departments',        '🏢', BASE_URL.'/admin/departments.php',         'teachers.view'],
   'teachers'         => ['Teachers',           '👩‍🏫', BASE_URL.'/admin/teachers_admin.php',      'teachers.view'],
   'assignments'      => ['Teacher Assignments','🔗', BASE_URL.'/admin/teacher_assignments.php', 'academics.assign_teachers'],
   'timetable'        => ['Timetable',          '⏰', BASE_URL.'/admin/timetable.php',           'academics.manage_timetable'],
@@ -63,6 +66,7 @@ $sidebar = [
   // ── OPERATIONS
   '_sep_ops'         => ['OPERATIONS', null, null, 'sep'],
   'attendance'       => ['Attendance',         '📆', BASE_URL.'/admin/attendance.php',          ['attendance.take','attendance.view']],
+  'staff_attendance' => ['Staff Attendance',   '📆', BASE_URL.'/admin/staff_attendance.php',    'teachers.view'],
   'exams'            => ['Examinations',       '📝', BASE_URL.'/admin/entrance_exams.php',      'exams.view'],
   'finance'          => ['Finance',            '💰', BASE_URL.'/admin/finance.php',             'finance.view'],
   'library'          => ['Library',            '📖', BASE_URL.'/admin/library.php',             'library.view'],
@@ -156,33 +160,37 @@ $sidebarAllowlist = [
   // or act on approval workflows (submits TO principal instead).
   'school_admin' => [
     'dashboard',
-    // Students — administration and records
+    // Students — full student administration
     '_sep_students',
-    'students',
-    'guardians',
-    'documents',
-    'promotion',
+    'students',           // student directory & registration
+    'guardians',          // parent/guardian records
+    'documents',          // student documents
+    'student_idcards',    // print student ID cards
+    'student_stats',      // enrollment statistics
+    'promotion',          // student promotion
     // Academics — setup and configuration
     '_sep_academics',
-    'academic_years',   // academic calendar
-    'classes',          // class setup
-    'subjects',         // subject setup
-    'teachers',         // staff records
-    'assignments',      // teacher assignments
-    'timetable',        // timetable coordination
-    // Operations — attendance oversight
+    'academic_years',     // academic calendar
+    'classes',            // class/grade setup
+    'subjects',           // subject setup
+    'departments',        // departments & houses
+    'teachers',           // staff records
+    'assignments',        // teacher assignments
+    'timetable',          // timetable coordination
+    // Operations — attendance oversight (student + staff)
     '_sep_ops',
-    'attendance',       // daily operations oversight
+    'attendance',         // student attendance monitoring
+    'staff_attendance',   // staff/teacher attendance
     // Communications — school announcements and events
     '_sep_comms',
-    'announcements',    // school announcements
-    'events',           // school events
-    'messages',         // messages / contact
+    'announcements',      // school announcements
+    'events',             // school events
+    'messages',           // messages / contact
     // System — users and reports (no roles/audit/system settings)
     '_sep_system',
-    'users',            // staff user accounts
-    'reports',          // general reports
-    'settings',         // school profile & configuration
+    'users',              // staff user accounts
+    'reports',            // all report types
+    'settings',           // school profile & configuration
   ],
 
   // ── Principal ─────────────────────────────────────────────────
@@ -285,6 +293,7 @@ $sidebarAllowlist = [
     // Operations — attendance, exams, discipline
     '_sep_ops',
     'attendance',            // student attendance monitoring
+    'staff_attendance',      // teacher attendance oversight
     'exams',                 // examination supervision & records
     'discipline',            // disciplinary recommendations & approval
 
