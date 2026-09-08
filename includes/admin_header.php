@@ -93,6 +93,8 @@ $sidebar = [
   'system_monitor'   => ['System Monitor',     '📊', BASE_URL.'/admin/system_monitor.php',      'system.settings'],
   'reports'          => ['Reports',            '📈', BASE_URL.'/admin/reports.php',             'reports.view'],
   'settings'         => ['Settings',           '⚙️', BASE_URL.'/admin/settings.php',            'system.settings'],
+  'registrar_records' => ['Academic Records',  '📊', BASE_URL.'/admin/registrar_records.php',   'reports.view'],
+  'registrar_reports' => ['Registrar Reports', '📋', BASE_URL.'/admin/registrar_reports.php',   'reports.view'],
 ];
 
 // ── Per-role sidebar allowlists ───────────────────────────────
@@ -414,7 +416,10 @@ $sidebarAllowlist = [
     'students',              // student profiles, enrollment, re-enrollment
     'guardians',             // guardian records (part of enrollment)
     'documents',             // student documents, IDs, certificates
+    'student_idcards',       // print student ID cards
+    'student_transfers',     // transfers, withdrawals, re-enrollment
     'promotion',             // prepare promotion & graduation lists
+    'graduation',            // graduation candidates & certificates
 
     // Academics — view-only for enrollment placement context
     '_sep_academics',
@@ -432,7 +437,9 @@ $sidebarAllowlist = [
 
     // System — records & reports
     '_sep_system',
-    'reports',               // enrollment, admission, graduation reports
+    'registrar_records',     // full academic records hub
+    'registrar_reports',     // enrollment, admissions, transfers, graduation reports
+    'reports',               // general data exports
   ],
 
   // ── Accountant / Bursar ───────────────────────────────────────
