@@ -43,11 +43,14 @@ $paidStd   = (int)$pdo->query("SELECT COUNT(DISTINCT student_id) FROM payments W
 $totalStd  = (int)$pdo->query("SELECT COUNT(*) FROM students WHERE status='Active'")->fetchColumn();
 $unpaid    = max(0,$totalStd-$paidStd);
 
-// Search & paginate
+// Search & paginate — scoped to current academic year
 $q     = trim($_GET['q']??'');
 $page  = max(1,(int)($_GET['page']??1));
 $per   = 20;
-$wsql  = $q ? "WHERE p.receipt_number LIKE ? OR CONCAT(s.first_name,' ',s.last_name) LIKE ?" : '';
+$baseWhere = "p.academic_year_id=$ayId"; // always filter by current year
+$wsql  = $q
+    ? "WHERE $baseWhere AND (p.receipt_number LIKE ? OR CONCAT(s.first_name,' ',s.last_name) LIKE ?)"
+    : "WHERE $baseWhere";
 $params= $q ? ["%$q%","%$q%"] : [];
 $cnt   = $pdo->prepare("SELECT COUNT(*) FROM payments p JOIN students s ON s.id=p.student_id $wsql"); $cnt->execute($params); $total=(int)$cnt->fetchColumn();
 $pg    = paginate($total,$per,$page);

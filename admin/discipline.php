@@ -4,8 +4,8 @@ requireAuth();
 requireRole(['sys_admin','school_admin','principal','vice_principal','registrar','class_teacher','discipline_officer']);
 
 $pdo = db();
-
-$canAdd    = can('manage_discipline');  // discipline_officer, vice_principal, principal, school_admin, sys_admin
+$ayId = currentAcademicYearId();
+$ay   = currentAcademicYearName();  // discipline_officer, vice_principal, principal, school_admin, sys_admin
 $canResolve= can('manage_discipline');
 $canView   = can('view_discipline') || can('manage_discipline'); // registrar, class_teacher also
 
@@ -14,11 +14,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
     if ($action === 'add' && $canAdd) {
-        $pdo->prepare("INSERT INTO discipline_records (student_id,incident_date,category,description,action_taken,details,recorded_by)
-            VALUES (?,?,?,?,?,?,?)")
+        $pdo->prepare("INSERT INTO discipline_records (student_id,incident_date,category,description,action_taken,details,recorded_by,academic_year_id)
+            VALUES (?,?,?,?,?,?,?,?)")
            ->execute([(int)$_POST['student_id'],$_POST['incident_date'],$_POST['category'],
                       $_POST['description'],$_POST['action_taken'],
-                      trim($_POST['details']??'')?:null,currentUser()['id']]);
+                      trim($_POST['details']??'')?:null,currentUser()['id'],$ayId]);
         auditLog('create','discipline','discipline_record',(int)$pdo->lastInsertId());
         flash('success','Discipline record added.');
     } elseif ($action === 'resolve' && $canResolve) {
@@ -42,6 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Use parameterized query — no addslashes
 $q    = trim($_GET['q'] ?? '');
+$ayDisFilter = (int)($_GET['ay_id'] ?? $ayId); // default = current year
 $page = max(1,(int)($_GET['page'] ?? 1));
 $per  = 25;
 $where=[]; $params=[];
@@ -49,12 +50,14 @@ if ($q) {
     $where[]="(CONCAT(s.first_name,' ',s.last_name) LIKE ? OR d.category LIKE ? OR d.action_taken LIKE ?)";
     $like="%$q%"; array_push($params,$like,$like,$like);
 }
+if ($ayDisFilter) { $where[]='d.academic_year_id=?'; $params[]=$ayDisFilter; }
 $wsql=$where?'WHERE '.implode(' AND ',$where):'';
 $cnt=$pdo->prepare("SELECT COUNT(*) FROM discipline_records d JOIN students s ON s.id=d.student_id $wsql"); $cnt->execute($params); $total=(int)$cnt->fetchColumn();
 $pg=paginate($total,$per,$page);
 $recs=$pdo->prepare("SELECT d.*,CONCAT(s.first_name,' ',s.last_name) sname,s.student_id sid,g.name grade_name FROM discipline_records d JOIN students s ON s.id=d.student_id LEFT JOIN grades g ON g.id=s.current_grade_id $wsql ORDER BY d.incident_date DESC LIMIT $per OFFSET {$pg['offset']}");
 $recs->execute($params); $records=$recs->fetchAll();
 
+$allYearsDis = $pdo->query("SELECT id,name,is_current FROM academic_years ORDER BY start_date DESC")->fetchAll();
 $students=$pdo->query("SELECT id,student_id,CONCAT(first_name,' ',last_name) name FROM students WHERE status='Active' ORDER BY first_name")->fetchAll();
 
 $pageTitle   = 'Discipline';
@@ -75,8 +78,16 @@ require_once dirname(__DIR__).'/includes/admin_header.php';
 
 <form method="get" class="filter-row" style="margin-bottom:14px">
   <div class="table-search">🔍<input type="search" name="q" placeholder="Student name, category, action…" value="<?= e($q) ?>"/></div>
+  <select name="ay_id" class="filter-button" onchange="this.form.submit()" title="Filter by academic year">
+    <option value="0">All years</option>
+    <?php foreach ($allYearsDis as $yr): ?>
+    <option value="<?= $yr['id'] ?>" <?= $ayDisFilter==$yr['id']?'selected':'' ?>>
+      <?= e($yr['name']) ?><?= $yr['is_current']?' (Current)':'' ?>
+    </option>
+    <?php endforeach; ?>
+  </select>
   <button type="submit" class="button button-primary button-sm">Search</button>
-  <?php if ($q): ?><a href="<?= BASE_URL ?>/admin/discipline.php" class="filter-button">Clear</a><?php endif; ?>
+  <?php if ($q || !$ayDisFilter): ?><a href="<?= BASE_URL ?>/admin/discipline.php" class="filter-button">Clear</a><?php endif; ?>
 </form>
 
 <div class="table-wrap">

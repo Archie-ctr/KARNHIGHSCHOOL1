@@ -28,8 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($bookId && $stdId && $due) {
             $avail = (int)$pdo->query("SELECT available FROM library_books WHERE id=$bookId")->fetchColumn();
             if ($avail > 0) {
-                $pdo->prepare("INSERT INTO library_transactions (book_id,student_id,issued_by,due_date) VALUES (?,?,?,?)")
-                   ->execute([$bookId,$stdId,currentUser()['id'],$due]);
+                $pdo->prepare("INSERT INTO library_transactions (book_id,student_id,issued_by,due_date,academic_year_id) VALUES (?,?,?,?,?)")
+                   ->execute([$bookId,$stdId,currentUser()['id'],$due,$ayId]);
                 $pdo->prepare("UPDATE library_books SET available=available-1 WHERE id=?")->execute([$bookId]);
                 flash('success','Book issued successfully.');
             } else {
@@ -58,6 +58,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $q   = trim($_GET['q']   ?? '');
 $tab = $_GET['tab'] ?? 'books';
+$ayId = currentAcademicYearId();
+$ay   = currentAcademicYearName();
 // Parameterized search — no addslashes
 $where=[]; $params=[];
 if ($q) { $where[]="(lb.title LIKE ? OR lb.author LIKE ? OR lb.category LIKE ?)"; $like="%$q%"; array_push($params,$like,$like,$like); }
@@ -65,7 +67,11 @@ $wsql=$where?'WHERE '.implode(' AND ',$where):'';
 $books = $pdo->prepare("SELECT lb.* FROM library_books lb $wsql ORDER BY lb.title")->execute($params) ? [] : [];
 $stmt=$pdo->prepare("SELECT lb.* FROM library_books lb $wsql ORDER BY lb.title"); $stmt->execute($params); $books=$stmt->fetchAll();
 
-$transactions = $pdo->query("SELECT lt.*,lb.title book_title,CONCAT(s.first_name,' ',s.last_name) sname,s.student_id sid FROM library_transactions lt JOIN library_books lb ON lb.id=lt.book_id JOIN students s ON s.id=lt.student_id ORDER BY lt.issued_at DESC LIMIT 60")->fetchAll();
+// Transactions filtered to current academic year by default; 0 = all years
+$ayLibF = (int)($_GET['ay_id'] ?? $ayId);
+$txWhere = $ayLibF ? "WHERE lt.academic_year_id=$ayLibF" : '';
+$transactions = $pdo->query("SELECT lt.*,lb.title book_title,CONCAT(s.first_name,' ',s.last_name) sname,s.student_id sid FROM library_transactions lt JOIN library_books lb ON lb.id=lt.book_id JOIN students s ON s.id=lt.student_id $txWhere ORDER BY lt.issued_at DESC LIMIT 100")->fetchAll();
+$allYearsLib = $pdo->query("SELECT id,name,is_current FROM academic_years ORDER BY start_date DESC")->fetchAll();
 $students     = $pdo->query("SELECT id,student_id,CONCAT(first_name,' ',last_name) name FROM students WHERE status='Active' ORDER BY first_name")->fetchAll();
 
 $pageTitle   = 'Library';
@@ -87,8 +93,7 @@ require_once dirname(__DIR__).'/includes/admin_header.php';
 <!-- Tabs — only show Issue tab if user can issue -->
 <div class="tab-bar" style="margin-bottom:16px">
   <a href="?tab=books" class="tab-btn <?= $tab==='books'?'active':'' ?>">📚 Books (<?= count($books) ?>)</a>
-  <a href="?tab=transactions" class="tab-btn <?= $tab==='transactions'?'active':'' ?>">📋 Transactions</a>
-  <?php if ($canIssue): ?>
+  <a href="?tab=transactions" class="tab-btn <?= $tab==='transactions'?'active':'' ?>">📋 Transactions</a>  <?php if ($canIssue): ?>
   <a href="?tab=issue" class="tab-btn <?= $tab==='issue'?'active':'' ?>">➕ Issue Book</a>
   <?php endif; ?>
 </div>
@@ -131,6 +136,19 @@ require_once dirname(__DIR__).'/includes/admin_header.php';
 </div>
 
 <?php elseif ($tab === 'transactions'): ?>
+<form method="get" class="filter-row" style="margin-bottom:12px">
+  <input type="hidden" name="tab" value="transactions"/>
+  <select name="ay_id" class="filter-button" onchange="this.form.submit()" title="Filter by academic year">
+    <option value="0">All years</option>
+    <?php foreach ($allYearsLib as $yr): ?>
+    <option value="<?= $yr['id'] ?>" <?= $ayLibF==$yr['id']?'selected':'' ?>>
+      <?= e($yr['name']) ?><?= $yr['is_current']?' (Current)':'' ?>
+    </option>
+    <?php endforeach; ?>
+  </select>
+  <button class="button button-primary button-sm">Filter</button>
+  <?php if (!$ayLibF): ?><a href="?tab=transactions" class="filter-button">Clear</a><?php endif; ?>
+</form>
 <div class="table-wrap">
   <table>
     <thead><tr><th>Book</th><th>Student</th><th>Issued</th><th>Due</th><th>Status</th><?php if($canIssue):?><th>Action</th><?php endif;?></tr></thead>

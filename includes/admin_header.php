@@ -669,6 +669,55 @@ function sidebarAllowed(string $key, string $role, array $allowlist): bool {
       <input type="search" name="q" placeholder="Search students, applications, staff…" value="<?=e($_GET['q']??'')?>" autocomplete="off"/>
     </form>
 
+    <!-- ── Academic Year Indicator + Switcher ── -->
+    <?php
+    $currentAY   = currentAcademicYear();
+    $allYears    = [];
+    try { $allYears = db()->query("SELECT id,name,is_current,status FROM academic_years ORDER BY start_date DESC")->fetchAll(); } catch(Throwable $e){}
+    ?>
+    <div class="ay-switcher" style="position:relative">
+      <button class="ay-badge" id="aySwitcherBtn" title="Current Academic Year — click to switch"
+              style="display:flex;align-items:center;gap:6px;background:var(--primary-soft);border:1.5px solid var(--primary-light,#e0d5ff);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;color:var(--primary);cursor:pointer;white-space:nowrap;transition:all .15s">
+        <span>📅</span>
+        <span><?= e($currentAY['name'] ?? 'No Year Set') ?></span>
+        <?php if(count($allYears)>1): ?><span style="font-size:9px;opacity:.6">▾</span><?php endif; ?>
+      </button>
+      <?php if(count($allYears)>1 && (isSysAdmin()||isSchoolAdmin()||isPrincipal())): ?>
+      <div id="aySwitcherMenu" hidden
+           style="position:absolute;top:calc(100% + 6px);right:0;background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-lg);min-width:200px;z-index:300;overflow:hidden">
+        <div style="padding:8px 14px;font-size:10.5px;font-weight:700;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid var(--line-soft)">
+          Switch Academic Year
+        </div>
+        <?php foreach($allYears as $yr): ?>
+        <form method="post" action="<?=BASE_URL?>/admin/academic_years.php">
+          <?=csrfField()?>
+          <input type="hidden" name="action"  value="set_current"/>
+          <input type="hidden" name="ay_id"   value="<?= $yr['id'] ?>"/>
+          <button type="submit" style="width:100%;text-align:left;padding:9px 14px;font-size:13px;display:flex;align-items:center;justify-content:space-between;gap:8px;background:<?=$yr['is_current']?'var(--primary-soft)':'none'?>;color:<?=$yr['is_current']?'var(--primary)':'var(--ink)'?>;font-weight:<?=$yr['is_current']?700:400?>;border:none;cursor:pointer;transition:background .1s"
+                  <?= $yr['is_current'] ? 'disabled title="Currently active"' : '' ?>>
+            <span><?= e($yr['name']) ?></span>
+            <?php if($yr['is_current']): ?>
+            <span style="font-size:10px;background:var(--primary);color:#fff;padding:2px 7px;border-radius:10px">Active</span>
+            <?php elseif($yr['status']==='closed'): ?>
+            <span style="font-size:10px;color:var(--ink-faint)">Closed</span>
+            <?php endif; ?>
+          </button>
+        </form>
+        <?php endforeach; ?>
+      </div>
+      <script>
+      (function(){
+        const btn  = document.getElementById('aySwitcherBtn');
+        const menu = document.getElementById('aySwitcherMenu');
+        if(!btn||!menu) return;
+        btn.addEventListener('click', e=>{ e.stopPropagation(); menu.hidden=!menu.hidden; });
+        document.addEventListener('click', ()=>{ if(menu) menu.hidden=true; });
+      })();
+      </script>
+      <?php endif; ?>
+    </div>
+    <!-- ── End Academic Year Switcher ── -->
+
     <div class="dash-user">
       <?php if ($approvalTotal>0 && can('approvals.act')): ?>
       <a href="<?=BASE_URL?>/admin/approval_center.php" class="notification-btn" title="<?=$approvalTotal?> pending approvals" style="position:relative">

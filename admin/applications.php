@@ -48,6 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $q      = trim($_GET['q']      ?? '');
 $status = trim($_GET['status'] ?? '');
 $grade  = trim($_GET['grade']  ?? '');
+$ayAppF = (int)($_GET['ay_id'] ?? currentAcademicYearId()); // default = current year; 0 = all
 $page   = max(1,(int)($_GET['page'] ?? 1));
 $per    = 15;
 
@@ -55,6 +56,7 @@ $where=[]; $params=[];
 if ($q)      { $where[]='(a.first_name LIKE ? OR a.last_name LIKE ? OR a.application_number LIKE ? OR a.phone LIKE ?)'; $like="%$q%"; $params=array_merge($params,[$like,$like,$like,$like]); }
 if ($status) { $where[]='a.status=?'; $params[]=$status; }
 if ($grade)  { $where[]='a.grade_applying_for=?'; $params[]=$grade; }
+if ($ayAppF) { $where[]='a.academic_year_id=?'; $params[]=$ayAppF; }
 $wsql = $where ? 'WHERE '.implode(' AND ',$where) : '';
 
 $total = (int)$pdo->prepare("SELECT COUNT(*) FROM applications a $wsql")->execute($params) ? $pdo->query("SELECT COUNT(*) FROM (SELECT a.id FROM applications a $wsql) t")->fetchColumn() : 0;
@@ -67,8 +69,10 @@ $rows->execute($params); $apps = $rows->fetchAll();
 $grades   = $pdo->query("SELECT name FROM grades WHERE is_active=1 ORDER BY sequence")->fetchAll(PDO::FETCH_COLUMN);
 $statuses = ['Application Submitted','Under Review','Documents needed','Approved for entrance','Entrance scheduled','Entrance completed','Entrance passed','Admitted','Rejected','Waitlisted'];
 
-// Summary counts
-$summary = $pdo->query("SELECT status,COUNT(*) cnt FROM applications GROUP BY status")->fetchAll(PDO::FETCH_KEY_PAIR);
+// Summary counts — scoped to selected year
+$summaryWhere = $ayAppF ? "WHERE academic_year_id=$ayAppF" : '';
+$summary = $pdo->query("SELECT status,COUNT(*) cnt FROM applications $summaryWhere GROUP BY status")->fetchAll(PDO::FETCH_KEY_PAIR);
+$allYearsApp = $pdo->query("SELECT id,name,is_current FROM academic_years ORDER BY start_date DESC")->fetchAll();
 ?>
 
 <div class="page-heading">
@@ -94,6 +98,14 @@ $summary = $pdo->query("SELECT status,COUNT(*) cnt FROM applications GROUP BY st
   <!-- Filters -->
   <form method="get" class="filter-row">
     <div class="table-search">🔍<input type="search" name="q" placeholder="Name, app number, phone…" value="<?= e($q) ?>"/></div>
+    <select name="ay_id" class="filter-button" onchange="this.form.submit()" title="Filter by academic year">
+      <option value="0">All years</option>
+      <?php foreach ($allYearsApp as $yr): ?>
+      <option value="<?= $yr['id'] ?>" <?= $ayAppF==$yr['id']?'selected':'' ?>>
+        <?= e($yr['name']) ?><?= $yr['is_current']?' (Current)':'' ?>
+      </option>
+      <?php endforeach; ?>
+    </select>
     <select name="status" class="filter-button" onchange="this.form.submit()">
       <option value="">All statuses</option>
       <?php foreach ($statuses as $s): ?><option value="<?= e($s) ?>" <?= $status===$s?'selected':'' ?>><?= e($s) ?></option><?php endforeach; ?>

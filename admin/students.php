@@ -66,13 +66,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $q       = trim($_GET['q']        ?? '');
 $gradeF  = (int)($_GET['grade_id'] ?? 0);
 $statusF = trim($_GET['status']    ?? '');
+$ayFilter= (int)($_GET['ay_id']   ?? $ayId); // default = current year; 0 = all years
 $page    = max(1, (int)($_GET['page'] ?? 1));
 $per     = 20;
 
 $where = []; $params = [];
-if ($q)      { $where[] = '(s.first_name LIKE ? OR s.last_name LIKE ? OR s.student_id LIKE ? OR s.phone LIKE ? OR s.admission_number LIKE ?)'; $like="%$q%"; array_push($params,$like,$like,$like,$like,$like); }
-if ($gradeF) { $where[] = 's.current_grade_id=?'; $params[] = $gradeF; }
-if ($statusF){ $where[] = 's.status=?';            $params[] = $statusF; }
+if ($q)        { $where[] = '(s.first_name LIKE ? OR s.last_name LIKE ? OR s.student_id LIKE ? OR s.phone LIKE ? OR s.admission_number LIKE ?)'; $like="%$q%"; array_push($params,$like,$like,$like,$like,$like); }
+if ($gradeF)   { $where[] = 's.current_grade_id=?'; $params[] = $gradeF; }
+if ($statusF)  { $where[] = 's.status=?';            $params[] = $statusF; }
+if ($ayFilter) { $where[] = 's.academic_year_id=?';  $params[] = $ayFilter; }
 $wsql = $where ? 'WHERE '.implode(' AND ',$where) : '';
 
 $cnt = $pdo->prepare("SELECT COUNT(*) FROM students s $wsql"); $cnt->execute($params); $total=(int)$cnt->fetchColumn();
@@ -80,9 +82,10 @@ $pg  = paginate($total, $per, $page);
 $rows= $pdo->prepare("SELECT s.*,g.name grade_name,c.name class_name FROM students s LEFT JOIN grades g ON g.id=s.current_grade_id LEFT JOIN classes c ON c.id=s.current_class_id $wsql ORDER BY s.first_name,s.last_name LIMIT $per OFFSET {$pg['offset']}");
 $rows->execute($params); $students = $rows->fetchAll();
 
-$grades  = $pdo->query("SELECT id,name FROM grades WHERE is_active=1 ORDER BY sequence")->fetchAll();
-$classes = $pdo->prepare("SELECT id,name FROM classes WHERE academic_year_id=? ORDER BY name")->execute([$ayId]) ? $pdo->query("SELECT id,name FROM classes WHERE academic_year_id=$ayId ORDER BY name")->fetchAll() : [];
-$active  = (int)$pdo->query("SELECT COUNT(*) FROM students WHERE status='Active'")->fetchColumn();
+$grades    = $pdo->query("SELECT id,name FROM grades WHERE is_active=1 ORDER BY sequence")->fetchAll();
+$allYearsF = $pdo->query("SELECT id,name,is_current FROM academic_years ORDER BY start_date DESC")->fetchAll();
+$classes   = $pdo->prepare("SELECT id,name FROM classes WHERE academic_year_id=? ORDER BY name")->execute([$ayId]) ? $pdo->query("SELECT id,name FROM classes WHERE academic_year_id=$ayId ORDER BY name")->fetchAll() : [];
+$active    = (int)$pdo->query("SELECT COUNT(*) FROM students WHERE status='Active' AND academic_year_id=$ayFilter")->fetchColumn();
 
 $pageTitle   = 'Students';
 $activeAdmin = 'students';
@@ -101,13 +104,21 @@ require_once dirname(__DIR__).'/includes/admin_header.php';
 </div>
 
 <div class="stat-mini-row">
-  <div class="stat-mini-item"><strong><?= number_format($active) ?></strong><span>Active students</span></div>
+  <div class="stat-mini-item"><strong><?= number_format($active) ?></strong><span>Active – <?= e($allYearsF[array_search($ayFilter,array_column($allYearsF,'id'))]['name'] ?? 'All years') ?></span></div>
   <div class="stat-mini-item"><strong><?= number_format($total) ?></strong><span>Filtered results</span></div>
 </div>
 
 <div class="list-content">
   <form method="get" class="filter-row">
     <div class="table-search">🔍<input type="search" name="q" placeholder="Name, ID, phone…" value="<?= e($q) ?>"/></div>
+    <select name="ay_id" class="filter-button" onchange="this.form.submit()" title="Filter by academic year">
+      <option value="0">All years</option>
+      <?php foreach ($allYearsF as $yr): ?>
+      <option value="<?= $yr['id'] ?>" <?= $ayFilter==$yr['id']?'selected':'' ?>>
+        <?= e($yr['name']) ?><?= $yr['is_current']?' (Current)':'' ?>
+      </option>
+      <?php endforeach; ?>
+    </select>
     <select name="grade_id" class="filter-button" onchange="this.form.submit()">
       <option value="">All grades</option>
       <?php foreach ($grades as $g): ?><option value="<?= $g['id'] ?>" <?= $gradeF==$g['id']?'selected':'' ?>><?= e($g['name']) ?></option><?php endforeach; ?>
