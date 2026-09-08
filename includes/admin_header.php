@@ -399,23 +399,39 @@ $sidebarAllowlist = [
   ],
 
   // ── Accountant / Bursar ───────────────────────────────────────
-  // Finance only: payments, fee structures, receipts, reports.
-  // No admissions, academics, marks, attendance, discipline, system.
+  // School financial management (merged Accountant + Finance Officer).
+  // Responsible for: school fees, fee structures, student invoices,
+  // payments, receipts, outstanding balances, discounts, financial
+  // records, daily collections, financial reports, expenses, budgets,
+  // payment verification, bank/mobile money reconciliation.
+  // Can: create invoices, record payments, issue receipts, view
+  //   balances, prepare expense requests, verify payments,
+  //   reconcile accounts, prepare financial reports.
+  // Cannot: delete financial transactions, approve own expenses,
+  //   approve major financial adjustments (→ Principal).
+  // All finance work lives inside the Finance module (fee structures,
+  // payments, receipts, invoices, balances, reconciliation, reports).
   'accountant' => [
     'dashboard',
+
+    // Students — view-only for payment lookups and balance checks
     '_sep_students',
-    'students',            // view-only for context (payment lookups)
+    'students',              // look up students for invoices & payments
+
+    // Operations — all financial management
     '_sep_ops',
-    'finance',
+    'finance',               // fees, payments, receipts, invoices, balances,
+                             // reconciliation, expense requests, fee structures
+
+    // Communications — school-wide notices
     '_sep_comms',
     'announcements',
+
+    // System — financial reports
     '_sep_system',
-    'reports',
+    'reports',               // daily collections, financial reports, summaries
   ],
 
-  // ── Teacher ──────────────────────────────────────────────────
-  // Manages own classes: marks entry, attendance, results, timetable.
-  // No admissions, academic config, finance, discipline, system.
   // ── Teacher ──────────────────────────────────────────────────
   // Teaching and student assessment for assigned classes/subjects.
   // Responsible for: attendance, marks entry, classwork, assignments,
