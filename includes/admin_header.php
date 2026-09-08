@@ -178,44 +178,65 @@ $sidebarAllowlist = [
 
   // ── Principal ─────────────────────────────────────────────────
   // Senior academic/administrative authority. Final approver.
-  // Does NOT enter marks (approves/reviews instead).
-  // Excluded: roles, audit_logs, settings (perms 135,136,137)
+  // ── Principal ─────────────────────────────────────────────────
+  // Head of the school and final institutional authority.
+  // Responsible for: overall school management, academic oversight,
+  // staff oversight, student affairs, financial oversight, discipline,
+  // admissions approval, promotion/graduation, examination oversight,
+  // policy implementation, official reports, all final approvals.
+  // Does NOT enter marks — reviews and approves instead.
+  // Does NOT manage system config (roles, audit logs, settings).
   'principal' => [
     'dashboard',
-    'approval_center',
+    'approval_center',       // final approver on ALL workflows
+
+    // Admissions — approve, reject, manage entrance exams
     '_sep_admissions',
-    'applications',
-    'entrance_exams',
-    'admissions_mgr',
+    'applications',          // view all applications
+    'entrance_exams',        // examination oversight
+    'admissions_mgr',        // admissions approval / rejection
+
+    // Students — student affairs
     '_sep_students',
-    'students',
-    'guardians',
-    'documents',
-    'promotion',
+    'students',              // all student records
+    'guardians',             // guardian records
+    'documents',             // student documents
+    'promotion',             // promotion & graduation approval
+
+    // Academics — academic oversight
     '_sep_academics',
-    'academic_years',
-    'classes',
-    'subjects',
-    'teachers',
-    'assignments',
-    'timetable',
+    'academic_years',        // academic calendar oversight
+    'classes',               // class/grade structure
+    'subjects',              // subject oversight
+    'teachers',              // staff oversight
+    'assignments',           // teacher assignments
+    'timetable',             // timetable oversight
+
+    // Assessment — review & approve, NOT enter
     '_sep_assessment',
-    'marks_approval',   // reviews/approves — does NOT enter marks
-    'results',
-    'broadsheets',
-    'report_cards',
+    'marks_approval',        // approve/reject submitted marks
+    'results',               // examination results oversight
+    'broadsheets',           // official broadsheets
+    'report_cards',          // approve & publish report cards
+
+    // Operations — financial oversight, discipline, attendance, exams
     '_sep_ops',
-    'attendance',
-    'finance',
-    'discipline',
-    'library',
+    'attendance',            // attendance oversight
+    'exams',                 // examination oversight
+    'finance',               // financial oversight: major expenses, fee waivers
+    'discipline',            // approve major disciplinary actions
+    'library',               // library oversight
+
+    // Communications — announcements, policy, events
     '_sep_comms',
-    'announcements',
-    'events',
-    'messages',
+    'announcements',         // official school announcements
+    'events',                // school events
+    'messages',              // communications oversight
+
+    // System — staff user management, official reports
     '_sep_system',
-    'users',
-    'reports',
+    'users',                 // staff oversight (view/manage user accounts)
+    'reports',               // official school-wide reports
   ],
 
   // ── Vice Principal ────────────────────────────────────────────
