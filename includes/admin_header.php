@@ -135,6 +135,318 @@ $sidebarAllowlist = [
     'reports',
     'settings',
   ],
+
+  // ── School Administrator ──────────────────────────────────────
+  // Manages school operations. Full operational access.
+  // Excluded: roles, audit_logs, settings, users.delete (perms 133,135,136,137,138)
+  'school_admin' => [
+    'dashboard',
+    'approval_center',
+    '_sep_admissions',
+    'applications',
+    'entrance_exams',
+    'admissions_mgr',
+    '_sep_students',
+    'students',
+    'guardians',
+    'documents',
+    'promotion',
+    '_sep_academics',
+    'academic_years',
+    'classes',
+    'subjects',
+    'teachers',
+    'assignments',
+    'timetable',
+    '_sep_assessment',
+    'marks_entry',
+    'marks_approval',
+    'results',
+    'broadsheets',
+    'report_cards',
+    '_sep_ops',
+    'attendance',
+    'exams',
+    'finance',
+    'library',
+    'discipline',
+    '_sep_comms',
+    'announcements',
+    'events',
+    'messages',
+    '_sep_system',
+    'users',
+    'reports',
+  ],
+
+  // ── Principal ─────────────────────────────────────────────────
+  // Senior academic/administrative authority. Final approver.
+  // Does NOT enter marks (approves/reviews instead).
+  // Excluded: roles, audit_logs, settings (perms 135,136,137)
+  'principal' => [
+    'dashboard',
+    'approval_center',
+    '_sep_admissions',
+    'applications',
+    'entrance_exams',
+    'admissions_mgr',
+    '_sep_students',
+    'students',
+    'guardians',
+    'documents',
+    'promotion',
+    '_sep_academics',
+    'academic_years',
+    'classes',
+    'subjects',
+    'teachers',
+    'assignments',
+    'timetable',
+    '_sep_assessment',
+    'marks_approval',   // reviews/approves — does NOT enter marks
+    'results',
+    'broadsheets',
+    'report_cards',
+    '_sep_ops',
+    'attendance',
+    'finance',
+    'discipline',
+    'library',
+    '_sep_comms',
+    'announcements',
+    'events',
+    'messages',
+    '_sep_system',
+    'users',
+    'reports',
+  ],
+
+  // ── Vice Principal ────────────────────────────────────────────
+  // Assists with academic/student management. First-level approver.
+  // Does NOT enter marks. No finance management, no system config.
+  'vice_principal' => [
+    'dashboard',
+    'approval_center',
+    '_sep_admissions',
+    'applications',        // view/recommend only — admissions_mgr hidden by perm
+    '_sep_students',
+    'students',
+    'guardians',
+    'documents',
+    'promotion',
+    '_sep_academics',
+    'academic_years',
+    'classes',
+    'subjects',
+    'teachers',
+    'assignments',
+    'timetable',
+    '_sep_assessment',
+    'marks_approval',      // reviews/approves — does NOT enter marks
+    'results',
+    'broadsheets',
+    'report_cards',
+    '_sep_ops',
+    'attendance',
+    'exams',
+    'discipline',
+    '_sep_comms',
+    'announcements',
+    'events',
+    'messages',
+    '_sep_system',
+    'users',
+    'reports',
+  ],
+
+  // vice_principal_alt = legacy alias for vice_principal
+  'vice_principal_alt' => [
+    'dashboard',
+    'approval_center',
+    '_sep_admissions',
+    'applications',
+    '_sep_students',
+    'students',
+    'guardians',
+    'documents',
+    'promotion',
+    '_sep_academics',
+    'academic_years',
+    'classes',
+    'subjects',
+    'teachers',
+    'assignments',
+    'timetable',
+    '_sep_assessment',
+    'marks_approval',
+    'results',
+    'broadsheets',
+    'report_cards',
+    '_sep_ops',
+    'attendance',
+    'exams',
+    'discipline',
+    '_sep_comms',
+    'announcements',
+    'events',
+    'messages',
+    '_sep_system',
+    'users',
+    'reports',
+  ],
+
+  // academic_dean = legacy alias for vice_principal
+  'academic_dean' => [
+    'dashboard',
+    'approval_center',
+    '_sep_admissions',
+    'applications',
+    '_sep_students',
+    'students',
+    'guardians',
+    'documents',
+    'promotion',
+    '_sep_academics',
+    'academic_years',
+    'classes',
+    'subjects',
+    'teachers',
+    'assignments',
+    'timetable',
+    '_sep_assessment',
+    'marks_approval',
+    'results',
+    'broadsheets',
+    'report_cards',
+    '_sep_ops',
+    'attendance',
+    'exams',
+    'discipline',
+    '_sep_comms',
+    'announcements',
+    'events',
+    'messages',
+    '_sep_system',
+    'users',
+    'reports',
+  ],
+
+  // ── Registrar ─────────────────────────────────────────────────
+  // Manages student registration, admissions, and academic records.
+  // No marks entry/approval, no finance, no discipline, no system.
+  'registrar' => [
+    'dashboard',
+    '_sep_admissions',
+    'applications',
+    'entrance_exams',
+    'admissions_mgr',      // perm gate (admissions.approve) hides if not granted
+    '_sep_students',
+    'students',
+    'guardians',
+    'documents',
+    'promotion',
+    '_sep_assessment',
+    'report_cards',        // view/print only
+    '_sep_ops',
+    'attendance',          // view/export only
+    '_sep_comms',
+    'announcements',
+    '_sep_system',
+    'reports',
+  ],
+
+  // ── Accountant / Bursar ───────────────────────────────────────
+  // Finance only: payments, fee structures, receipts, reports.
+  // No admissions, academics, marks, attendance, discipline, system.
+  'accountant' => [
+    'dashboard',
+    '_sep_students',
+    'students',            // view-only for context (payment lookups)
+    '_sep_ops',
+    'finance',
+    '_sep_comms',
+    'announcements',
+    '_sep_system',
+    'reports',
+  ],
+
+  // ── Teacher ──────────────────────────────────────────────────
+  // Manages own classes: marks entry, attendance, results, timetable.
+  // No admissions, academic config, finance, discipline, system.
+  'teacher' => [
+    'dashboard',
+    '_sep_students',
+    'students',
+    '_sep_academics',
+    'timetable',
+    '_sep_assessment',
+    'marks_entry',
+    'results',
+    'report_cards',
+    '_sep_ops',
+    'attendance',
+    '_sep_comms',
+    'announcements',
+  ],
+
+  // ── Class Teacher ─────────────────────────────────────────────
+  // Like teacher but also handles discipline for own class,
+  // approves attendance corrections, and can create announcements.
+  'class_teacher' => [
+    'dashboard',
+    '_sep_students',
+    'students',
+    '_sep_academics',
+    'timetable',
+    '_sep_assessment',
+    'marks_entry',
+    'results',
+    'report_cards',
+    '_sep_ops',
+    'attendance',
+    'discipline',
+    '_sep_comms',
+    'announcements',
+  ],
+
+  // ── Discipline Officer ────────────────────────────────────────
+  // Manages disciplinary incidents only.
+  // No academics, marks, finance, library, system.
+  'discipline_officer' => [
+    'dashboard',
+    '_sep_students',
+    'students',
+    '_sep_ops',
+    'discipline',
+    '_sep_comms',
+    'announcements',
+  ],
+
+  // ── Librarian ─────────────────────────────────────────────────
+  // Manages books, borrowing and returns.
+  // No academics, marks, finance, discipline, system.
+  'librarian' => [
+    'dashboard',
+    '_sep_students',
+    'students',            // needed to look up borrowers
+    '_sep_ops',
+    'library',
+    '_sep_comms',
+    'announcements',
+  ],
+
+  // ── ICT Officer ───────────────────────────────────────────────
+  // System support: user accounts, audit logs, settings only.
+  // No roles.manage. No academic/finance/marks operations.
+  'ict_officer' => [
+    'dashboard',
+    '_sep_comms',
+    'announcements',
+    '_sep_system',
+    'users',
+    'audit_logs',
+    'settings',
+  ],
 ];
 
 // Helper: should a sidebar item be shown?
