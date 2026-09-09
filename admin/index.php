@@ -9,6 +9,14 @@ requireStaff();
 
 $role = currentRole();
 
+// Roles with dedicated portals → redirect instead of loading admin dash
+$portalRoles = ['discipline_officer','librarian','ict_officer'];
+if (in_array($role, $portalRoles, true)) {
+    portalRedirect();
+}
+
+$role = currentRole();
+
 // Map every role to its dashboard file inside admin/roles/
 $dashMap = [
     'sys_admin'          => 'roles/sys_admin/dashboard.php',

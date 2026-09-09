@@ -251,6 +251,9 @@ function portalRedirect(): never {
         'teacher'           => BASE_URL.'/portal/teacher/',
         'class_teacher'     => BASE_URL.'/portal/teacher/',
         'applicant'         => BASE_URL.'/portal/applicant/',
+        'discipline_officer'=> BASE_URL.'/portal/discipline/',
+        'librarian'         => BASE_URL.'/portal/librarian/',
+        'ict_officer'       => BASE_URL.'/portal/ict/',
     ];
     redirect($map[$role] ?? BASE_URL.'/admin/index.php');
 }
