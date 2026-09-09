@@ -125,6 +125,64 @@ foreach ($scores as $sc) $configs[$sc['cfg_name']] = $sc['cfg_name'];
   </p>
   <?php endif; ?>
 
+  <!-- ── PREVIOUS YEARS ─────────────────────────────── -->
+  <?php
+  // All academic years the student has results in
+  try {
+      $prevYears=$pdo->query(
+          "SELECT DISTINCT ay.id,ay.name FROM assessment_scores asc2
+           JOIN academic_years ay ON ay.id=asc2.academic_year_id
+           WHERE asc2.student_id={$student['id']} AND asc2.academic_year_id!=$ayId
+           ORDER BY ay.start_date DESC LIMIT 5"
+      )->fetchAll();
+  } catch (Throwable $e) { $prevYears=[]; }
+  if (!empty($prevYears)):
+  ?>
+  <div style="margin-top:24px">
+    <h3 style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);margin-bottom:12px">📈 Previous Academic Years</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
+      <?php foreach ($prevYears as $py):
+        try{
+            $pyAvg=$pdo->query("SELECT ROUND(AVG(marks_obtained/max_marks*100),1) FROM assessment_scores WHERE student_id={$student['id']} AND academic_year_id={$py['id']} AND status IN ('approved','published') AND max_marks>0")->fetchColumn();
+        }catch(Throwable $e){$pyAvg=null;}
+        $pyCol=$pyAvg!==null?($pyAvg>=70?'var(--green)':($pyAvg>=50?'var(--warning)':'var(--error)')):'var(--ink-soft)';
+      ?>
+      <div class="panel" style="padding:18px;text-align:center;border-top:3px solid <?=$pyCol?>">
+        <div style="font-size:12px;font-weight:700;color:var(--ink-soft);margin-bottom:6px"><?=e($py['name'])?></div>
+        <div style="font-size:1.8rem;font-weight:800;color:<?=$pyCol?>"><?=$pyAvg!==null?$pyAvg.'%':'—'?></div>
+        <a href="my_results.php?ay=<?=$py['id']?>" style="font-size:12px;color:var(--primary);margin-top:6px;display:block">View details →</a>
+      </div>
+      <?php endforeach; ?>
+    </div>
+  </div>
+  <?php endif; ?>
+
+  <!-- ── ACADEMIC PROGRESS ─────────────────────────── -->
+  <?php if (!empty($prevYears)): ?>
+  <div style="margin-top:20px" class="panel" style="padding:20px">
+    <div style="padding:20px 20px 0">
+      <h3 style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);margin-bottom:12px">📊 Academic Progress Over Years</h3>
+    </div>
+    <div style="padding:16px 20px 20px;display:flex;align-items:flex-end;gap:8px;height:80px">
+      <?php
+      $allYears=array_merge($prevYears,[['id'=>$ayId,'name'=>$ay]]);
+      usort($allYears,fn($a,$b)=>$a['id']<=>$b['id']);
+      $maxAvg=100;
+      foreach($allYears as $yr):
+          try{$yAvg=(float)$pdo->query("SELECT COALESCE(ROUND(AVG(marks_obtained/max_marks*100),1),0) FROM assessment_scores WHERE student_id={$student['id']} AND academic_year_id={$yr['id']} AND status IN ('approved','published') AND max_marks>0")->fetchColumn();}catch(Throwable $e){$yAvg=0;}
+          $h=max(4,round($yAvg/$maxAvg*68));
+          $col=$yAvg>=70?'var(--green)':($yAvg>=50?'var(--warning)':'var(--error)');
+      ?>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
+        <span style="font-size:9px;color:var(--ink-soft)"><?=$yAvg>0?$yAvg.'%':'—'?></span>
+        <div style="width:100%;height:<?=$h?>px;background:<?=$yAvg>0?$col:'var(--line)'?>;border-radius:3px 3px 0 0;opacity:.85"></div>
+        <span style="font-size:9px;color:var(--ink-soft);white-space:nowrap"><?=e($yr['name'])?></span>
+      </div>
+      <?php endforeach; ?>
+    </div>
+  </div>
+  <?php endif; ?>
+
 </div>
 </div>
 <script src="<?= BASE_URL ?>/assets/js/main.js"></script>

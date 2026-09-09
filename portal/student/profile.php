@@ -153,6 +153,78 @@ $ini = strtoupper(substr($student['first_name'],0,1).substr($student['last_name'
     To update any information, please contact the school registrar.
   </p>
 
+  <!-- ── PROFILE UPDATE REQUEST ────────────────────────────── -->
+  <div class="panel" style="padding:22px;margin-top:20px">
+    <h3 style="font-size:15px;font-weight:700;margin-bottom:4px">📝 Request Information Update</h3>
+    <p style="font-size:13px;color:var(--ink-soft);margin-bottom:16px">
+      Official information changes require approval from the Registrar. Submit a request below and the office will review it.
+    </p>
+    <?php
+    // Show pending requests
+    try {
+        $pending=$pdo->query("SELECT * FROM approval_requests WHERE requested_by={$user['id']} AND module='student_profile' ORDER BY created_at DESC LIMIT 5")->fetchAll();
+    } catch (Throwable $e) { $pending=[]; }
+
+    if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['update_request'])) {
+        try {
+            verifyCsrf();
+            $field=trim($_POST['field_name']??'');
+            $newVal=trim($_POST['new_value']??'');
+            $reason=trim($_POST['reason']??'');
+            if ($field && $newVal) {
+                try {
+                    $pdo->prepare("INSERT INTO approval_requests (module,record_type,record_id,requested_by,status,priority,title,description,new_value) VALUES ('student_profile','student',?,?,'pending','normal',?,?,?)")
+                        ->execute([$student['id'],$user['id'],"Profile update: $field","Student requests change to $field. Reason: $reason",$newVal]);
+                    flash('success','Update request submitted. The Registrar will review your request.');
+                } catch (Throwable $e) { flash('error','Failed to submit: '.$e->getMessage()); }
+                redirect(BASE_URL.'/portal/student/profile.php');
+            }
+        } catch (Throwable $e) {}
+    }
+    ?>
+    <?php foreach(getFlash() as $f):?><div class="alert alert-<?=$f['type']?>"><?=e($f['message'])?></div><?php endforeach;?>
+
+    <?php if (!empty($pending)): ?>
+    <div style="margin-bottom:16px">
+      <h4 style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--ink-soft)">YOUR PENDING REQUESTS</h4>
+      <?php foreach ($pending as $pr): ?>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:var(--bg2);border-radius:var(--radius-sm);margin-bottom:6px;font-size:13px">
+        <span><?=e($pr['title'])?></span>
+        <span class="status <?=$pr['status']==='approved'?'approved':($pr['status']==='rejected'?'warning':'pending')?>" style="font-size:11px"><?=ucfirst($pr['status'])?></span>
+      </div>
+      <?php endforeach; ?>
+    </div>
+    <?php endif; ?>
+
+    <form method="post">
+      <?=csrfField()?>
+      <input type="hidden" name="update_request" value="1"/>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Field to Update <span style="color:var(--error)">*</span></label>
+          <select name="field_name" required>
+            <option value="">— Select field —</option>
+            <?php foreach(['Phone Number','Email Address','Home Address','County','District','Community','Emergency Contact'] as $f):?>
+            <option value="<?=$f?>"><?=$f?></option>
+            <?php endforeach;?>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>New Value <span style="color:var(--error)">*</span></label>
+          <input type="text" name="new_value" required placeholder="Enter the correct information"/>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label>Reason / Explanation</label>
+          <input type="text" name="reason" placeholder="Why does this need to be updated?"/>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:8px">
+        <button type="submit" class="button button-primary">📤 Submit Update Request</button>
+        <span style="font-size:12px;color:var(--ink-faint)">The Registrar will verify and apply approved changes.</span>
+      </div>
+    </form>
+  </div>
+
 </div>
 </div>
 <style>
