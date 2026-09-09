@@ -622,3 +622,192 @@ tbody tr:hover    { background:var(--bg); }
 @keyframes slideDown{ from{opacity:0;transform:translateY(-12px)} to{opacity:1;transform:translateY(0)} }
 @keyframes slideUp  { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
 @keyframes pulse    { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+/* ============================================================
+   Teacher Sidebar (ts-*) — dark themed, fully responsive
+   ============================================================ */
+
+/* Override portal-grid for teacher portal — wider sidebar on desktop */
+.teacher-sidebar ~ .portal-content,
+.portal-grid:has(.teacher-sidebar) { min-height:100vh; }
+
+/* Dark sidebar shell */
+.teacher-sidebar {
+  background: #1e1b4b;          /* deep indigo */
+  border-right: none;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+/* Brand bar */
+.ts-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 16px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  flex-shrink: 0;
+}
+.ts-brand strong { display:block; font-size:14px; font-weight:800; color:#fff; line-height:1.2; }
+.ts-brand small  { font-size:10.5px; color:rgba(255,255,255,.45); }
+.ts-close {
+  display: none;                 /* shown only on mobile */
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,.5);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  line-height: 1;
+  transition: color .15s;
+}
+.ts-close:hover { color: #fff; }
+
+/* Profile strip */
+.ts-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  flex-shrink: 0;
+}
+.ts-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.ts-profile-text strong { display:block; font-size:12.5px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:130px; }
+.ts-profile-text small  { font-size:10.5px; color:rgba(255,255,255,.45); }
+
+/* Nav list */
+.ts-nav { flex:1; padding:10px 10px; overflow-y:auto; }
+
+.ts-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,.65);
+  text-decoration: none;
+  transition: all .15s;
+  margin-bottom: 1px;
+}
+.ts-link:hover  { background: rgba(255,255,255,.08); color: #fff; }
+.ts-link.active { background: rgba(255,255,255,.14); color: #fff; }
+.ts-link.active .ts-icon { opacity:1; }
+
+.ts-icon {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+  opacity: .75;
+}
+.ts-link:hover  .ts-icon,
+.ts-link.active .ts-icon { opacity:1; }
+
+/* Section separators */
+.ts-divider       { height:1px; background:rgba(255,255,255,.07); margin:6px 10px; }
+.ts-section-label { padding:6px 12px 3px; font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.3); }
+
+/* Bottom links */
+.ts-bottom { padding:10px; border-top:1px solid rgba(255,255,255,.06); flex-shrink:0; }
+.ts-logout { color:rgba(255,100,100,.7) !important; }
+.ts-logout:hover { color:#ff8080 !important; background:rgba(255,80,80,.1) !important; }
+
+/* ── Mobile sidebar ── */
+.ts-topbar {
+  display: none;                 /* shown only on mobile */
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  margin: -28px -28px 20px;     /* bleed to edge of portal-content */
+}
+.ts-topbar-title { font-size:14px; font-weight:700; color:var(--ink); }
+.ts-hamburger {
+  width: 36px; height: 36px;
+  background: none;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0;
+}
+.ts-hamburger span {
+  display: block;
+  width: 16px; height: 2px;
+  background: var(--ink);
+  border-radius: 2px;
+  transition: all .2s;
+}
+
+/* Overlay */
+.ts-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 99;
+  opacity: 0;
+  transition: opacity .25s;
+}
+.ts-overlay.open { opacity:1; }
+
+/* ── Responsive breakpoint ── */
+@media (max-width: 768px) {
+  /* Keep portal-grid single column (already in base CSS) */
+
+  /* Hide sidebar by default on mobile; slide in when .open */
+  .teacher-sidebar {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: 260px;
+    transform: translateX(-100%);
+    transition: transform .28s cubic-bezier(.4,0,.2,1);
+    z-index: 100;
+  }
+  .teacher-sidebar.open { transform: translateX(0); }
+
+  /* Show overlay */
+  .ts-overlay { display:block; }
+
+  /* Show topbar & hamburger */
+  .ts-topbar   { display:flex; }
+
+  /* Show close button inside sidebar */
+  .ts-close { display:block; }
+}
+
+/* ── Teacher Dashboard layout helpers ── */
+.td-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 4px;
+}
+@media (max-width: 900px) { .td-panels { grid-template-columns: 1fr; } }
