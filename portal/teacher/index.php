@@ -123,6 +123,15 @@ $greet = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good ev
   <!-- Quick access sections -->
   <h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);margin-bottom:10px">Quick Access</h3>
 
+  <!-- Class Teacher section (only shown for class_teacher role) -->
+  <?php if (hasRole('class_teacher')): ?>
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);margin-bottom:7px">🏫 My Class (Class Teacher)</div>
+  <div class="quick-grid" style="margin-bottom:16px">
+    <a href="<?= BASE_URL ?>/portal/teacher/class_dashboard.php" class="quick-item" style="border:2px solid var(--primary)"><span class="qi-icon">🏫</span><div><strong>Class Dashboard</strong><small>Welfare, discipline, overview</small></div></a>
+    <a href="<?= BASE_URL ?>/portal/teacher/class_reports.php"   class="quick-item" style="border:2px solid var(--primary)"><span class="qi-icon">📑</span><div><strong>Class Reports</strong><small>Attendance, performance, comments</small></div></a>
+  </div>
+  <?php endif; ?>
+
   <!-- Teaching -->
   <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);margin-bottom:7px">📚 Teaching</div>
   <div class="quick-grid" style="margin-bottom:16px">

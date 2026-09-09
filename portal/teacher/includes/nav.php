@@ -12,6 +12,9 @@ if ($teacher) {
     $ini = strtoupper(substr($teacher['first_name']??'',0,1).substr($teacher['last_name']??'',0,1));
 }
 
+$isClassTeacher = hasRole('class_teacher');
+
+// Base nav for all teachers
 $nav = [
     'dashboard'   => ['🏠', 'Dashboard',        BASE_URL.'/portal/teacher/'],
     'classes'     => ['🏫', 'My Classes',        BASE_URL.'/portal/teacher/my_classes.php'],
@@ -25,6 +28,22 @@ $nav = [
     'materials'   => ['📚', 'Learning Materials',BASE_URL.'/portal/teacher/materials.php'],
     'announcements'=> ['📢', 'Announcements',    BASE_URL.'/portal/teacher/announcements.php'],
 ];
+
+// Class Teacher exclusive items — injected after 'dashboard'
+if ($isClassTeacher) {
+    $classTeacherNav = [
+        'class_dashboard' => ['🏫', 'My Class',         BASE_URL.'/portal/teacher/class_dashboard.php'],
+        'class_reports'   => ['📑', 'Class Reports',    BASE_URL.'/portal/teacher/class_reports.php'],
+    ];
+    // Splice after 'dashboard'
+    $navKeys  = array_keys($nav);
+    $navVals  = array_values($nav);
+    $dashPos  = array_search('dashboard',$navKeys);
+    array_splice($navKeys, $dashPos+1, 0, array_keys($classTeacherNav));
+    array_splice($navVals, $dashPos+1, 0, array_values($classTeacherNav));
+    $nav = array_combine($navKeys,$navVals);
+}
+?>
 ?>
 <aside class="portal-sidebar">
   <div class="portal-brand">
@@ -45,7 +64,15 @@ $nav = [
   <?php endif; ?>
 
   <nav class="portal-nav" aria-label="Teacher portal navigation">
-    <?php foreach ($nav as $key => [$icon, $label, $url]): ?>
+    <?php foreach ($nav as $key => [$icon, $label, $url]):
+      // Visual separator before class teacher section
+      if ($isClassTeacher && $key === 'class_dashboard'): ?>
+    <div style="margin:6px 14px;height:1px;background:rgba(255,255,255,.08)"></div>
+    <div style="padding:6px 14px 2px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.35)">Class Teacher</div>
+    <?php elseif ($isClassTeacher && $key === 'classes'): ?>
+    <div style="margin:6px 14px;height:1px;background:rgba(255,255,255,.08)"></div>
+    <div style="padding:6px 14px 2px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.35)">Teaching</div>
+    <?php endif; ?>
     <a href="<?= e($url) ?>" <?= $activePage === $key ? 'class="active" aria-current="page"' : '' ?>>
       <?= $icon ?> <?= $label ?>
     </a>
