@@ -51,7 +51,7 @@ $classIds      = implode(',', array_column($myClasses, 'id') ?: [0]);
 // ── Marks ─────────────────────────────────────────────────────
 try {
     $draftMarks = (int)$pdo->query(
-        "SELECT COUNT(DISTINCT CONCAT(class_id,'-',subject_id,'-',assessment_config_id))
+        "SELECT COUNT(DISTINCT CONCAT(class_id,'-',subject_id,'-',COALESCE(assessment_config_id,0)))
          FROM assessment_scores
          WHERE entered_by={$user['id']} AND status='draft' AND academic_year_id=$ayId"
     )->fetchColumn();
@@ -81,21 +81,78 @@ try {
 } catch (Throwable $e) { $attRateToday = null; }
 
 // ── Today's timetable ─────────────────────────────────────────
-$todayDow = date('l'); // Monday, Tuesday …
+$todayDow = (int)date('N'); // 1=Monday … 7=Sunday
 try {
     $todaySchedule = $pdo->query(
-        "SELECT tt.*, sub.name subject_name, c.name class_name
+        "SELECT tt.*, sub.name subject_name, c.name class_name, tt.room
          FROM timetable tt
          JOIN subjects sub ON sub.id=tt.subject_id
          JOIN classes  c   ON c.id=tt.class_id
          WHERE tt.teacher_id=$teacherId
-           AND tt.day_of_week='$todayDow'
+           AND tt.day_of_week=$todayDow
            AND tt.academic_year_id=$ayId
-         ORDER BY tt.start_time"
+         ORDER BY tt.period_slot, tt.start_time"
     )->fetchAll();
 } catch (Throwable $e) { $todaySchedule = []; }
 
 // ── Materials / Quizzes / Assessments ─────────────────────────
+// Ensure tables exist before counting (they're created on first page visit)
+try {
+    $pdo->exec("CREATE TABLE IF NOT EXISTS learning_materials (
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        teacher_id INT UNSIGNED NOT NULL,
+        class_id INT UNSIGNED NULL,
+        subject_id INT UNSIGNED NULL,
+        academic_year_id INT UNSIGNED NOT NULL,
+        title VARCHAR(200) NOT NULL,
+        description TEXT NULL,
+        material_type ENUM('note','pdf','assignment','study_guide','other') NOT NULL DEFAULT 'note',
+        file_path VARCHAR(255) NULL,
+        file_name VARCHAR(255) NULL,
+        file_size INT NULL,
+        is_published TINYINT(1) NOT NULL DEFAULT 1,
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_lm_teacher (teacher_id),
+        INDEX idx_lm_ay (academic_year_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+} catch (Throwable $e) {}
+try {
+    $pdo->exec("CREATE TABLE IF NOT EXISTS teacher_quizzes (
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        teacher_id INT UNSIGNED NOT NULL,
+        class_id INT UNSIGNED NOT NULL,
+        subject_id INT UNSIGNED NULL,
+        academic_year_id INT UNSIGNED NOT NULL,
+        title VARCHAR(200) NOT NULL,
+        description TEXT NULL,
+        time_limit_mins INT NULL,
+        max_attempts INT NOT NULL DEFAULT 1,
+        is_published TINYINT(1) NOT NULL DEFAULT 0,
+        start_date DATETIME NULL,
+        end_date DATETIME NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_tq_teacher (teacher_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+} catch (Throwable $e) {}
+try {
+    $pdo->exec("CREATE TABLE IF NOT EXISTS teacher_assessments (
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        teacher_id INT UNSIGNED NOT NULL,
+        class_id INT UNSIGNED NOT NULL,
+        subject_id INT UNSIGNED NULL,
+        academic_year_id INT UNSIGNED NOT NULL,
+        title VARCHAR(200) NOT NULL,
+        assessment_type ENUM('classwork','homework','test','quiz','project','other') NOT NULL DEFAULT 'classwork',
+        description TEXT NULL,
+        max_score DECIMAL(8,2) NOT NULL DEFAULT 100,
+        due_date DATE NULL,
+        is_graded TINYINT(1) NOT NULL DEFAULT 0,
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_ta_teacher (teacher_id),
+        INDEX idx_ta_class (class_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+} catch (Throwable $e) {}
+
 try { $materialCount=(int)$pdo->query("SELECT COUNT(*) FROM learning_materials WHERE teacher_id=$teacherId AND academic_year_id=$ayId AND is_published=1")->fetchColumn(); } catch(Throwable $e){$materialCount=0;}
 try { $quizCount    =(int)$pdo->query("SELECT COUNT(*) FROM teacher_quizzes WHERE teacher_id=$teacherId AND academic_year_id=$ayId")->fetchColumn();} catch(Throwable $e){$quizCount=0;}
 try { $asmCount     =(int)$pdo->query("SELECT COUNT(*) FROM teacher_assessments WHERE teacher_id=$teacherId AND academic_year_id=$ayId")->fetchColumn();} catch(Throwable $e){$asmCount=0;}
@@ -142,6 +199,7 @@ try {
 
 $hour  = (int)date('G');
 $greet = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good evening');
+$todayDowName = date('l'); // Monday, Tuesday …
 
 function perfColor(float $v): string {
     return $v >= 70 ? 'var(--green)' : ($v >= 50 ? 'var(--warning)' : 'var(--error)');
@@ -186,6 +244,13 @@ function perfColor(float $v): string {
   <?php foreach (getFlash() as $f): ?>
   <div class="alert alert-<?= $f['type'] ?>"><?= e($f['message']) ?></div>
   <?php endforeach; ?>
+
+  <!-- No assignments notice -->
+  <?php if (empty($myClasses)): ?>
+  <div class="alert alert-info" style="margin-bottom:20px">
+    ℹ️ You have no class assignments for <strong><?= e($ay) ?></strong> yet. Contact admin to assign you to classes and subjects.
+  </div>
+  <?php endif; ?>
 
   <!-- Action alerts -->
   <?php if ($returnedMarks > 0): ?>
@@ -244,7 +309,7 @@ function perfColor(float $v): string {
   <div class="panel" style="margin-bottom:20px">
     <div class="panel-heading">
       <div>
-        <h3>📅 Today — <?= $todayDow ?></h3>
+        <h3>📅 Today — <?= $todayDowName ?></h3>
         <p><?= count($todaySchedule) ?> period<?= count($todaySchedule)!==1?'s':'' ?> scheduled</p>
       </div>
       <a href="<?= BASE_URL ?>/portal/teacher/timetable.php" class="filter-button">Full timetable →</a>
