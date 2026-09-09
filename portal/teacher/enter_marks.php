@@ -1,8 +1,12 @@
 <?php
 require_once dirname(__DIR__,2).'/config/db.php';
 requireAuth(); requireRole(['teacher','class_teacher']);
-$pdo=db(); $user=currentUser(); $ayId=currentAcademicYearId(); $ay=currentAcademicYearName();
-$teacher=$pdo->prepare("SELECT id FROM teachers WHERE user_id=? LIMIT 1"); $teacher->execute([$user['id']]); $teacherId=(int)($pdo->query("SELECT id FROM teachers WHERE user_id={$user['id']} LIMIT 1")->fetchColumn()??0);
+
+$activePage = 'marks';
+$pdo = db(); $user = currentUser(); $ayId = currentAcademicYearId(); $ay = currentAcademicYearName();
+$teacherRow = $pdo->prepare("SELECT * FROM teachers WHERE user_id=? LIMIT 1");
+$teacherRow->execute([$user['id']]); $teacher = $teacherRow->fetch();
+$teacherId = $teacher ? (int)$teacher['id'] : 0;
 
 if($_SERVER['REQUEST_METHOD']==='POST'&&$_POST['action']==='save_marks'){
     verifyCsrf();
@@ -40,17 +44,7 @@ if($selClass&&$selSub&&$selCfg){
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="<?=BASE_URL?>/assets/css/style.css"/></head><body>
 <div class="portal-grid">
-<aside class="portal-sidebar">
-  <div class="portal-brand"><div class="brand"><img src="<?=BASE_URL?>/assets/images/logo.jpg" alt="KHS"/><span><strong>KHS</strong><small>Teacher Portal</small></span></div></div>
-  <nav class="portal-nav">
-    <a href="<?=BASE_URL?>/portal/teacher/">🏠 Dashboard</a>
-    <a href="<?=BASE_URL?>/portal/teacher/my_classes.php">🏫 My Classes</a>
-    <a href="<?=BASE_URL?>/portal/teacher/enter_marks.php" class="active">✏️ Enter Marks</a>
-    <a href="<?=BASE_URL?>/portal/teacher/take_attendance.php">📆 Attendance</a>
-    <a href="<?=BASE_URL?>/portal/teacher/students.php">🎓 Students</a>
-  </nav>
-  <div style="border-top:1px solid var(--line);padding:12px"><a href="<?=BASE_URL?>/admin/logout.php" style="color:var(--error);font-size:13px;font-weight:600">Sign Out</a></div>
-</aside>
+<?php include __DIR__.'/includes/nav.php'; ?>
 <div class="portal-content">
   <div class="page-heading"><div><h1>Enter Marks</h1><p><?=e($ay)?></p></div></div>
   <?=renderFlash()?>

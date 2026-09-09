@@ -1,49 +1,35 @@
 <?php
 require_once dirname(__DIR__,2).'/config/db.php';
 requireAuth(); requireRole(['teacher','class_teacher']);
-$pdo=db(); $user=currentUser(); $ayId=currentAcademicYearId(); $ay=currentAcademicYearName();
 
-// Get teacher record
-$teacherRow=$pdo->prepare("SELECT id FROM teachers WHERE user_id=? LIMIT 1");
-$teacherRow->execute([$user['id']]); $teacherId=(int)($teacherRow->fetchColumn()??0);
+$activePage = 'students';
+$pdo = db(); $user = currentUser(); $ayId = currentAcademicYearId(); $ay = currentAcademicYearName();
+$teacherRow = $pdo->prepare("SELECT * FROM teachers WHERE user_id=? LIMIT 1");
+$teacherRow->execute([$user['id']]); $teacher = $teacherRow->fetch();
+$teacherId = $teacher ? (int)$teacher['id'] : 0;
 
-// Get classes this teacher is assigned to
-$myClasses=$pdo->prepare("SELECT DISTINCT c.id,c.name FROM teacher_assignments ta JOIN classes c ON c.id=ta.class_id WHERE ta.teacher_id=? AND ta.academic_year_id=? ORDER BY c.name");
+$myClasses = $pdo->prepare("SELECT DISTINCT c.id,c.name FROM teacher_assignments ta JOIN classes c ON c.id=ta.class_id WHERE ta.teacher_id=? AND ta.academic_year_id=? ORDER BY c.name");
 $myClasses->execute([$teacherId,$ayId]); $myClasses=$myClasses->fetchAll();
 
-$selClass=(int)($_GET['class_id']??0);
-// If no class selected and teacher only has one, auto-select it
+$selClass = (int)($_GET['class_id']??0);
 if (!$selClass && count($myClasses)===1) $selClass=$myClasses[0]['id'];
 
-$q=trim($_GET['q']??'');
-$students=[];
+$q = trim($_GET['q']??'');
+$students = [];
 if ($selClass) {
-    $wsql=$q?"AND (s.first_name LIKE ? OR s.last_name LIKE ? OR s.student_id LIKE ?)":'';
-    $stmt=$pdo->prepare("SELECT s.*,g.name grade_name FROM students s LEFT JOIN grades g ON g.id=s.current_grade_id WHERE s.current_class_id=? AND s.status='Active' $wsql ORDER BY s.last_name,s.first_name");
-    $params=[$selClass]; if($q){$like="%$q%";$params=array_merge($params,[$like,$like,$like]);}
+    $wsql = $q ? "AND (s.first_name LIKE ? OR s.last_name LIKE ? OR s.student_id LIKE ?)" : '';
+    $stmt = $pdo->prepare("SELECT s.*,g.name grade_name FROM students s LEFT JOIN grades g ON g.id=s.current_grade_id WHERE s.current_class_id=? AND s.status='Active' $wsql ORDER BY s.last_name,s.first_name");
+    $params=[$selClass]; if($q){$like="%$q%"; $params=array_merge($params,[$like,$like,$like]);}
     $stmt->execute($params); $students=$stmt->fetchAll();
 }
-
-$className=$selClass ? ($pdo->query("SELECT name FROM classes WHERE id=$selClass")->fetchColumn()??'') : '';
+$className = $selClass ? ($pdo->query("SELECT name FROM classes WHERE id=$selClass")->fetchColumn()??'') : '';
 ?>
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>My Students — Teacher Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="<?=BASE_URL?>/assets/css/style.css"/></head><body>
 <div class="portal-grid">
-<aside class="portal-sidebar">
-  <div class="portal-brand"><div class="brand"><img src="<?=BASE_URL?>/assets/images/logo.jpg" alt="KHS"/><span><strong>KHS</strong><small>Teacher Portal</small></span></div></div>
-  <nav class="portal-nav">
-    <a href="<?=BASE_URL?>/portal/teacher/">🏠 Dashboard</a>
-    <a href="<?=BASE_URL?>/portal/teacher/my_classes.php">🏫 My Classes</a>
-    <a href="<?=BASE_URL?>/portal/teacher/enter_marks.php">✏️ Enter Marks</a>
-    <a href="<?=BASE_URL?>/portal/teacher/take_attendance.php">📆 Attendance</a>
-    <a href="<?=BASE_URL?>/portal/teacher/students.php" class="active">🎓 Students</a>
-    <a href="<?=BASE_URL?>/portal/teacher/timetable.php">📅 Timetable</a>
-    <a href="<?=BASE_URL?>/portal/teacher/announcements.php">📢 Announcements</a>
-  </nav>
-  <div style="border-top:1px solid var(--line);padding:12px"><a href="<?=BASE_URL?>/admin/logout.php" style="color:var(--error);font-size:13px;font-weight:600">Sign Out</a></div>
-</aside>
+<?php include __DIR__.'/includes/nav.php'; ?>
 <div class="portal-content">
   <div class="page-heading">
     <div><h1>My Students</h1><p><?=$selClass?e($className).' — ':''?><?=e($ay)?></p></div>
