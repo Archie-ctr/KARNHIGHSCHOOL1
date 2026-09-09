@@ -108,16 +108,17 @@ if ($selClass && $selSub) {
   <?php else: ?>
 
   <!-- Status summary -->
-  <?php if (!empty($statusSummary)): ?>
+  <?php
+  $sBadge = ['draft'=>'pending','submitted'=>'new-s','approved'=>'approved','returned'=>'warning','resubmitted'=>'new-s','rejected'=>'warning','published'=>'approved'];
+  if (!empty($statusSummary)): ?>
   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
-    <?php
-    $sBadge=['draft'=>'pending','submitted'=>'new-s','approved'=>'approved','returned'=>'warning','resubmitted'=>'new-s','rejected'=>'warning','published'=>'approved'];
-    foreach ($statusSummary as $st => $cnt): ?>
+    <?php foreach ($statusSummary as $st => $cnt): ?>
     <span class="status <?= $sBadge[$st]??'new-s' ?>" style="font-size:12px;padding:5px 12px">
       <?= ucfirst($st) ?>: <strong><?= $cnt ?></strong>
     </span>
     <?php endforeach; ?>
   </div>
+  <?php endif; ?>
 
   <!-- Returned marks alert -->
   <?php $returnedCount = $statusSummary['returned'] ?? 0;
@@ -126,7 +127,7 @@ if ($selClass && $selSub) {
     ↩️ <strong><?= $returnedCount ?> mark record<?= $returnedCount!==1?'s':'' ?></strong> returned for correction.
     <a href="<?= BASE_URL ?>/portal/teacher/enter_marks.php?class_id=<?= $selClass ?>&subject_id=<?= $selSub ?>" style="font-weight:700;margin-left:8px">Correct & Resubmit →</a>
   </div>
-  <?php endif; endif; ?>
+  <?php endif; ?>
 
   <?php if (!empty($students) && !empty($configs)): ?>
   <!-- Results table -->
@@ -191,6 +192,8 @@ if ($selClass && $selSub) {
   <?php elseif (!empty($students)): ?>
   <p style="color:var(--ink-soft);padding:24px;text-align:center">No marks entered yet for this class/subject combination.</p>
   <?php endif; ?>
+
+<?php endif; /* end outer else */ ?>
 
 </div>
 </div>
