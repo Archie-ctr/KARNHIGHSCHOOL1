@@ -13,6 +13,7 @@
   --ink:           #1a1a1f;
   --ink-soft:      #5a5a66;
   --ink-faint:     #8a8a94;
+  --bg2:           #f0ebe2;
   --line:          #e8e2d8;
   --line-soft:     #f0ebe2;
   --primary:       #ac2443;
@@ -742,7 +743,7 @@ tbody tr:hover    { background:var(--bg); }
   position: sticky;
   top: 0;
   z-index: 90;
-  margin: -28px -28px 20px;     /* bleed to edge of portal-content */
+  margin-bottom: 20px;
 }
 .ts-topbar-title { font-size:14px; font-weight:700; color:var(--ink); }
 .ts-hamburger {
@@ -797,10 +798,21 @@ tbody tr:hover    { background:var(--bg); }
   .ts-overlay { display:block; }
 
   /* Show topbar & hamburger */
-  .ts-topbar   { display:flex; }
+  .ts-topbar   { display:flex; margin: -28px -28px 20px; }
 
   /* Show close button inside sidebar */
   .ts-close { display:block; }
+}
+
+/* ── Portal content overrides ── */
+.portal-content .metric-grid {
+  grid-template-columns: repeat(auto-fill, minmax(160px,1fr));
+}
+@media (max-width: 900px) {
+  .portal-content .metric-grid { grid-template-columns: repeat(2,1fr); }
+}
+@media (max-width: 480px) {
+  .portal-content .metric-grid { grid-template-columns: 1fr; }
 }
 
 /* ── Teacher Dashboard layout helpers ── */
