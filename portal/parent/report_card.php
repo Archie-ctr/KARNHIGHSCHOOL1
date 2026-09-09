@@ -1,6 +1,6 @@
 <?php
 // ============================================================
-// Parent Portal — Child Report Card
+// Parent Portal — Child Gradesheet & Diploma
 // ============================================================
 require_once dirname(__DIR__,2).'/config/db.php';
 requireAuth(); requireRole('parent');
@@ -10,6 +10,8 @@ $ayId = currentAcademicYearId();
 $ay   = currentAcademicYearName();
 
 include __DIR__.'/includes/resolve_child.php';
+
+$isGr12 = $child && ($child['current_grade_id']??0) == 13;
 
 $rc = null; $subjects = []; $scoreData = [];
 
@@ -50,7 +52,7 @@ $schoolName = setting('school_name', 'KARN HIGH SCHOOL');
 <html lang="en">
 <head>
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Report Card — Parent Portal</title>
+  <title>Gradesheet &amp; Diploma — Parent Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css"/>
 </head>
@@ -61,14 +63,18 @@ $schoolName = setting('school_name', 'KARN HIGH SCHOOL');
 
   <div class="page-heading">
     <div>
-      <h1><?= $child ? e($child['first_name'])."'s" : "Child's" ?> Report Card</h1>
+      <h1><?= $child ? e($child['first_name'])."'s" : "Child's" ?> Gradesheet<?= $isGr12 ? ' &amp; Diploma' : '' ?></h1>
       <p><?= e($ay) ?></p>
     </div>
     <?php if ($rc && $rc['status'] === 'published'): ?>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <a href="<?= BASE_URL ?>/letters/report_card_pdf.php?student_id=<?= $child['id'] ?>&ay_id=<?= $ayId ?>"
-         class="button button-secondary button-sm" target="_blank">📄 Download PDF</a>
-      <button onclick="window.print()" class="button button-secondary button-sm">🖨️ Print</button>
+      <a href="<?= BASE_URL ?>/letters/gradesheet_pdf.php?student_id=<?= $child['id'] ?>&ay_id=<?= $ayId ?>"
+         class="button button-secondary button-sm" target="_blank">📋 View Gradesheet PDF</a>
+      <?php if ($isGr12): ?>
+      <a href="<?= BASE_URL ?>/letters/diploma_pdf.php?student_id=<?= $child['id'] ?>&ay_id=<?= $ayId ?>"
+         class="button button-primary button-sm" target="_blank"
+         style="background:#1a6b2a;border-color:#1a6b2a">🎓 View Diploma</a>
+      <?php endif; ?>
     </div>
     <?php endif; ?>
   </div>
@@ -81,11 +87,11 @@ $schoolName = setting('school_name', 'KARN HIGH SCHOOL');
 
   <?php elseif (!$rc || $rc['status'] === 'draft'): ?>
   <div style="background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:48px;text-align:center">
-    <div style="font-size:40px;margin-bottom:12px">📑</div>
-    <h3 style="margin-bottom:6px">Report card not yet available</h3>
+    <div style="font-size:40px;margin-bottom:12px">📋</div>
+    <h3 style="margin-bottom:6px">Gradesheet not yet available</h3>
     <p style="color:var(--ink-soft)">
-      <?= $child ? e($child['first_name'])."'s" : "The" ?> report card for <?= e($ay) ?> has not been published yet.
-      Please check back later or contact the school office.
+      <?= $child ? e($child['first_name'])."'s" : "The" ?> gradesheet for <?= e($ay) ?> has not been published yet.
+      Please check back at the end of the academic year or contact the school office.
     </p>
   </div>
 
@@ -96,7 +102,7 @@ $schoolName = setting('school_name', 'KARN HIGH SCHOOL');
       <div style="flex:1">
         <div class="rc-school-name"><?= e($schoolName) ?></div>
         <div class="rc-subtitle">Karnplay, Nimba County, Liberia</div>
-        <div style="font-size:14px;font-weight:700;margin-top:6px">STUDENT REPORT CARD &mdash; <?= e($ay) ?></div>
+        <div style="font-size:14px;font-weight:700;margin-top:6px">STUDENT GRADESHEET &mdash; <?= e($ay) ?></div>
       </div>
     </div>
 
