@@ -18,7 +18,54 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
             try {
                 $pdo->prepare("INSERT INTO users (name,email,phone,password_hash,role_id) VALUES (?,?,?,?,?)")
                    ->execute([$name,$email?:null,$phone?:null,$hash,$roleId]);
-                auditLog('create','users','user',(int)$pdo->lastInsertId(),'','Created: '.$name);
+                $newUid = (int)$pdo->lastInsertId();
+                auditLog('create','users','user',$newUid,'','Created: '.$name);
+
+                // ── Auto-link to role record ───────────────────────
+                $roleName = $pdo->query("SELECT name FROM roles WHERE id=$roleId LIMIT 1")->fetchColumn();
+
+                if ($roleName === 'teacher' || $roleName === 'class_teacher') {
+                    // Link to teachers table by email
+                    if ($email) {
+                        $pdo->prepare("UPDATE teachers SET user_id=? WHERE email=? AND user_id IS NULL")
+                            ->execute([$newUid, $email]);
+                    }
+                    // Link by name if email didn't match
+                    $pdo->prepare("UPDATE teachers SET user_id=? WHERE CONCAT(first_name,' ',last_name)=? AND user_id IS NULL LIMIT 1")
+                        ->execute([$newUid, $name]);
+                }
+
+                if ($roleName === 'student') {
+                    if ($email) {
+                        // Try student_id@student.karnhighschool.edu.lr pattern
+                        $pdo->prepare("UPDATE students SET user_id=? WHERE LOWER(CONCAT(student_id,'@student.karnhighschool.edu.lr'))=LOWER(?) AND user_id IS NULL")
+                            ->execute([$newUid, $email]);
+                    }
+                    if ($phone) {
+                        $pdo->prepare("UPDATE students SET user_id=? WHERE phone=? AND user_id IS NULL LIMIT 1")
+                            ->execute([$newUid, $phone]);
+                    }
+                }
+
+                if ($roleName === 'parent') {
+                    if ($phone) {
+                        $pdo->prepare("UPDATE guardians SET user_id=? WHERE phone=? AND user_id IS NULL LIMIT 1")
+                            ->execute([$newUid, $phone]);
+                    }
+                    if ($email) {
+                        $pdo->prepare("UPDATE guardians SET user_id=? WHERE email=? AND user_id IS NULL LIMIT 1")
+                            ->execute([$newUid, $email]);
+                    }
+                }
+
+                if (in_array($roleName, ['librarian','discipline_officer','ict_officer','registrar','accountant','school_admin','principal','vice_principal','sys_admin'], true)) {
+                    if ($email) {
+                        $pdo->prepare("UPDATE staff SET user_id=? WHERE email=? AND user_id IS NULL LIMIT 1")
+                            ->execute([$newUid, $email]);
+                    }
+                }
+                // ── End auto-link ─────────────────────────────────
+
                 flash('success','User created successfully.');
             } catch (PDOException $e) {
                 flash('error','Email or phone already in use.');
