@@ -150,6 +150,16 @@ $schoolName= setting('school_name','KARN HIGH SCHOOL');
        class="button button-secondary" target="_blank">✉️ Recommendation Letter</a>
     <a href="<?= BASE_URL ?>/letters/admission_letter.php?student_id=<?= $student['id'] ?>"
        class="button button-secondary" target="_blank">📋 Admission Letter</a>
+    <?php if (in_array((int)($student['current_grade_id']??0), [4,7,10,13])): ?>
+    <a href="<?= BASE_URL ?>/letters/wassce_clearance.php?student_id=<?= $student['id'] ?>"
+       class="button button-secondary" target="_blank"
+       style="background:var(--warning);color:#fff">📜 School Clearance</a>
+    <?php endif; ?>
+    <?php if ((int)($student['current_grade_id']??0) === 13): ?>
+    <a href="<?= BASE_URL ?>/letters/diploma_pdf.php?student_id=<?= $student['id'] ?>"
+       class="button button-secondary" target="_blank"
+       style="background:var(--green);color:#fff">🎓 Diploma</a>
+    <?php endif; ?>
   </div>
   <?php endif; ?>
 </div>
@@ -399,6 +409,12 @@ $docTypes = ['report_card'=>'📋 Report Card','birth_certificate'=>'📄 Birth 
           <a href="?student_id=<?= $s['id'] ?>&tab=documents" class="filter-button button-sm">📄 Docs</a>
           <a href="<?= BASE_URL ?>/letters/transcript_pdf.php?student_id=<?= $s['id'] ?>" class="filter-button button-sm" target="_blank">📜 Transcript</a>
           <a href="<?= BASE_URL ?>/letters/recommendation_letter.php?student_id=<?= $s['id'] ?>" class="filter-button button-sm" target="_blank">✉️ Rec. Letter</a>
+          <?php if (in_array((int)($s['current_grade_id']??0),[4,7,10,13])): ?>
+          <a href="<?= BASE_URL ?>/letters/wassce_clearance.php?student_id=<?= $s['id'] ?>" class="filter-button button-sm" target="_blank">📋 Clearance</a>
+          <?php endif; ?>
+          <?php if ((int)($s['current_grade_id']??0)===13): ?>
+          <a href="<?= BASE_URL ?>/letters/diploma_pdf.php?student_id=<?= $s['id'] ?>" class="filter-button button-sm" target="_blank">🎓 Diploma</a>
+          <?php endif; ?>
         </td>
       </tr>
       <?php endforeach; ?>
