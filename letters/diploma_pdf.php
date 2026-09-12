@@ -78,6 +78,8 @@ body{background:#2a1a0a;padding:20px;display:flex;flex-direction:column;align-it
 .diploma-border-inner{position:absolute;inset:16px;border:1px solid #C9A227;pointer-events:none;z-index:1}
 
 .diploma-inner{position:relative;padding:40px 60px 36px;z-index:2;min-height:580px;display:flex;flex-direction:column;align-items:center}
+/* Logo watermark inside diploma */
+.dip-wm-logo{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:55%;opacity:.05;pointer-events:none;user-select:none;z-index:0}
 
 /* Header */
 .dip-header{width:100%;display:flex;align-items:center;justify-content:center;gap:20px;margin-bottom:16px;padding-bottom:14px;border-bottom:2px solid #C9A227}
@@ -153,7 +155,8 @@ body{background:#2a1a0a;padding:20px;display:flex;flex-direction:column;align-it
   <span class="corner c-br" style="transform:scale(-1,-1)">❧</span>
 
   <div class="diploma-inner">
-    <!-- School header -->
+    <img class="dip-wm-logo" src="<?=BASE_URL?>/assets/images/logo.png" alt=""
+         onerror="this.src='<?=BASE_URL?>/assets/images/logo.jpg'"/>    <!-- School header -->
     <div class="dip-header">
       <img class="dip-logo" src="<?=BASE_URL?>/assets/images/logo.jpg" alt="<?=e($school)?>"/>
       <div class="dip-school">
@@ -204,7 +207,11 @@ body{background:#2a1a0a;padding:20px;display:flex;flex-direction:column;align-it
     <div class="cert-num">Certificate No: <?=e($certNum)?> &nbsp;&bull;&nbsp; Issued: <?=$issueDate?> &nbsp;&bull;&nbsp; <?=e($address)?></div>
 
     <!-- Official seal -->
-    <div class="dip-seal">🏫</div>
+    <div class="dip-seal">
+      <img src="<?=BASE_URL?>/assets/images/logo.png" alt="KHS Seal"
+           style="width:60px;height:60px;border-radius:50%;object-fit:cover"
+           onerror="this.outerHTML='<span style=&quot;font-size:28px&quot;>🏫</span>'"/>
+    </div>
 
     <!-- Signatures -->
     <div class="sig-row">

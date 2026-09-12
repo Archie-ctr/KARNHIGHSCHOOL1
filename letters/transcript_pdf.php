@@ -145,16 +145,13 @@ $fullName = trim(($student['first_name']??'').' '.($student['middle_name']??'').
       overflow: hidden;
     }
 
-    /* ── Watermark ── */
+    /* ── Logo Watermark ── */
     .watermark {
       position: absolute;
       top: 50%; left: 50%;
-      transform: translate(-50%,-50%) rotate(-40deg);
-      font-size: 88pt;
-      font-weight: 900;
-      color: rgba(26,39,68,.055);
-      white-space: nowrap;
-      letter-spacing: .08em;
+      transform: translate(-50%,-50%);
+      width: 62%;
+      opacity: 0.055;
       pointer-events: none;
       user-select: none;
       z-index: 0;
@@ -321,7 +318,8 @@ $fullName = trim(($student['first_name']??'').' '.($student['middle_name']??'').
 </div>
 
 <div class="page">
-  <div class="watermark">OFFICIAL</div>
+  <img class="watermark" src="<?= BASE_URL ?>/assets/images/logo.png" alt=""
+       onerror="this.src='<?= BASE_URL ?>/assets/images/logo.jpg'"/>
 
   <!-- ── Header ── -->
   <div class="header">

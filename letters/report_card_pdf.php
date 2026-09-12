@@ -151,6 +151,8 @@ function fv($v,bool $showRed=true):string{
 html,body{font-family:Arial,sans-serif;font-size:9.5pt;color:#000;background:#e0e0e0}
 /* ── Print pages ── */
 .page{width:190mm;min-height:120mm;background:#fff;margin:8px auto;padding:0;position:relative;box-shadow:0 1px 6px rgba(0,0,0,.3)}
+/* Logo watermark */
+.page-wm{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:55%;opacity:.05;pointer-events:none;user-select:none;z-index:0}
 /* FRONT page — two-panel card layout */
 .card-front{display:flex;flex-direction:column;border:2px solid #000;margin:4mm}
 .card-header{padding:2.5mm 3mm 1.5mm;border-bottom:1.5px solid #000}
@@ -225,6 +227,8 @@ html,body{font-family:Arial,sans-serif;font-size:9.5pt;color:#000;background:#e0
      PAGE 1 — FRONT (MARKS)
 ══════════════════════════════════════════════ -->
 <div class="page">
+<img class="page-wm" src="<?=BASE_URL?>/assets/images/logo.png" alt=""
+     onerror="this.src='<?=BASE_URL?>/assets/images/logo.jpg'"/>
 <div class="card-front">
 
   <!-- Header: student info + grade + year -->
@@ -382,6 +386,8 @@ html,body{font-family:Arial,sans-serif;font-size:9.5pt;color:#000;background:#e0
      PAGE 2 — BACK (PROMOTION STATEMENT)
 ══════════════════════════════════════════════ -->
 <div class="page page-break">
+<img class="page-wm" src="<?=BASE_URL?>/assets/images/logo.png" alt=""
+     onerror="this.src='<?=BASE_URL?>/assets/images/logo.jpg'"/>
 <div class="card-back">
 
   <div class="back-title">PROMOTION STATEMENT</div>

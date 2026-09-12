@@ -61,6 +61,8 @@ body{font-family:Arial,sans-serif;background:#f5f5f5;padding:16px;font-size:11pt
 .page{background:#fff;max-width:820px;margin:0 auto;padding:16mm 18mm 14mm;box-shadow:0 2px 16px rgba(0,0,0,.13);position:relative}
 /* Watermark border */
 .page::before{content:'';position:absolute;inset:6mm;border:1.5px double #ac2443;opacity:.18;pointer-events:none}
+/* Logo watermark */
+.wm-logo{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:58%;opacity:.055;pointer-events:none;user-select:none;z-index:0}
 /* Header */
 .rh{display:flex;align-items:center;gap:14px;padding-bottom:10px;margin-bottom:8px;border-bottom:3px solid #ac2443}
 .rh img{width:62px;height:62px;border-radius:50%;object-fit:cover;border:2px solid #ac2443}
@@ -123,7 +125,8 @@ tbody tr:nth-child(even){background:#fdf8f9}
 </div>
 
 <div class="page">
-  <!-- Header -->
+  <img class="wm-logo" src="<?=BASE_URL?>/assets/images/logo.png" alt=""
+       onerror="this.src='<?=BASE_URL?>/assets/images/logo.jpg'"/>  <!-- Header -->
   <div class="rh">
     <img src="<?=BASE_URL?>/assets/images/logo.jpg" alt="<?=e($school)?>"/>
     <div class="rh-text">
