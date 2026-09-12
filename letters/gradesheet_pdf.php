@@ -247,6 +247,13 @@ tbody tr:nth-child(even){background:#fdf8f9}
   </div>
 
   <!-- Footer -->
+  <?php
+  $_gsRef = 'GS-'.date('Y').'-'.str_pad($stdId,4,'0',STR_PAD_LEFT).'-'.($ayId??0);
+  echo docVerifyStrip('gradesheet',$stdId,
+      trim(($student['first_name']??'').' '.($student['last_name']??'')),
+      $student['grade_name']??'', $ay,
+      $_gsRef, isLoggedIn()?currentUserId():null, null, '+5 years');
+  ?>
   <div class="footer">
     <?=e($school)?> &nbsp;&bull;&nbsp; <?=e($address)?>
     <?=$phone?' &nbsp;&bull;&nbsp; '.e($phone):''?>
@@ -254,13 +261,4 @@ tbody tr:nth-child(even){background:#fdf8f9}
     &nbsp;&bull;&nbsp; Generated: <?=date('F d, Y')?>
   </div>
 </div>
-
 </body></html>
-<?php
-$_gsRef = 'GS-'.date('Y').'-'.str_pad($stdId,4,'0',STR_PAD_LEFT).'-'.($ayId??0);
-echo docVerifyStrip('gradesheet',$stdId,
-    trim(($student['first_name']??'').' '.($student['last_name']??'')),
-    $student['grade_name']??'',
-    $ay,
-    $_gsRef, isLoggedIn()?currentUserId():null, null, '+5 years');
-?>

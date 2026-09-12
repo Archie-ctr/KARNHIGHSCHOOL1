@@ -447,6 +447,14 @@ $fullName = trim(($student['first_name']??'').' '.($student['middle_name']??'').
   </div>
 
   <!-- ── Footer ── -->
+  <?php
+  $_tRef = 'TRN-'.date('Y').'-'.str_pad($stdId,4,'0',STR_PAD_LEFT);
+  echo docVerifyStrip('transcript',$stdId,
+      trim(($student['first_name']??'').' '.($student['last_name']??'')),
+      $student['grade_name']??'',
+      currentAcademicYearName(),
+      $_tRef, isLoggedIn()?currentUserId():null, null, '+5 years');
+  ?>
   <div class="footer">
     This is an official academic transcript issued by <strong><?= e($school) ?></strong>,
     <?= e($address) ?>.<br>
@@ -455,13 +463,5 @@ $fullName = trim(($student['first_name']??'').' '.($student['middle_name']??'').
   </div>
 
 </div><!-- .page -->
-<?php
-$_tRef = 'TRN-'.date('Y').'-'.str_pad($stdId,4,'0',STR_PAD_LEFT);
-echo docVerifyStrip('transcript',$stdId,
-    trim(($student['first_name']??'').' '.($student['last_name']??'')),
-    $student['grade_name']??'',
-    currentAcademicYearName(),
-    $_tRef, isLoggedIn()?currentUserId():null, null, '+5 years');
-?>
 </body>
 </html>

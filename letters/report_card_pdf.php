@@ -453,6 +453,14 @@ html,body{font-family:Arial,sans-serif;font-size:9.5pt;color:#000;background:#e0
   <div class="back-note">NOTE: Any erasure on this card makes it invalid</div>
   <div class="back-motto">Motto: "<?=e($motto)?>"</div>
 
+  <!-- QR verification — inside card-back -->
+  <?php
+  $_rcRef = 'RC-'.date('Y').'-'.str_pad($stdId,4,'0',STR_PAD_LEFT).'-'.($ayId??0);
+  echo docVerifyStrip('report_card',$stdId,
+      $studentFullName, $student['grade_name']??'', $ay,
+      $_rcRef, isLoggedIn()?currentUserId():null, null, '+5 years');
+  ?>
+
   <!-- School footer -->
   <div style="text-align:center;font-size:8pt;color:#555;margin-top:auto;border-top:1px solid #ccc;padding-top:2mm">
     <?=e($school)?> &nbsp;&bull;&nbsp; <?=e(setting('school_address','Karnplay, Nimba County, Liberia'))?>
@@ -460,14 +468,5 @@ html,body{font-family:Arial,sans-serif;font-size:9.5pt;color:#000;background:#e0
 
 </div><!-- /card-back -->
 </div><!-- /page 2 -->
-
-<?php
-$_rcRef = 'RC-'.date('Y').'-'.str_pad($stdId,4,'0',STR_PAD_LEFT).'-'.($ayId??0);
-echo docVerifyStrip('report_card',$stdId,
-    $studentFullName,
-    $student['grade_name']??'',
-    $ay,
-    $_rcRef, isLoggedIn()?currentUserId():null, null, '+5 years');
-?>
 </body>
 </html>

@@ -233,14 +233,11 @@ body{background:#2a1a0a;padding:20px;display:flex;flex-direction:column;align-it
     <div style="margin-top:14px;font-size:8.5pt;color:#9a8a6a;text-align:center;font-style:italic">
       This diploma is an official document of <?=e($school)?>. Any unauthorized alteration, reproduction or misuse is prohibited under Liberian law.
     </div>
+
+    <!-- QR inline inside diploma -->
+    <div style="margin-top:14px;padding:0 20px">
+      <?=docVerifyStrip('diploma',$stdId,$studentFullName,'Grade 12',currentAcademicYearName(),$certNum,isLoggedIn()?currentUserId():null,null,'+50 years')?>
+    </div>
   </div>
 </div>
-
-<?php
-echo docVerifyStrip('diploma',$stdId,
-    $studentFullName,
-    'Grade 12',
-    currentAcademicYearName(),
-    $certNum, isLoggedIn()?currentUserId():null, null, '+50 years');
-?>
 </body></html>

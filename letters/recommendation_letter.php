@@ -435,6 +435,7 @@ $refNumber = 'LOR-'.date('Y').'-'.str_pad($stdId, 4, '0', STR_PAD_LEFT).'-'.strt
   </div>
 
   <!-- ── Footer ── -->
+  <?= docVerifyStrip('recommendation',$stdId,$fullName,$student['grade_name']??'',$ay,$refNumber,currentUserId(),$purpose,'+1 year') ?>
   <div class="footer">
     <?= e($school) ?> &nbsp;&bull;&nbsp; <?= e($address) ?> &nbsp;&bull;&nbsp; <?= e($phone) ?><br>
     Ref: <?= e($refNumber) ?> &nbsp;&bull;&nbsp; Issued: <?= date('d F Y') ?> &nbsp;&bull;&nbsp;
@@ -443,12 +444,5 @@ $refNumber = 'LOR-'.date('Y').'-'.str_pad($stdId, 4, '0', STR_PAD_LEFT).'-'.strt
   </div>
 
 </div><!-- .letter -->
-<?php
-echo docVerifyStrip('recommendation',$stdId,
-    $fullName,
-    $student['grade_name']??'',
-    $ay,
-    $refNumber, currentUserId(), $purpose, '+1 year');
-?>
 </body>
 </html>

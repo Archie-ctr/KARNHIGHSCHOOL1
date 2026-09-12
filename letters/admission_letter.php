@@ -51,13 +51,10 @@ $admNum=$student['admission_number']??('ADM-'.date('Y').'-'.str_pad($student['id
     <div class="sig"><div style="height:48px"></div><div class="sig-line">Registrar<br><?=e($school)?></div></div>
     <div class="sig"><div style="height:48px"></div><div class="sig-line">Principal<br><?=e($school)?></div></div>
   </div>
+  <?= docVerifyStrip('admission',$stdId,
+      trim(($student['first_name']??'').' '.($student['last_name']??'')),
+      $student['grade_name']??'', $ay, $admNum,
+      isLoggedIn()?currentUserId():null, null, '+2 years') ?>
   <div class="footer"><?=e($school)?> &nbsp;|&nbsp; Karnplay, Nimba County, Liberia &nbsp;|&nbsp; <?=e(setting('school_phone','+231 886 417 711'))?> &nbsp;|&nbsp; <?=date('Y')?></div>
 </div>
-<?php
-echo docVerifyStrip('admission',$stdId,
-    trim(($student['first_name']??'').' '.($student['last_name']??'')),
-    $student['grade_name']??'',
-    $ay,
-    $admNum, isLoggedIn()?currentUserId():null, null, '+2 years');
-?>
 </body></html>
