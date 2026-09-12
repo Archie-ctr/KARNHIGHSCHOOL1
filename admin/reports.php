@@ -1,9 +1,9 @@
-﻿<?php
+<?php
 $pageTitle='Reports'; $activeAdmin='reports';
 require_once dirname(__DIR__).'/includes/admin_header.php';
 $pdo=db(); $ayId=currentAcademicYearId(); $ay=currentAcademicYearName();
 
-// â”€â”€ CSV EXPORTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── CSV EXPORTS ────────────────────────────────────────────────
 $export = trim($_GET['export'] ?? '');
 $type   = trim($_GET['type']   ?? '');
 $month  = trim($_GET['month']  ?? '');
@@ -38,7 +38,7 @@ if ($export === 'csv' && $type) {
 
         case 'teachers':
             fputcsv($fp,['Name','Email','Phone','Qualification','Specialization','Department','Status','Join Date']);
-            $rows=$pdo->query("SELECT CONCAT(u.first_name,' ',u.last_name),u.email,u.phone,t.qualification,t.specialization,COALESCE(d.name,'â€”') dept,t.status,t.join_date FROM teachers t JOIN users u ON u.id=t.user_id LEFT JOIN departments d ON d.id=t.department_id ORDER BY u.last_name");
+            $rows=$pdo->query("SELECT CONCAT(u.first_name,' ',u.last_name),u.email,u.phone,t.qualification,t.specialization,COALESCE(d.name,'—') dept,t.status,t.join_date FROM teachers t JOIN users u ON u.id=t.user_id LEFT JOIN departments d ON d.id=t.department_id ORDER BY u.last_name");
             foreach($rows->fetchAll() as $r) fputcsv($fp,array_values($r)); break;
 
         case 'staff':
@@ -67,13 +67,13 @@ if ($export === 'csv' && $type) {
 
         case 'marks_summary':
             fputcsv($fp,['Student','Student ID','Grade','Subject','Average %','Grade Letter']);
-            $rows=$pdo->prepare("SELECT CONCAT(s.first_name,' ',s.last_name),s.student_id,g.name grade,sub.name subject,ROUND(AVG(asc2.marks_obtained/asc2.max_marks*100),1) avg_pct,'â€”' FROM assessment_scores asc2 JOIN students s ON s.id=asc2.student_id JOIN subjects sub ON sub.id=asc2.subject_id LEFT JOIN grades g ON g.id=s.current_grade_id WHERE asc2.academic_year_id=? AND asc2.max_marks>0 GROUP BY s.id,sub.id ORDER BY s.last_name,sub.name");
+            $rows=$pdo->prepare("SELECT CONCAT(s.first_name,' ',s.last_name),s.student_id,g.name grade,sub.name subject,ROUND(AVG(asc2.marks_obtained/asc2.max_marks*100),1) avg_pct,'—' FROM assessment_scores asc2 JOIN students s ON s.id=asc2.student_id JOIN subjects sub ON sub.id=asc2.subject_id LEFT JOIN grades g ON g.id=s.current_grade_id WHERE asc2.academic_year_id=? AND asc2.max_marks>0 GROUP BY s.id,sub.id ORDER BY s.last_name,sub.name");
             $rows->execute([$ayId]); foreach($rows->fetchAll() as $r) fputcsv($fp,array_values($r)); break;
     }
     fclose($fp); exit;
 }
 
-// â”€â”€ Page data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Page data ──────────────────────────────────────────────────
 $tab = $_GET['tab'] ?? 'academic';
 
 // Shared summaries
@@ -95,30 +95,30 @@ try {
     <h1>Reports &amp; Exports</h1>
     <p><?= e($ay) ?></p>
   </div>
-  <a href="<?= BASE_URL ?>/admin/student_statistics.php" class="button button-secondary">ðŸ“Š Statistics</a>
+  <a href="<?= BASE_URL ?>/admin/student_statistics.php" class="button button-secondary">📊 Statistics</a>
 </div>
 
 <!-- Quick stats -->
 <div class="metric-grid" style="margin-bottom:24px">
-  <div class="metric-card"><div class="metric-top"><span>Active Students</span><div class="metric-icon">ðŸŽ“</div></div><strong><?= number_format($totalStudents) ?></strong><small><i></i><?= e($ay) ?></small></div>
-  <div class="metric-card"><div class="metric-top"><span>Active Staff</span><div class="metric-icon">ðŸ‘¥</div></div><strong><?= number_format($totalStaff) ?></strong><small><i></i>All roles</small></div>
-  <div class="metric-card"><div class="metric-top"><span>Attendance Rate</span><div class="metric-icon">ðŸ“†</div></div><strong><?= $attRate ?>%</strong><small><i></i>This year</small></div>
-  <div class="metric-card"><div class="metric-top"><span>LRD Collected</span><div class="metric-icon">ðŸ’°</div></div><strong>LRD <?= number_format($fLRD) ?></strong><small><i></i><?= e($ay) ?></small></div>
+  <div class="metric-card"><div class="metric-top"><span>Active Students</span><div class="metric-icon">🎓</div></div><strong><?= number_format($totalStudents) ?></strong><small><i></i><?= e($ay) ?></small></div>
+  <div class="metric-card"><div class="metric-top"><span>Active Staff</span><div class="metric-icon">👥</div></div><strong><?= number_format($totalStaff) ?></strong><small><i></i>All roles</small></div>
+  <div class="metric-card"><div class="metric-top"><span>Attendance Rate</span><div class="metric-icon">📆</div></div><strong><?= $attRate ?>%</strong><small><i></i>This year</small></div>
+  <div class="metric-card"><div class="metric-top"><span>LRD Collected</span><div class="metric-icon">💰</div></div><strong>LRD <?= number_format($fLRD) ?></strong><small><i></i><?= e($ay) ?></small></div>
 </div>
 
 <!-- Tabs -->
 <div class="tab-bar" style="margin-bottom:20px">
-  <a href="?tab=academic"       class="tab-btn <?= $tab==='academic'      ?'active':'' ?>">ðŸŽ“ Academic</a>
-  <a href="?tab=student"        class="tab-btn <?= $tab==='student'       ?'active':'' ?>">ðŸ‘©â€ðŸŽ“ Students</a>
-  <a href="?tab=staff"          class="tab-btn <?= $tab==='staff'         ?'active':'' ?>">ðŸ‘¥ Staff</a>
-  <a href="?tab=attendance_rep" class="tab-btn <?= $tab==='attendance_rep'?'active':'' ?>">ðŸ“† Attendance</a>
-  <a href="?tab=finance_rep"    class="tab-btn <?= $tab==='finance_rep'   ?'active':'' ?>">ðŸ’° Finance</a>
-  <a href="?tab=discipline_rep" class="tab-btn <?= $tab==='discipline_rep'?'active':'' ?>">âš–ï¸ Discipline</a>
-  <a href="?tab=admin_rep"      class="tab-btn <?= $tab==='admin_rep'     ?'active':'' ?>">ðŸ“‹ Administrative</a>
+  <a href="?tab=academic"       class="tab-btn <?= $tab==='academic'      ?'active':'' ?>">🎓 Academic</a>
+  <a href="?tab=student"        class="tab-btn <?= $tab==='student'       ?'active':'' ?>">👩‍🎓 Students</a>
+  <a href="?tab=staff"          class="tab-btn <?= $tab==='staff'         ?'active':'' ?>">👥 Staff</a>
+  <a href="?tab=attendance_rep" class="tab-btn <?= $tab==='attendance_rep'?'active':'' ?>">📆 Attendance</a>
+  <a href="?tab=finance_rep"    class="tab-btn <?= $tab==='finance_rep'   ?'active':'' ?>">💰 Finance</a>
+  <a href="?tab=discipline_rep" class="tab-btn <?= $tab==='discipline_rep'?'active':'' ?>">⚖️ Discipline</a>
+  <a href="?tab=admin_rep"      class="tab-btn <?= $tab==='admin_rep'     ?'active':'' ?>">📋 Administrative</a>
 </div>
 
 <?php if ($tab === 'academic'): ?>
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ACADEMIC REPORTS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- ═══════════════ ACADEMIC REPORTS ═══════════════ -->
 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">
 
   <?php
@@ -133,10 +133,12 @@ try {
 
   <!-- Class enrollment export -->
   <div class="panel" style="padding:22px">
-    <div style="font-size:2rem;margin-bottom:10px">ðŸ«</div>
+    <div style="font-size:2rem;margin-bottom:10px">🏫</div>
     <h3 style="font-weight:700;margin-bottom:6px">Class Enrollment Report</h3>
     <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px">Students per class with gender and active breakdowns.</p>
-    <span style="display:inline-flex;gap:4px;flex-wrap:wrap;align-items:center"><a href="?export=csv&type=class_enrollment" class="button button-secondary button-sm">&#x1F4E5; CSV</a><a href="<?= BASE_URL ?>/api/export.php?type=class_enrollment&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">&#x1F4CA; Excel</a><a href="<?= BASE_URL ?>/api/export.php?type=class_enrollment&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">&#x1F5A8; PDF</a></span>
+    <a href="?export=csv&type=class_enrollment" class="button button-secondary button-sm">📥 Export CSV</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=class_enrollment&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">📊 Excel</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=class_enrollment&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">🖨 PDF</a>
     <?php if (!empty($classEnrol)): ?>
     <div style="margin-top:14px">
       <?php foreach ($classEnrol as $c): ?>
@@ -151,10 +153,14 @@ try {
 
   <!-- Marks / results summary -->
   <div class="panel" style="padding:22px">
-    <div style="font-size:2rem;margin-bottom:10px">ðŸ“Š</div>
+    <div style="font-size:2rem;margin-bottom:10px">📊</div>
     <h3 style="font-weight:700;margin-bottom:6px">Marks Summary Report</h3>
     <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px">Average marks per student per subject for <?= e($ay) ?>.</p>
-    <span style="display:inline-flex;gap:4px;flex-wrap:wrap;align-items:center"><a href="?export=csv&type=marks_summary" class="button button-secondary button-sm">&#x1F4E5; CSV</a><a href="<?= BASE_URL ?>/api/export.php?type=marks_summary&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">&#x1F4CA; Excel</a><a href="<?= BASE_URL ?>/api/export.php?type=marks_summary&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">&#x1F5A8; PDF</a></span>
+    <a href="?export=csv&type=marks_summary" class="button button-secondary button-sm">📥 Export CSV</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=marks_summary&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">📊 Excel</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=marks_summary&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">🖨 PDF</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=marks_summary&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">📊 Excel</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=marks_summary&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">🖨 PDF</a>
     <?php
     try {
         $marksStats = $pdo->prepare("SELECT COUNT(DISTINCT student_id) students_with_marks, COUNT(DISTINCT subject_id) subjects, ROUND(AVG(marks_obtained/max_marks*100),1) overall_avg FROM assessment_scores WHERE academic_year_id=? AND max_marks>0 AND status IN ('submitted','approved')");
@@ -171,7 +177,7 @@ try {
 
   <!-- Grade distribution -->
   <div class="panel" style="padding:22px">
-    <div style="font-size:2rem;margin-bottom:10px">ðŸ“ˆ</div>
+    <div style="font-size:2rem;margin-bottom:10px">📈</div>
     <h3 style="font-weight:700;margin-bottom:6px">Grade Distribution</h3>
     <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px">Active students per grade level this year.</p>
     <a href="<?= BASE_URL ?>/admin/student_statistics.php" class="button button-secondary button-sm">View Statistics</a>
@@ -194,7 +200,7 @@ try {
 </div>
 
 <?php elseif ($tab === 'student'): ?>
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• STUDENT REPORTS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- ═══════════════ STUDENT REPORTS ═══════════════ -->
 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">
 
   <?php
@@ -204,10 +210,12 @@ try {
   ?>
 
   <div class="panel" style="padding:22px">
-    <div style="font-size:2rem;margin-bottom:10px">ðŸŽ“</div>
+    <div style="font-size:2rem;margin-bottom:10px">🎓</div>
     <h3 style="font-weight:700;margin-bottom:6px">Student Register</h3>
     <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px">Full student directory with grade, class and contact details.</p>
-    <span style="display:inline-flex;gap:4px;flex-wrap:wrap;align-items:center"><a href="?export=csv&type=students" class="button button-secondary button-sm">&#x1F4E5; CSV</a><a href="<?= BASE_URL ?>/api/export.php?type=students&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">&#x1F4CA; Excel</a><a href="<?= BASE_URL ?>/api/export.php?type=students&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">&#x1F5A8; PDF</a></span>
+    <a href="?export=csv&type=students" class="button button-secondary button-sm">📥 Export CSV</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=students&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">📊 Excel</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=students&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">🖨 PDF</a>
     <div style="margin-top:14px">
       <?php foreach ($statusStats as $st): ?>
       <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;border-bottom:1px solid var(--line-soft)">
@@ -218,9 +226,9 @@ try {
   </div>
 
   <div class="panel" style="padding:22px">
-    <div style="font-size:2rem;margin-bottom:10px">ðŸ‘«</div>
+    <div style="font-size:2rem;margin-bottom:10px">👫</div>
     <h3 style="font-weight:700;margin-bottom:6px">Gender Breakdown</h3>
-    <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px">Active students by gender â€” <?= e($ay) ?>.</p>
+    <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px">Active students by gender — <?= e($ay) ?>.</p>
     <a href="<?= BASE_URL ?>/admin/student_statistics.php" class="button button-secondary button-sm">View Statistics</a>
     <div style="margin-top:14px">
       <?php $maxG = max(array_column($genderStats,'cnt') ?: [1]); foreach ($genderStats as $g): $w = round($g['cnt']/$maxG*100); ?>
@@ -238,7 +246,7 @@ try {
   </div>
 
   <div class="panel" style="padding:22px">
-    <div style="font-size:2rem;margin-bottom:10px">ðŸ“</div>
+    <div style="font-size:2rem;margin-bottom:10px">📍</div>
     <h3 style="font-weight:700;margin-bottom:6px">Students by County</h3>
     <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px">Top 10 counties of origin.</p>
     <div style="margin-top:4px">
@@ -251,10 +259,12 @@ try {
   </div>
 
   <div class="panel" style="padding:22px">
-    <div style="font-size:2rem;margin-bottom:10px">ðŸ“‹</div>
+    <div style="font-size:2rem;margin-bottom:10px">📋</div>
     <h3 style="font-weight:700;margin-bottom:6px">Applications Report</h3>
     <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px">All admission applications for <?= e($ay) ?>.</p>
-    <span style="display:inline-flex;gap:4px;flex-wrap:wrap;align-items:center"><a href="?export=csv&type=applications" class="button button-secondary button-sm">&#x1F4E5; CSV</a><a href="<?= BASE_URL ?>/api/export.php?type=applications&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">&#x1F4CA; Excel</a><a href="<?= BASE_URL ?>/api/export.php?type=applications&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">&#x1F5A8; PDF</a></span>
+    <a href="?export=csv&type=applications" class="button button-secondary button-sm">📥 Export CSV</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=admissions&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">📊 Excel</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=admissions&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">🖨 PDF</a>
     <?php
     $appStats = $pdo->prepare("SELECT status,COUNT(*) cnt FROM applications WHERE academic_year_id=? GROUP BY status ORDER BY cnt DESC"); $appStats->execute([$ayId]); $appStats=$appStats->fetchAll();
     ?>
@@ -269,7 +279,7 @@ try {
 </div>
 
 <?php elseif ($tab === 'staff'): ?>
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• STAFF REPORTS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- ═══════════════ STAFF REPORTS ═══════════════ -->
 <?php
 $roleStats = $pdo->query("SELECT r.label,COUNT(u.id) cnt FROM users u JOIN roles r ON r.id=u.role_id WHERE u.is_active=1 AND r.name NOT IN ('student','parent','applicant') GROUP BY r.id,r.label ORDER BY r.id")->fetchAll();
 $deptStats = [];
@@ -278,10 +288,12 @@ try { $deptStats=$pdo->query("SELECT d.name,COUNT(t.id) cnt FROM teachers t JOIN
 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">
 
   <div class="panel" style="padding:22px">
-    <div style="font-size:2rem;margin-bottom:10px">ðŸ‘©â€ðŸ«</div>
+    <div style="font-size:2rem;margin-bottom:10px">👩‍🏫</div>
     <h3 style="font-weight:700;margin-bottom:6px">Teacher Records</h3>
     <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px">All active teachers with qualifications and assignments.</p>
-    <span style="display:inline-flex;gap:4px;flex-wrap:wrap;align-items:center"><a href="?export=csv&type=teachers" class="button button-secondary button-sm">&#x1F4E5; CSV</a><a href="<?= BASE_URL ?>/api/export.php?type=teachers&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">&#x1F4CA; Excel</a><a href="<?= BASE_URL ?>/api/export.php?type=teachers&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">&#x1F5A8; PDF</a></span>
+    <a href="?export=csv&type=teachers" class="button button-secondary button-sm">📥 Export CSV</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=teachers&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">📊 Excel</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=teachers&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">🖨 PDF</a>
     <?php
     try {
         $tStats = $pdo->query("SELECT COUNT(*) total, SUM(status='Active') active, SUM(status='Inactive') inactive FROM teachers")->fetch();
@@ -296,10 +308,12 @@ try { $deptStats=$pdo->query("SELECT d.name,COUNT(t.id) cnt FROM teachers t JOIN
   </div>
 
   <div class="panel" style="padding:22px">
-    <div style="font-size:2rem;margin-bottom:10px">ðŸ‘¥</div>
+    <div style="font-size:2rem;margin-bottom:10px">👥</div>
     <h3 style="font-weight:700;margin-bottom:6px">All Staff Report</h3>
     <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px">All staff across all roles with login status.</p>
-    <span style="display:inline-flex;gap:4px;flex-wrap:wrap;align-items:center"><a href="?export=csv&type=staff" class="button button-secondary button-sm">&#x1F4E5; CSV</a><a href="<?= BASE_URL ?>/api/export.php?type=staff&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">&#x1F4CA; Excel</a><a href="<?= BASE_URL ?>/api/export.php?type=staff&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">&#x1F5A8; PDF</a></span>
+    <a href="?export=csv&type=staff" class="button button-secondary button-sm">📥 Export CSV</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=staff&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">📊 Excel</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=staff&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">🖨 PDF</a>
     <div style="margin-top:14px">
       <?php foreach ($roleStats as $r): ?>
       <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;border-bottom:1px solid var(--line-soft)">
@@ -310,12 +324,14 @@ try { $deptStats=$pdo->query("SELECT d.name,COUNT(t.id) cnt FROM teachers t JOIN
   </div>
 
   <div class="panel" style="padding:22px">
-    <div style="font-size:2rem;margin-bottom:10px">ðŸ¢</div>
+    <div style="font-size:2rem;margin-bottom:10px">🏢</div>
     <h3 style="font-weight:700;margin-bottom:6px">Staff Attendance Report</h3>
     <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px">Export monthly staff attendance records.</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
-      <span style="display:inline-flex;gap:4px;flex-wrap:wrap;align-items:center"><a href="?export=csv&type=staff_attendance&month=<?= date('Y-m') ?>" class="button button-secondary button-sm">&#x1F4E5; CSV</a><a href="<?= BASE_URL ?>/api/export.php?type=staff_attendance&month=<?= date('Y-m') ?>&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">&#x1F4CA; Excel</a><a href="<?= BASE_URL ?>/api/export.php?type=staff_attendance&month=<?= date('Y-m') ?>&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">&#x1F5A8; PDF</a></span>
-      <a href="<?= BASE_URL ?>/admin/staff_attendance.php" class="button button-secondary button-sm">ðŸ“† Staff Attendance</a>
+      <a href="?export=csv&type=staff_attendance&month=<?= date('Y-m') ?>" class="button button-secondary button-sm">📥 This Month CSV</a>
+      <a href="<?= BASE_URL ?>/api/export.php?type=staff_attendance&format=excel&month=<?= date('Y-m') ?>" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">📊 Excel</a>
+      <a href="<?= BASE_URL ?>/api/export.php?type=staff_attendance&format=pdf&month=<?= date('Y-m') ?>" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">🖨 PDF</a>
+      <a href="<?= BASE_URL ?>/admin/staff_attendance.php" class="button button-secondary button-sm">📆 Staff Attendance</a>
     </div>
     <?php if (!empty($deptStats)): ?>
     <h4 style="font-size:12px;font-weight:700;color:var(--ink-soft);margin:14px 0 8px;text-transform:uppercase;letter-spacing:.06em">By Department</h4>
@@ -329,7 +345,7 @@ try { $deptStats=$pdo->query("SELECT d.name,COUNT(t.id) cnt FROM teachers t JOIN
 </div>
 
 <?php elseif ($tab === 'attendance_rep'): ?>
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ATTENDANCE REPORTS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- ═══════════════ ATTENDANCE REPORTS ═══════════════ -->
 <?php
 try {
     $attByGrade = $pdo->prepare("SELECT g.name grade_name,COUNT(*) total,SUM(a.status='Present') present,ROUND(SUM(a.status='Present')/COUNT(*)*100,1) rate FROM attendance a JOIN students s ON s.id=a.student_id JOIN grades g ON g.id=s.current_grade_id WHERE a.academic_year_id=? GROUP BY g.id,g.name,g.sequence ORDER BY g.sequence");
@@ -342,8 +358,10 @@ try {
 ?>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px" class="rep-grid">
   <div class="panel" style="padding:22px">
-    <h3 style="font-weight:700;font-size:14px;margin-bottom:14px">ðŸ“† Attendance by Grade â€” <?= e($ay) ?></h3>
-    <span style="display:inline-flex;gap:4px;flex-wrap:wrap;align-items:center"><a href="?export=csv&type=attendance" class="button button-secondary button-sm" style="margin-bottom:14px">&#x1F4E5; CSV</a><a href="<?= BASE_URL ?>/api/export.php?type=attendance&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">&#x1F4CA; Excel</a><a href="<?= BASE_URL ?>/api/export.php?type=attendance&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">&#x1F5A8; PDF</a></span>
+    <h3 style="font-weight:700;font-size:14px;margin-bottom:14px">📆 Attendance by Grade — <?= e($ay) ?></h3>
+    <a href="?export=csv&type=attendance" class="button button-secondary button-sm" style="margin-bottom:14px">📥 Export Full CSV</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=attendance&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff;margin-bottom:14px" target="_blank">📊 Excel</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=attendance&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff;margin-bottom:14px" target="_blank">🖨 PDF</a>
     <?php if (empty($attByGrade)): ?>
     <p style="color:var(--ink-faint);font-size:13px">No attendance data for this year.</p>
     <?php else: foreach ($attByGrade as $a): $rateColor = $a['rate']>=90?'var(--green)':($a['rate']>=75?'var(--warning)':'var(--error)'); ?>
@@ -357,12 +375,12 @@ try {
     <?php endforeach; endif; ?>
   </div>
   <div class="panel" style="padding:22px">
-    <h3 style="font-weight:700;font-size:14px;margin-bottom:14px">âš ï¸ Frequent Absentees (5+ absences)</h3>
+    <h3 style="font-weight:700;font-size:14px;margin-bottom:14px">⚠️ Frequent Absentees (5+ absences)</h3>
     <?php if (empty($absentees)): ?>
     <p style="color:var(--ink-faint);font-size:13px">No students with 5+ absences this year.</p>
     <?php else: foreach ($absentees as $ab): ?>
     <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line-soft);font-size:12.5px">
-      <div><strong><?= e($ab['name']) ?></strong><br><span style="font-size:11px;color:var(--ink-soft)"><?= e($ab['student_id']) ?> Â· <?= e($ab['grade_name']??'â€”') ?></span></div>
+      <div><strong><?= e($ab['name']) ?></strong><br><span style="font-size:11px;color:var(--ink-soft)"><?= e($ab['student_id']) ?> · <?= e($ab['grade_name']??'—') ?></span></div>
       <span class="status warning"><?= $ab['absent_count'] ?> days</span>
     </div>
     <?php endforeach; endif; ?>
@@ -370,7 +388,7 @@ try {
 </div>
 
 <?php elseif ($tab === 'finance_rep'): ?>
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• FINANCE REPORTS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- ═══════════════ FINANCE REPORTS ═══════════════ -->
 <?php
 $payByGrade = $pdo->prepare("SELECT g.name grade_name,COUNT(DISTINCT p.student_id) paid_students,SUM(p.amount) total_lrd FROM payments p JOIN students s ON s.id=p.student_id LEFT JOIN grades g ON g.id=s.current_grade_id WHERE p.academic_year_id=? AND p.currency='LRD' GROUP BY g.id,g.name,g.sequence ORDER BY g.sequence"); $payByGrade->execute([$ayId]); $payByGrade=$payByGrade->fetchAll();
 $payByMethod = $pdo->prepare("SELECT payment_method,COUNT(*) cnt,SUM(amount) total FROM payments WHERE academic_year_id=? GROUP BY payment_method ORDER BY total DESC"); $payByMethod->execute([$ayId]); $payByMethod=$payByMethod->fetchAll();
@@ -378,14 +396,16 @@ $payByMonth = $pdo->prepare("SELECT DATE_FORMAT(payment_date,'%Y-%m') mon,SUM(am
 ?>
 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">
   <div class="panel" style="padding:22px">
-    <div style="font-size:2rem;margin-bottom:10px">ðŸ’µ</div>
+    <div style="font-size:2rem;margin-bottom:10px">💵</div>
     <h3 style="font-weight:700;margin-bottom:8px">Collection Summary (LRD)</h3>
     <div style="font-size:1.5rem;font-weight:800;color:var(--primary);margin-bottom:4px">LRD <?= number_format($fLRD) ?></div>
     <div style="font-size:14px;color:var(--ink-soft);margin-bottom:12px">USD <?= number_format($fUSD,2) ?></div>
-    <span style="display:inline-flex;gap:4px;flex-wrap:wrap;align-items:center"><a href="?export=csv&type=payments" class="button button-secondary button-sm">&#x1F4E5; CSV</a><a href="<?= BASE_URL ?>/api/export.php?type=payments&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">&#x1F4CA; Excel</a><a href="<?= BASE_URL ?>/api/export.php?type=payments&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">&#x1F5A8; PDF</a></span>
+    <a href="?export=csv&type=payments" class="button button-secondary button-sm">📥 Export CSV</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=payments&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">📊 Excel</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=payments&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">🖨 PDF</a>
   </div>
   <div class="panel" style="padding:22px">
-    <h3 style="font-weight:700;font-size:14px;margin-bottom:12px">ðŸ’° Collections by Grade</h3>
+    <h3 style="font-weight:700;font-size:14px;margin-bottom:12px">💰 Collections by Grade</h3>
     <?php foreach ($payByGrade as $g): ?>
     <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;border-bottom:1px solid var(--line-soft)">
       <span><?= e($g['grade_name']) ?> (<?= $g['paid_students'] ?> students)</span>
@@ -394,7 +414,7 @@ $payByMonth = $pdo->prepare("SELECT DATE_FORMAT(payment_date,'%Y-%m') mon,SUM(am
     <?php endforeach; ?>
   </div>
   <div class="panel" style="padding:22px">
-    <h3 style="font-weight:700;font-size:14px;margin-bottom:12px">ðŸ”„ By Payment Method</h3>
+    <h3 style="font-weight:700;font-size:14px;margin-bottom:12px">🔄 By Payment Method</h3>
     <?php foreach ($payByMethod as $m): ?>
     <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;border-bottom:1px solid var(--line-soft)">
       <span><?= e($m['payment_method']) ?> (<?= $m['cnt'] ?>)</span>
@@ -403,7 +423,7 @@ $payByMonth = $pdo->prepare("SELECT DATE_FORMAT(payment_date,'%Y-%m') mon,SUM(am
     <?php endforeach; ?>
   </div>
   <div class="panel" style="padding:22px">
-    <h3 style="font-weight:700;font-size:14px;margin-bottom:12px">ðŸ“… Monthly Collections (LRD)</h3>
+    <h3 style="font-weight:700;font-size:14px;margin-bottom:12px">📅 Monthly Collections (LRD)</h3>
     <?php $maxPay = max(array_column($payByMonth,'total') ?: [1]);
     foreach ($payByMonth as $m): $w = round($m['total']/$maxPay*100); ?>
     <div style="margin-bottom:7px">
@@ -419,7 +439,7 @@ $payByMonth = $pdo->prepare("SELECT DATE_FORMAT(payment_date,'%Y-%m') mon,SUM(am
 </div>
 
 <?php elseif ($tab === 'discipline_rep'): ?>
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• DISCIPLINE REPORTS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- ═══════════════ DISCIPLINE REPORTS ═══════════════ -->
 <?php
 $discStats = $pdo->prepare("SELECT category,COUNT(*) cnt,SUM(resolved) resolved FROM discipline_records WHERE academic_year_id=? GROUP BY category ORDER BY cnt DESC"); $discStats->execute([$ayId]); $discStats=$discStats->fetchAll();
 $discByGrade = $pdo->prepare("SELECT g.name grade_name,COUNT(d.id) cnt FROM discipline_records d JOIN students s ON s.id=d.student_id LEFT JOIN grades g ON g.id=s.current_grade_id WHERE d.academic_year_id=? GROUP BY g.id,g.name,g.sequence ORDER BY cnt DESC"); $discByGrade->execute([$ayId]); $discByGrade=$discByGrade->fetchAll();
@@ -441,11 +461,13 @@ $discOpen  = (int)$pdo->query("SELECT COUNT(*) FROM discipline_records WHERE aca
     </div>
     <?php endforeach; ?>
     <div style="margin-top:12px">
-      <span style="display:inline-flex;gap:4px;flex-wrap:wrap;align-items:center"><a href="?export=csv&type=discipline" class="button button-secondary button-sm">&#x1F4E5; CSV</a><a href="<?= BASE_URL ?>/api/export.php?type=discipline&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">&#x1F4CA; Excel</a><a href="<?= BASE_URL ?>/api/export.php?type=discipline&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">&#x1F5A8; PDF</a></span>
+      <a href="?export=csv&type=discipline" class="button button-secondary button-sm">📥 Export CSV</a>
+      <a href="<?= BASE_URL ?>/api/export.php?type=discipline&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">📊 Excel</a>
+      <a href="<?= BASE_URL ?>/api/export.php?type=discipline&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">🖨 PDF</a>
     </div>
   </div>
   <div class="panel" style="padding:22px">
-    <h3 style="font-weight:700;font-size:14px;margin-bottom:12px">âš–ï¸ Incidents by Grade</h3>
+    <h3 style="font-weight:700;font-size:14px;margin-bottom:12px">⚖️ Incidents by Grade</h3>
     <?php foreach ($discByGrade as $g): ?>
     <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--line-soft);font-size:12.5px">
       <span><?= e($g['grade_name']) ?></span><strong><?= $g['cnt'] ?></strong>
@@ -458,11 +480,11 @@ $discOpen  = (int)$pdo->query("SELECT COUNT(*) FROM discipline_records WHERE aca
 </div>
 
 <?php elseif ($tab === 'admin_rep'): ?>
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ADMINISTRATIVE REPORTS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- ═══════════════ ADMINISTRATIVE REPORTS ═══════════════ -->
 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">
 
   <div class="panel" style="padding:22px">
-    <div style="font-size:2rem;margin-bottom:10px">ðŸ“Š</div>
+    <div style="font-size:2rem;margin-bottom:10px">📊</div>
     <h3 style="font-weight:700;margin-bottom:6px">Enrollment Summary</h3>
     <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px">Student enrollment status summary for <?= e($ay) ?>.</p>
     <?php
@@ -473,11 +495,13 @@ $discOpen  = (int)$pdo->query("SELECT COUNT(*) FROM discipline_records WHERE aca
       <div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px solid var(--line-soft)"><?=e($es['status'])?><strong><?=$es['cnt']?></strong></div>
       <?php endforeach; if(empty($enrolStats)):?><p style="font-size:13px;color:var(--ink-faint)">No data for <?=e($ay)?>.</p><?php endif;?>
     </div>
-    <span style="display:inline-flex;gap:4px;flex-wrap:wrap;align-items:center"><a href="?export=csv&type=students" class="button button-secondary button-sm">&#x1F4E5; CSV</a><a href="<?= BASE_URL ?>/api/export.php?type=students&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">&#x1F4CA; Excel</a><a href="<?= BASE_URL ?>/api/export.php?type=students&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">&#x1F5A8; PDF</a></span>
+    <a href="?export=csv&type=students" class="button button-secondary button-sm">📥 Full Register CSV</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=students&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">📊 Excel</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=students&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">🖨 PDF</a>
   </div>
 
   <div class="panel" style="padding:22px">
-    <div style="font-size:2rem;margin-bottom:10px">ðŸ¢</div>
+    <div style="font-size:2rem;margin-bottom:10px">🏢</div>
     <h3 style="font-weight:700;margin-bottom:6px">Departments Report</h3>
     <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px">School departments and teacher allocations.</p>
     <?php
@@ -500,7 +524,7 @@ $discOpen  = (int)$pdo->query("SELECT COUNT(*) FROM discipline_records WHERE aca
   </div>
 
   <div class="panel" style="padding:22px">
-    <div style="font-size:2rem;margin-bottom:10px">ðŸ“¢</div>
+    <div style="font-size:2rem;margin-bottom:10px">📢</div>
     <h3 style="font-weight:700;margin-bottom:6px">Announcements Summary</h3>
     <?php
     $annStats = $pdo->query("SELECT target,COUNT(*) cnt FROM announcements WHERE published_at IS NOT NULL GROUP BY target ORDER BY cnt DESC")->fetchAll();
@@ -519,7 +543,7 @@ $discOpen  = (int)$pdo->query("SELECT COUNT(*) FROM discipline_records WHERE aca
   </div>
 
   <div class="panel" style="padding:22px">
-    <div style="font-size:2rem;margin-bottom:10px">ðŸ“…</div>
+    <div style="font-size:2rem;margin-bottom:10px">📅</div>
     <h3 style="font-weight:700;margin-bottom:6px">Academic Year Overview</h3>
     <?php
     $ayList = $pdo->query("SELECT ay.*,(SELECT COUNT(*) FROM students s WHERE s.academic_year_id=ay.id) students FROM academic_years ay ORDER BY ay.start_date DESC LIMIT 5")->fetchAll();
@@ -542,4 +566,3 @@ $discOpen  = (int)$pdo->query("SELECT COUNT(*) FROM discipline_records WHERE aca
 
 <style>@media(max-width:640px){.rep-grid{grid-template-columns:1fr !important}}</style>
 <?php require_once dirname(__DIR__).'/includes/admin_footer.php'; ?>
-

@@ -175,7 +175,9 @@ $maxGrade = max(array_column($byGrade,'total') ?: [1]);
 <?php if ($tab === 'enrollment'): ?>
 <!-- ── ENROLLMENT ─────────────────────────────────────────── -->
 <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
-  <span style="display:inline-flex;gap:4px;flex-wrap:wrap;align-items:center"><a href="?export=csv&type=enrollment" class="button button-secondary button-sm">&#x1F4E5; CSV</a><a href="<?= BASE_URL ?>/api/export.php?type=enrollment&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">&#x1F4CA; Excel</a><a href="<?= BASE_URL ?>/api/export.php?type=enrollment&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">&#x1F5A8; PDF</a></span>
+  <a href="?export=csv&type=enrollment" class="button button-secondary button-sm">📥 Export CSV</a>
+  <a href="<?= BASE_URL ?>/api/export.php?type=enrollment&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">📊 Excel</a>
+  <a href="<?= BASE_URL ?>/api/export.php?type=enrollment&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">🖨 PDF</a>
 </div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px" class="reg-grid">
   <div class="panel" style="padding:22px">
@@ -215,7 +217,9 @@ $maxGrade = max(array_column($byGrade,'total') ?: [1]);
 <?php elseif ($tab === 'demographics'): ?>
 <!-- ── DEMOGRAPHICS ────────────────────────────────────────── -->
 <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
-  <span style="display:inline-flex;gap:4px;flex-wrap:wrap;align-items:center"><a href="?export=csv&type=demographics" class="button button-secondary button-sm">&#x1F4E5; CSV</a><a href="<?= BASE_URL ?>/api/export.php?type=demographics&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">&#x1F4CA; Excel</a><a href="<?= BASE_URL ?>/api/export.php?type=demographics&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">&#x1F5A8; PDF</a></span>
+  <a href="?export=csv&type=demographics" class="button button-secondary button-sm">📥 Export CSV</a>
+  <a href="<?= BASE_URL ?>/api/export.php?type=demographics&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">📊 Excel</a>
+  <a href="<?= BASE_URL ?>/api/export.php?type=demographics&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">🖨 PDF</a>
 </div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px" class="reg-grid">
   <div class="panel" style="padding:22px">
@@ -250,7 +254,9 @@ $maxGrade = max(array_column($byGrade,'total') ?: [1]);
 <?php elseif ($tab === 'admissions'): ?>
 <!-- ── ADMISSIONS ──────────────────────────────────────────── -->
 <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
-  <span style="display:inline-flex;gap:4px;flex-wrap:wrap;align-items:center"><a href="?export=csv&type=admissions" class="button button-secondary button-sm">&#x1F4E5; CSV</a><a href="<?= BASE_URL ?>/api/export.php?type=admissions&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">&#x1F4CA; Excel</a><a href="<?= BASE_URL ?>/api/export.php?type=admissions&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">&#x1F5A8; PDF</a></span>
+  <a href="?export=csv&type=admissions" class="button button-secondary button-sm">📥 Export CSV</a>
+  <a href="<?= BASE_URL ?>/api/export.php?type=admissions&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">📊 Excel</a>
+  <a href="<?= BASE_URL ?>/api/export.php?type=admissions&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">🖨 PDF</a>
 </div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px" class="reg-grid">
   <div class="panel" style="padding:22px">
@@ -286,7 +292,9 @@ $maxGrade = max(array_column($byGrade,'total') ?: [1]);
 <?php elseif ($tab === 'movements'): ?>
 <!-- ── TRANSFERS & WITHDRAWALS ─────────────────────────────── -->
 <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
-  <span style="display:inline-flex;gap:4px;flex-wrap:wrap;align-items:center"><a href="?export=csv&type=transfers" class="button button-secondary button-sm">&#x1F4E5; CSV</a><a href="<?= BASE_URL ?>/api/export.php?type=transfers&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">&#x1F4CA; Excel</a><a href="<?= BASE_URL ?>/api/export.php?type=transfers&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">&#x1F5A8; PDF</a></span>
+  <a href="?export=csv&type=transfers" class="button button-secondary button-sm">📥 Export CSV</a>
+  <a href="<?= BASE_URL ?>/api/export.php?type=transfers&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">📊 Excel</a>
+  <a href="<?= BASE_URL ?>/api/export.php?type=transfers&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">🖨 PDF</a>
 </div>
 <?php if (empty($movByType)): ?>
 <div style="text-align:center;padding:48px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)">
@@ -322,7 +330,9 @@ $maxGrade = max(array_column($byGrade,'total') ?: [1]);
 <?php elseif ($tab === 'graduation'): ?>
 <!-- ── GRADUATION ──────────────────────────────────────────── -->
 <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
-  <span style="display:inline-flex;gap:4px;flex-wrap:wrap;align-items:center"><a href="?export=csv&type=graduation" class="button button-secondary button-sm">&#x1F4E5; CSV</a><a href="<?= BASE_URL ?>/api/export.php?type=graduation&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">&#x1F4CA; Excel</a><a href="<?= BASE_URL ?>/api/export.php?type=graduation&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">&#x1F5A8; PDF</a></span>
+  <a href="?export=csv&type=graduation" class="button button-secondary button-sm">📥 Export CSV</a>
+  <a href="<?= BASE_URL ?>/api/export.php?type=graduation&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">📊 Excel</a>
+  <a href="<?= BASE_URL ?>/api/export.php?type=graduation&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">🖨 PDF</a>
 </div>
 <?php if (empty($gradStats)): ?>
 <div style="text-align:center;padding:48px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)">
@@ -381,7 +391,9 @@ $maxGrade = max(array_column($byGrade,'total') ?: [1]);
 <?php elseif ($tab === 'promotion'): ?>
 <!-- ── PROMOTION ───────────────────────────────────────────── -->
 <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
-  <span style="display:inline-flex;gap:4px;flex-wrap:wrap;align-items:center"><a href="?export=csv&type=promotion" class="button button-secondary button-sm">&#x1F4E5; CSV</a><a href="<?= BASE_URL ?>/api/export.php?type=promotion&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">&#x1F4CA; Excel</a><a href="<?= BASE_URL ?>/api/export.php?type=promotion&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">&#x1F5A8; PDF</a></span>
+  <a href="?export=csv&type=promotion" class="button button-secondary button-sm">📥 Export CSV</a>
+  <a href="<?= BASE_URL ?>/api/export.php?type=promotion&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">📊 Excel</a>
+  <a href="<?= BASE_URL ?>/api/export.php?type=promotion&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">🖨 PDF</a>
 </div>
 <?php if (empty($promoStats)): ?>
 <div style="text-align:center;padding:48px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)">
