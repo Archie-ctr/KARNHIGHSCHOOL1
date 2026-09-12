@@ -10,8 +10,49 @@ $pdo    = db();
 $user   = currentUser();
 $role   = currentRole();
 $uid    = currentUserId();
+$ayId   = currentAcademicYearId();
 
-// Actions
+// ── Load the portal-specific record so the sidebar renders correctly ──
+$activePage = 'notifications';
+$teacher = $student = $librarian = $officer = $parent = null;
+
+switch (true) {
+    case in_array($role, ['teacher','class_teacher']):
+        include __DIR__.'/teacher/includes/resolve_teacher.php';
+        break;
+
+    case $role === 'student':
+        $student = $pdo->prepare(
+            "SELECT s.*, g.name grade_name, c.name class_name
+             FROM students s
+             LEFT JOIN grades  g ON g.id=s.current_grade_id
+             LEFT JOIN classes c ON c.id=s.current_class_id
+             WHERE s.user_id=? LIMIT 1"
+        );
+        $student->execute([$uid]);
+        $student = $student->fetch() ?: null;
+        break;
+
+    case $role === 'parent':
+        $parent = $pdo->prepare("SELECT * FROM parents WHERE user_id=? LIMIT 1");
+        $parent->execute([$uid]);
+        $parent = $parent->fetch() ?: null;
+        break;
+
+    case $role === 'librarian':
+        $librarian = $pdo->prepare("SELECT * FROM staff WHERE user_id=? LIMIT 1");
+        $librarian->execute([$uid]);
+        $librarian = $librarian->fetch() ?: ['first_name'=>$user['name'],'last_name'=>''];
+        break;
+
+    case in_array($role, ['discipline_officer','ict_officer']):
+        $officer = $pdo->prepare("SELECT * FROM staff WHERE user_id=? LIMIT 1");
+        $officer->execute([$uid]);
+        $officer = $officer->fetch() ?: ['first_name'=>$user['name'],'last_name'=>''];
+        break;
+}
+
+// ── POST actions ──────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verifyCsrf();
     $action = $_POST['action'] ?? '';
@@ -38,8 +79,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect(BASE_URL.'/portal/notifications.php');
 }
 
-// Filter
-$filter  = $_GET['filter'] ?? 'all'; // all|unread|read
+// ── Query ─────────────────────────────────────────────────────
+$filter  = $_GET['filter'] ?? 'all';
 $page    = max(1,(int)($_GET['p'] ?? 1));
 $perPage = 20;
 
@@ -48,54 +89,42 @@ if ($filter === 'unread') $where[] = "n.is_read=0";
 if ($filter === 'read')   $where[] = "n.is_read=1";
 $ws = implode(' AND ', $where);
 
-$total   = (int)$pdo->query("SELECT COUNT(*) FROM notifications n WHERE $ws")->fetchColumn();
-$unread  = (int)$pdo->query("SELECT COUNT(*) FROM notifications WHERE user_id=$uid AND is_read=0")->fetchColumn();
-$offset  = ($page - 1) * $perPage;
-$pages   = max(1, (int)ceil($total / $perPage));
+$total  = (int)$pdo->query("SELECT COUNT(*) FROM notifications n WHERE $ws")->fetchColumn();
+$unread = (int)$pdo->query("SELECT COUNT(*) FROM notifications WHERE user_id=$uid AND is_read=0")->fetchColumn();
+$offset = ($page - 1) * $perPage;
+$pages  = max(1, (int)ceil($total / $perPage));
 
-$notifs  = $pdo->query(
-    "SELECT * FROM notifications n WHERE $ws
-     ORDER BY n.created_at DESC LIMIT $perPage OFFSET $offset"
+$notifs = $pdo->query(
+    "SELECT * FROM notifications n WHERE $ws ORDER BY n.created_at DESC LIMIT $perPage OFFSET $offset"
 )->fetchAll();
 
-// Mark fetched unread as read (auto mark-read on view)
+// Auto mark-read on view
 if (!empty($notifs)) {
     $ids = implode(',', array_column($notifs, 'id'));
     $pdo->query("UPDATE notifications SET is_read=1 WHERE id IN ($ids) AND user_id=$uid");
 }
 
-// Icon map by notification type
+// ── Icon / colour map ─────────────────────────────────────────
 $typeIcon = [
-    'marks_submitted'    => ['✏️',  'var(--blue)'],
-    'marks_approved'     => ['✅',  'var(--green)'],
-    'marks_returned'     => ['↩️',  'var(--warning)'],
-    'marks_rejected'     => ['❌',  'var(--error)'],
-    'attendance_absent'  => ['📆', 'var(--error)'],
-    'attendance_open'    => ['📆', 'var(--primary)'],
-    'discipline_notice'  => ['⚠️',  'var(--warning)'],
-    'parent_notified'    => ['📞', 'var(--blue)'],
-    'report_card_published'=>['📑','var(--green)'],
-    'announcement'       => ['📢', 'var(--primary)'],
-    'fee_reminder'       => ['💰', 'var(--warning)'],
-    'system'             => ['⚙️',  'var(--ink-soft)'],
-    'info'               => ['ℹ️',  'var(--blue)'],
-    'success'            => ['✅',  'var(--green)'],
-    'warning'            => ['⚠️',  'var(--warning)'],
-    'error'              => ['❌',  'var(--error)'],
+    'marks_submitted'      => ['✏️', 'var(--blue)'],
+    'marks_approved'       => ['✅', 'var(--green)'],
+    'marks_returned'       => ['↩️', 'var(--warning)'],
+    'marks_rejected'       => ['❌', 'var(--error)'],
+    'attendance_absent'    => ['📆', 'var(--error)'],
+    'attendance_open'      => ['📆', 'var(--primary)'],
+    'discipline_notice'    => ['⚠️', 'var(--warning)'],
+    'parent_notified'      => ['📞', 'var(--blue)'],
+    'report_card_published'=> ['📑', 'var(--green)'],
+    'announcement'         => ['📢', 'var(--primary)'],
+    'fee_reminder'         => ['💰', 'var(--warning)'],
+    'system'               => ['⚙️', 'var(--ink-soft)'],
+    'info'                 => ['ℹ️', 'var(--blue)'],
+    'success'              => ['✅', 'var(--green)'],
+    'warning'              => ['⚠️', 'var(--warning)'],
+    'error'                => ['❌', 'var(--error)'],
 ];
 
-// Back link based on role
-$backLink = match(true) {
-    in_array($role,['teacher','class_teacher']) => BASE_URL.'/portal/teacher/',
-    $role === 'student'            => BASE_URL.'/portal/student/',
-    $role === 'parent'             => BASE_URL.'/portal/parent/',
-    $role === 'librarian'          => BASE_URL.'/portal/librarian/',
-    $role === 'discipline_officer' => BASE_URL.'/portal/discipline/',
-    $role === 'ict_officer'        => BASE_URL.'/portal/ict/',
-    default                        => BASE_URL.'/admin/index.php',
-};
-
-function timeAgo(string $datetime): string {
+function notif_timeAgo(string $datetime): string {
     $diff = time() - strtotime($datetime);
     if ($diff < 60)     return 'Just now';
     if ($diff < 3600)   return floor($diff/60).'m ago';
@@ -103,30 +132,56 @@ function timeAgo(string $datetime): string {
     if ($diff < 604800) return floor($diff/86400).'d ago';
     return date('d M Y', strtotime($datetime));
 }
+
+// ── Which nav file to include ─────────────────────────────────
+$navFile = match(true) {
+    in_array($role,['teacher','class_teacher']) => __DIR__.'/teacher/includes/nav.php',
+    $role === 'student'            => __DIR__.'/student/includes/nav.php',
+    $role === 'parent'             => __DIR__.'/parent/includes/nav.php',
+    $role === 'librarian'          => __DIR__.'/librarian/includes/nav.php',
+    $role === 'discipline_officer' => __DIR__.'/discipline/includes/nav.php',
+    $role === 'ict_officer'        => __DIR__.'/ict/includes/nav.php',
+    default                        => null,
+};
+
+// ── For admin/staff roles without a portal sidebar, redirect to admin ─
+if (!$navFile) {
+    // Show within admin layout
+    $pageTitle   = 'Notifications';
+    $activeAdmin = '';
+    include dirname(__DIR__).'/includes/admin_header.php';
+    $showAdminLayout = true;
+} else {
+    $showAdminLayout = false;
+}
 ?>
+<?php if (!$showAdminLayout): ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Notifications — KHS</title>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css"/>
 </head>
-<body style="background:var(--bg);font-family:'Plus Jakarta Sans',sans-serif">
+<body>
+<div class="portal-grid">
+<?php include $navFile; ?>
+<div class="portal-content">
+<?php endif; ?>
 
-<div style="max-width:700px;margin:0 auto;padding:24px 16px">
-
-  <!-- Header -->
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+  <!-- ── Page header ── -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
     <div>
-      <a href="<?= e($backLink) ?>" style="font-size:13px;color:var(--primary);text-decoration:none;margin-bottom:8px;display:block">← Back to Portal</a>
-      <h1 style="font-size:22px;font-weight:800;margin:0">
+      <h1 style="font-size:22px;font-weight:800;margin:0;display:flex;align-items:center;gap:10px">
         🔔 Notifications
         <?php if ($unread > 0): ?>
-        <span style="font-size:13px;background:var(--error);color:#fff;padding:3px 9px;border-radius:12px;vertical-align:middle;font-weight:700"><?= $unread ?> new</span>
+        <span style="font-size:13px;background:var(--error);color:#fff;padding:3px 10px;border-radius:12px;font-weight:700"><?= $unread ?> new</span>
         <?php endif; ?>
       </h1>
+      <p style="margin:4px 0 0;font-size:13px;color:var(--ink-soft)">Your activity feed across all school modules.</p>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <?php if ($total > 0): ?>
@@ -134,7 +189,7 @@ function timeAgo(string $datetime): string {
         <?= csrfField() ?><input type="hidden" name="action" value="mark_read"/>
         <button class="button button-secondary button-sm">✓ Mark all read</button>
       </form>
-      <form method="post" style="display:inline" onsubmit="return confirm('Delete all notifications?')">
+      <form method="post" style="display:inline" onsubmit="return confirm('Delete all notifications? This cannot be undone.')">
         <?= csrfField() ?><input type="hidden" name="action" value="clear_all"/>
         <button class="button button-danger button-sm">🗑 Clear all</button>
       </form>
@@ -142,59 +197,54 @@ function timeAgo(string $datetime): string {
     </div>
   </div>
 
-  <!-- Filter tabs -->
-  <div style="display:flex;gap:6px;margin-bottom:16px;border-bottom:1.5px solid var(--line);padding-bottom:0">
-    <?php foreach(['all'=>'All','unread'=>'Unread','read'=>'Read'] as $f=>$label): ?>
-    <a href="?filter=<?=$f?>"
-       style="padding:8px 16px;font-size:13px;font-weight:700;text-decoration:none;border-bottom:2.5px solid <?=$filter===$f?'var(--primary)':'transparent'?>;color:<?=$filter===$f?'var(--primary)':'var(--ink-soft)'?>;margin-bottom:-1.5px">
-      <?=$label?>
-      <?php if ($f==='unread' && $unread>0): ?><span style="background:var(--error);color:#fff;font-size:10px;padding:1px 5px;border-radius:8px;margin-left:4px"><?=$unread?></span><?php endif;?>
+  <!-- ── Filter tabs ── -->
+  <div style="display:flex;gap:4px;margin-bottom:18px;border-bottom:2px solid var(--line)">
+    <?php foreach(['all'=>'All','unread'=>'Unread','read'=>'Read'] as $f=>$flabel): ?>
+    <a href="?filter=<?= $f ?>"
+       style="padding:9px 18px;font-size:13px;font-weight:700;text-decoration:none;
+              border-bottom:3px solid <?= $filter===$f?'var(--primary)':'transparent' ?>;
+              color:<?= $filter===$f?'var(--primary)':'var(--ink-soft)' ?>;
+              margin-bottom:-2px;transition:color .15s">
+      <?= $flabel ?>
+      <?php if ($f==='unread' && $unread>0): ?>
+      <span style="background:var(--error);color:#fff;font-size:10px;padding:2px 6px;border-radius:8px;margin-left:3px;font-weight:700"><?= $unread ?></span>
+      <?php endif; ?>
     </a>
     <?php endforeach; ?>
   </div>
 
-  <!-- Notifications list -->
+  <!-- ── List ── -->
   <?php if (empty($notifs)): ?>
-  <div style="text-align:center;padding:60px 20px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)">
-    <div style="font-size:48px;margin-bottom:14px">🔔</div>
-    <h3 style="font-weight:700;margin-bottom:6px">
-      <?= $filter==='unread' ? 'All caught up!' : 'No notifications' ?>
-    </h3>
-    <p style="color:var(--ink-soft)">
-      <?= $filter==='unread' ? 'You have no unread notifications.' : 'Notifications will appear here when there is activity.' ?>
-    </p>
+  <div style="text-align:center;padding:64px 20px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)">
+    <div style="font-size:52px;margin-bottom:16px">🔔</div>
+    <h3 style="font-weight:800;margin:0 0 8px"><?= $filter==='unread'?'All caught up!':'No notifications' ?></h3>
+    <p style="color:var(--ink-soft);margin:0"><?= $filter==='unread'?'No unread notifications right now.':'Notifications will appear here as activity happens.' ?></p>
   </div>
-
   <?php else: ?>
+
   <div style="background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden">
     <?php foreach ($notifs as $n):
-      [$icon, $color] = $typeIcon[$n['type']] ?? ['🔔','var(--primary)'];
-      $isUnread = !$n['is_read']; // won't show as unread since we auto-marked, but keep for style
+      [$icon, $color] = $typeIcon[$n['type']] ?? ['🔔', 'var(--primary)'];
     ?>
-    <div class="notif-item" style="<?= $isUnread?'background:var(--bg)':'' ?>">
-      <!-- Icon -->
+    <div class="notif-item">
       <div class="notif-icon" style="background:<?= $color ?>22;color:<?= $color ?>"><?= $icon ?></div>
-
-      <!-- Body -->
       <div class="notif-body">
         <div class="notif-title"><?= e($n['title']) ?></div>
         <div class="notif-msg"><?= e($n['message']) ?></div>
         <div class="notif-time">
-          <?= timeAgo($n['created_at']) ?>
-          &middot; <?= date('d M Y H:i', strtotime($n['created_at'])) ?>
+          <?= notif_timeAgo($n['created_at']) ?>
+          &middot; <?= date('d M Y, H:i', strtotime($n['created_at'])) ?>
         </div>
       </div>
-
-      <!-- Actions -->
       <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0;align-items:flex-end">
         <?php if ($n['link']): ?>
         <a href="<?= e($n['link']) ?>" class="button button-secondary button-sm" style="font-size:11px;white-space:nowrap">View →</a>
         <?php endif; ?>
-        <form method="post" style="display:inline">
+        <form method="post">
           <?= csrfField() ?>
           <input type="hidden" name="action"   value="delete"/>
           <input type="hidden" name="notif_id" value="<?= $n['id'] ?>"/>
-          <button class="button button-secondary button-sm" style="font-size:11px;color:var(--ink-faint)">✕</button>
+          <button class="button button-secondary button-sm" style="font-size:11px;color:var(--ink-faint)" title="Delete">✕</button>
         </form>
       </div>
     </div>
@@ -203,10 +253,10 @@ function timeAgo(string $datetime): string {
 
   <!-- Pagination -->
   <?php if ($pages > 1): ?>
-  <div style="display:flex;justify-content:center;gap:6px;margin-top:16px">
+  <div style="display:flex;justify-content:center;gap:6px;margin-top:18px">
     <?php for ($p = 1; $p <= $pages; $p++): ?>
     <a href="?filter=<?= $filter ?>&p=<?= $p ?>"
-       style="padding:6px 12px;border-radius:6px;font-size:13px;font-weight:700;text-decoration:none;
+       style="padding:6px 13px;border-radius:6px;font-size:13px;font-weight:700;text-decoration:none;
               background:<?= $p===$page?'var(--primary)':'var(--surface)' ?>;
               color:<?= $p===$page?'#fff':'var(--ink-soft)' ?>;
               border:1px solid <?= $p===$page?'var(--primary)':'var(--line)' ?>">
@@ -215,10 +265,15 @@ function timeAgo(string $datetime): string {
     <?php endfor; ?>
   </div>
   <?php endif; ?>
+
   <?php endif; ?>
 
-</div>
-
+<?php if (!$showAdminLayout): ?>
+</div><!-- .portal-content -->
+</div><!-- .portal-grid -->
 <script src="<?= BASE_URL ?>/assets/js/main.js"></script>
 </body>
 </html>
+<?php else: ?>
+<?php include dirname(__DIR__).'/includes/admin_footer.php'; ?>
+<?php endif; ?>
