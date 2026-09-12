@@ -4,9 +4,7 @@ requireAuth(); requireRole(['teacher','class_teacher']);
 
 $activePage = 'timetable';
 $pdo = db(); $user = currentUser(); $ayId = currentAcademicYearId(); $ay = currentAcademicYearName();
-$teacherRow = $pdo->prepare("SELECT * FROM teachers WHERE user_id=? LIMIT 1");
-$teacherRow->execute([$user['id']]); $teacher = $teacherRow->fetch();
-$teacherId = $teacher ? (int)$teacher['id'] : 0;
+include __DIR__.'/includes/resolve_teacher.php';
 
 $myClassIds = $pdo->prepare("SELECT DISTINCT class_id FROM teacher_assignments WHERE teacher_id=? AND academic_year_id=?");
 $myClassIds->execute([$teacherId,$ayId]); $myClassIds=array_column($myClassIds->fetchAll(),'class_id');

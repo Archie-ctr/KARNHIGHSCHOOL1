@@ -5,10 +5,7 @@ requireAuth(); requireRole(['teacher','class_teacher']);
 $activePage = 'assessments';
 $pdo = db(); $user = currentUser(); $ayId = currentAcademicYearId(); $ay = currentAcademicYearName();
 
-$teacherRow = $pdo->prepare("SELECT * FROM teachers WHERE user_id=? LIMIT 1");
-$teacherRow->execute([$user['id']]); $teacher = $teacherRow->fetch();
-if (!$teacher) { redirect(BASE_URL.'/portal/teacher/'); }
-$teacherId = $teacher['id'];
+include __DIR__.'/includes/resolve_teacher.php';
 
 // ── Ensure table ──────────────────────────────────────────────
 try {

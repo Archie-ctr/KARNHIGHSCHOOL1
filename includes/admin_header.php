@@ -765,9 +765,25 @@ function sidebarAllowed(string $key, string $role, array $allowlist): bool {
     <!-- ── End Academic Year Switcher ── -->
 
     <div class="dash-user">
+      <?php
+      // ── Personal notifications bell (all staff) ──────────────
+      $_notifCount = 0;
+      try { $_notifCount=(int)db()->query("SELECT COUNT(*) FROM notifications WHERE user_id={$user['id']} AND is_read=0")->fetchColumn(); } catch(Throwable $_ne){}
+      ?>
+      <a href="<?=BASE_URL?>/portal/notifications.php"
+         class="notification-btn notif-bell"
+         title="<?=$_notifCount?> unread notification<?=$_notifCount!==1?'s':''?>"
+         style="position:relative;text-decoration:none;font-size:18px;line-height:1;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;transition:background .15s<?=$_notifCount>0?';animation:bellWiggle 1.5s ease infinite':''?>">
+        🔔
+        <?php if($_notifCount>0):?>
+        <span class="notif-bell-badge" style="position:absolute;top:-2px;right:-2px;background:var(--error);color:#fff;font-size:10px;font-weight:700;border-radius:50%;min-width:17px;height:17px;display:flex;align-items:center;justify-content:center;padding:0 3px;line-height:1">
+          <?=$_notifCount>99?'99+':$_notifCount?>
+        </span>
+        <?php endif;?>
+      </a>
       <?php if ($approvalTotal>0 && can('approvals.act')): ?>
       <a href="<?=BASE_URL?>/admin/approval_center.php" class="notification-btn" title="<?=$approvalTotal?> pending approvals" style="position:relative">
-        🔔<span style="position:absolute;top:-2px;right:-2px;background:var(--error);color:#fff;font-size:10px;font-weight:700;border-radius:50%;width:17px;height:17px;display:flex;align-items:center;justify-content:center;line-height:1"><?=$approvalTotal?></span>
+        ✅<span style="position:absolute;top:-2px;right:-2px;background:var(--error);color:#fff;font-size:10px;font-weight:700;border-radius:50%;width:17px;height:17px;display:flex;align-items:center;justify-content:center;line-height:1"><?=$approvalTotal?></span>
       </a>
       <?php endif; ?>
       <div class="avatar"><?=e($initials)?></div>
@@ -780,3 +796,9 @@ function sidebarAllowed(string $key, string $role, array $allowlist): bool {
 
   <div class="dash-content">
     <?=renderFlash()?>
+<script>window.__BASE_URL='<?=BASE_URL?>';</script>
+<script src="<?=BASE_URL?>/assets/js/notifications.js" defer></script>
+<style>
+@keyframes bellWiggle{0%,100%{transform:rotate(0)}10%,30%{transform:rotate(-12deg)}20%,40%{transform:rotate(12deg)}50%{transform:rotate(0)}}
+.notif-bell:hover{background:var(--primary-soft)!important}
+</style>

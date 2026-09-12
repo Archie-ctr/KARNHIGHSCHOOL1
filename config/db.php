@@ -321,6 +321,88 @@ function notify(int $userId, string $type, string $title, string $message, strin
     } catch (Throwable $e) {}
 }
 
+// Notify all users with a specific role
+function notifyRole(string $role, string $type, string $title, string $message, string $link=''): void {
+    try {
+        $users = db()->query(
+            "SELECT u.id FROM users u JOIN roles r ON r.id=u.role_id
+             WHERE r.name='".addslashes($role)."' AND u.is_active=1"
+        )->fetchAll(PDO::FETCH_COLUMN);
+        foreach ($users as $uid) notify((int)$uid, $type, $title, $message, $link);
+    } catch (Throwable $e) {}
+}
+
+// Notify all users with any of the given roles
+function notifyRoles(array $roles, string $type, string $title, string $message, string $link=''): void {
+    $placeholders = implode(',', array_fill(0, count($roles), '?'));
+    try {
+        $users = db()->prepare(
+            "SELECT u.id FROM users u JOIN roles r ON r.id=u.role_id
+             WHERE r.name IN ($placeholders) AND u.is_active=1"
+        );
+        $users->execute($roles);
+        foreach ($users->fetchAll(PDO::FETCH_COLUMN) as $uid) {
+            notify((int)$uid, $type, $title, $message, $link);
+        }
+    } catch (Throwable $e) {}
+}
+
+// Notify subject teachers of a given class (all teachers assigned to that class)
+function notifyClassTeachers(int $classId, int $ayId, string $type, string $title, string $message, string $link='', ?int $excludeUserId=null): void {
+    try {
+        $teachers = db()->query(
+            "SELECT DISTINCT t.user_id
+             FROM teacher_assignments ta
+             JOIN teachers t ON t.id=ta.teacher_id
+             WHERE ta.class_id=$classId AND ta.academic_year_id=$ayId
+               AND t.user_id IS NOT NULL"
+        )->fetchAll(PDO::FETCH_COLUMN);
+        foreach ($teachers as $uid) {
+            if ($excludeUserId && (int)$uid === $excludeUserId) continue;
+            notify((int)$uid, $type, $title, $message, $link);
+        }
+    } catch (Throwable $e) {}
+}
+
+// Notify the class sponsor of a class
+function notifyClassSponsor(int $classId, string $type, string $title, string $message, string $link='', ?int $excludeUserId=null): void {
+    try {
+        $uid = db()->query(
+            "SELECT t.user_id FROM classes c
+             JOIN teachers t ON t.id=c.teacher_id
+             WHERE c.id=$classId AND t.user_id IS NOT NULL LIMIT 1"
+        )->fetchColumn();
+        if ($uid && (!$excludeUserId || (int)$uid !== $excludeUserId)) {
+            notify((int)$uid, $type, $title, $message, $link);
+        }
+    } catch (Throwable $e) {}
+}
+
+// Notify a student and their parent/guardian
+function notifyStudent(int $studentId, string $type, string $title, string $message, string $link=''): void {
+    try {
+        $uid = db()->query("SELECT user_id FROM students WHERE id=$studentId LIMIT 1")->fetchColumn();
+        if ($uid) notify((int)$uid, $type, $title, $message, $link);
+        // Also notify parents/guardians
+        $parents = db()->query(
+            "SELECT g.user_id FROM student_guardians sg
+             JOIN guardians g ON g.id=sg.guardian_id
+             WHERE sg.student_id=$studentId AND g.user_id IS NOT NULL"
+        )->fetchAll(PDO::FETCH_COLUMN);
+        foreach ($parents as $puid) notify((int)$puid, $type, $title, $message, $link);
+    } catch (Throwable $e) {}
+}
+
+// Count unread notifications for current user
+function countUnreadNotifications(): int {
+    if (!isLoggedIn()) return 0;
+    try {
+        return (int)db()->query(
+            "SELECT COUNT(*) FROM notifications WHERE user_id=".currentUserId()." AND is_read=0"
+        )->fetchColumn();
+    } catch (Throwable $e) { return 0; }
+}
+
 // ── Flash messages ────────────────────────────────────────────
 function flash(string $type, string $message): void {
     $_SESSION['flash'][] = ['type'=>$type,'message'=>$message];

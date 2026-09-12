@@ -23,6 +23,16 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
             recordMarksHistory($sc['id'],$sc['student_id'],$sc['subject_id'],$sc['assessment_config_id'],$sc['academic_year_id'],$sc['marks_obtained'],$sc['marks_obtained'],$sc['status'],'approved',$reason);
         }
         auditLog('approve_marks','marks','assessment_score',$clsId,'submitted','approved');
+        // ── Notify teacher ──────────────────────────────────
+        try {
+            $teacherUid = $pdo->query("SELECT DISTINCT u.id FROM assessment_scores asc2 JOIN users u ON u.id=asc2.entered_by WHERE asc2.class_id=$clsId AND asc2.subject_id=$subId AND asc2.assessment_config_id=$cfgId AND asc2.academic_year_id=$ayId LIMIT 1")->fetchColumn();
+            if ($teacherUid) {
+                $cn=$pdo->query("SELECT name FROM classes WHERE id=$clsId")->fetchColumn()??'';
+                $sn=$pdo->query("SELECT name FROM subjects WHERE id=$subId")->fetchColumn()??'';
+                $ac=$pdo->query("SELECT name FROM assessment_configs WHERE id=$cfgId")->fetchColumn()??'';
+                notify((int)$teacherUid,'marks_approved',"Marks Approved: $cn – $sn","Your $ac marks for $cn ($sn) have been approved and are now visible to students.",BASE_URL.'/portal/teacher/results.php?class_id='.$clsId);
+            }
+        } catch (Throwable $e) {}
         if ($isAjax) json_out(['ok'=>true,'count'=>count($scores)]);
         flash('success',count($scores).' mark records approved.');
 
@@ -34,6 +44,16 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
             recordMarksHistory($sc['id'],$sc['student_id'],$sc['subject_id'],$sc['assessment_config_id'],$sc['academic_year_id'],$sc['marks_obtained'],$sc['marks_obtained'],$sc['status'],'returned',$reason);
         }
         auditLog('return_marks','marks','assessment_score',$clsId,'submitted','returned');
+        // ── Notify teacher ──────────────────────────────────
+        try {
+            $teacherUid = $pdo->query("SELECT DISTINCT u.id FROM assessment_scores asc2 JOIN users u ON u.id=asc2.entered_by WHERE asc2.class_id=$clsId AND asc2.subject_id=$subId AND asc2.assessment_config_id=$cfgId AND asc2.academic_year_id=$ayId LIMIT 1")->fetchColumn();
+            if ($teacherUid) {
+                $cn=$pdo->query("SELECT name FROM classes WHERE id=$clsId")->fetchColumn()??'';
+                $sn=$pdo->query("SELECT name FROM subjects WHERE id=$subId")->fetchColumn()??'';
+                $ac=$pdo->query("SELECT name FROM assessment_configs WHERE id=$cfgId")->fetchColumn()??'';
+                notify((int)$teacherUid,'marks_returned',"Marks Returned for Correction: $cn – $sn","Your $ac marks for $cn ($sn) were returned for correction. Reason: ".($reason?:'Please review and resubmit.'),BASE_URL.'/portal/teacher/enter_marks.php?class_id='.$clsId.'&subject_id='.$subId.'&config_id='.$cfgId);
+            }
+        } catch (Throwable $e) {}
         if ($isAjax) json_out(['ok'=>true]);
         flash('warning','Marks returned to teacher for correction.');
 

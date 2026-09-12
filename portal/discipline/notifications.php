@@ -41,6 +41,24 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
             $pdo->prepare("INSERT INTO discipline_case_notes (incident_id,note_type,note,added_by) VALUES (?,'general',?,?)")
                 ->execute([$incId,"Parent notified via ".ucwords(str_replace('_',' ',$type)).": ".($msg?:'-'),$user['id']]);
             flash('success','Parent notification recorded.');
+            // Notify student + parent via system notification
+            try {
+                $studentId2 = (int)$_POST['student_id'];
+                $cn  = $pdo->query("SELECT CONCAT(s.first_name,' ',s.last_name) FROM students s WHERE s.id=$studentId2")->fetchColumn()??'';
+                $vt  = $pdo->query("SELECT COALESCE(violation_type,category,'Incident') FROM discipline_records WHERE id=$incId")->fetchColumn()??'Incident';
+                notifyStudent($studentId2,'discipline_notice',
+                    'Discipline Notice',
+                    "The school has notified your parent/guardian about a $vt incident. Please speak with a school officer.",
+                    BASE_URL.'/portal/student/'
+                );
+                // Notify registrar/VP that parent was contacted
+                notifyRoles(['vice_principal','principal','registrar'],
+                    'parent_notified',
+                    "Parent Notified: $cn",
+                    "Discipline officer has notified the parent of $cn regarding a $vt incident.",
+                    BASE_URL.'/portal/discipline/notifications.php?tab=history'
+                );
+            } catch (Throwable $e) {}
         }catch(Throwable $e){flash('error','Failed: '.$e->getMessage());}
         redirect(BASE_URL.'/portal/discipline/notifications.php?tab=history');
     }

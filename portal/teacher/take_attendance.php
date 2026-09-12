@@ -4,9 +4,7 @@ requireAuth(); requireRole(['teacher','class_teacher']);
 
 $activePage = 'attendance';
 $pdo = db(); $user = currentUser(); $ayId = currentAcademicYearId();
-$teacherRow = $pdo->prepare("SELECT * FROM teachers WHERE user_id=? LIMIT 1");
-$teacherRow->execute([$user['id']]); $teacher = $teacherRow->fetch();
-$teacherId = $teacher ? (int)$teacher['id'] : 0;
+include __DIR__.'/includes/resolve_teacher.php';
 
 if ($_SERVER['REQUEST_METHOD']==='POST' && $_POST['action']==='save') {
     verifyCsrf();
@@ -18,6 +16,31 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && $_POST['action']==='save') {
                ->execute([$sid,$clsId,$ayId,$date,$st,trim($_POST['remarks'][$sid]??'')?:null,$user['id']]);
         }
         flash('success','Attendance saved for '.date('M d, Y',strtotime($date)).'.');
+        // ── Notify class sponsor + VP of absent students ─────
+        try {
+            $absentIds = array_keys(array_filter($_POST['status']??[], fn($s)=>$s==='Absent'));
+            if (!empty($absentIds) && $clsId) {
+                $cn = $pdo->query("SELECT name FROM classes WHERE id=$clsId")->fetchColumn()??'';
+                $count = count($absentIds);
+                $dateFormatted = date('d M Y', strtotime($date));
+                // Notify class sponsor (if not this teacher)
+                notifyClassSponsor($clsId,
+                    'attendance_absent',
+                    "Absences Recorded: $cn",
+                    "$count student".($count!==1?'s':'')." absent in $cn on $dateFormatted.",
+                    BASE_URL.'/admin/attendance.php?class_id='.$clsId.'&date='.$date,
+                    $user['id']
+                );
+                // Notify parents of absent students
+                foreach ($absentIds as $sid) {
+                    notifyStudent((int)$sid, 'attendance_absent',
+                        'Absence Recorded',
+                        "Your absence on $dateFormatted for $cn has been recorded by your teacher.",
+                        BASE_URL.'/portal/student/attendance.php'
+                    );
+                }
+            }
+        } catch (Throwable $e) {}
     }
     redirect(BASE_URL.'/portal/teacher/take_attendance.php?class_id='.$clsId.'&att_date='.$date);
 }

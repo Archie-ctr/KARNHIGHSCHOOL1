@@ -5,10 +5,7 @@ requireAuth(); requireRole(['class_teacher']);  // class_teacher ONLY
 $activePage = 'class_dashboard';
 $pdo = db(); $user = currentUser(); $ayId = currentAcademicYearId(); $ay = currentAcademicYearName();
 
-$teacherRow = $pdo->prepare("SELECT * FROM teachers WHERE user_id=? LIMIT 1");
-$teacherRow->execute([$user['id']]); $teacher = $teacherRow->fetch();
-if (!$teacher) { redirect(BASE_URL.'/portal/teacher/'); }
-$teacherId = $teacher['id'];
+include __DIR__.'/includes/resolve_teacher.php';
 
 // ── Resolve the class this teacher is responsible for ─────────
 // Class teacher is primarily responsible for ONE class

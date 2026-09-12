@@ -49,6 +49,18 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
         $rcId=(int)($_POST['rc_id']??0);
         $pdo->prepare("UPDATE report_cards SET status='published',published_at=NOW() WHERE id=?")->execute([$rcId]);
         flash('success','Report card published.');
+        // ── Notify student + parents ─────────────────────────
+        try {
+            $rc = $pdo->query("SELECT student_id, academic_year_id FROM report_cards WHERE id=$rcId")->fetch();
+            if ($rc) {
+                $ay2 = $pdo->query("SELECT name FROM academic_years WHERE id={$rc['academic_year_id']}")->fetchColumn()??'';
+                notifyStudent((int)$rc['student_id'], 'report_card_published',
+                    'Report Card Published',
+                    "Your report card for $ay2 is now available. Log in to view and download.",
+                    BASE_URL.'/portal/student/report_card.php'
+                );
+            }
+        } catch (Throwable $e) {}
     }
     redirect(BASE_URL.'/admin/report_cards.php?'.http_build_query(array_filter(['class_id'=>$_POST['class_id']??''])));
 }

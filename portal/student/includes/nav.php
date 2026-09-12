@@ -18,6 +18,7 @@ $nav = [
     'library'      => ['📖', 'Library',           BASE_URL.'/portal/student/library.php'],
     'announcements'=> ['📢', 'Announcements',     BASE_URL.'/portal/student/announcements.php'],
     'graduation'   => ['🎓', 'Graduation',        BASE_URL.'/portal/student/graduation.php'],
+    'notifications'=> ['🔔', 'Notifications',     BASE_URL.'/portal/notifications.php'],
 ];
 ?>
 <aside class="portal-sidebar" style="background:#1e1b4b;border-right:none">
@@ -33,7 +34,10 @@ $nav = [
 
   <!-- Nav -->
   <nav style="flex:1;padding:10px 8px;overflow-y:auto" aria-label="Student portal navigation">
-    <?php foreach ($nav as $key => [$icon, $label, $url]): ?>
+    <?php
+    $_unreadS = 0;
+    try { $_unreadS=(int)db()->query("SELECT COUNT(*) FROM notifications WHERE user_id=".currentUserId()." AND is_read=0")->fetchColumn(); } catch(Throwable $_e){}
+    foreach ($nav as $key => [$icon, $label, $url]): ?>
     <a href="<?= e($url) ?>"
        <?= $activePage === $key ? 'class="active" aria-current="page"' : '' ?>
        style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;
@@ -43,6 +47,9 @@ $nav = [
               text-decoration:none;margin-bottom:1px;transition:all .15s">
       <span style="font-size:15px;width:20px;text-align:center;flex-shrink:0"><?= $icon ?></span>
       <?= $label ?>
+      <?php if ($key === 'notifications' && $_unreadS > 0): ?>
+      <span class="ts-badge notif-bell-badge" style="margin-left:auto"><?= $_unreadS > 99 ? '99+' : $_unreadS ?></span>
+      <?php endif; ?>
     </a>
     <?php endforeach; ?>
   </nav>
@@ -61,3 +68,6 @@ $nav = [
     </a>
   </div>
 </aside>
+
+<script>window.__BASE_URL='<?= BASE_URL ?>';</script>
+<script src="<?= BASE_URL ?>/assets/js/notifications.js" defer></script>

@@ -4,9 +4,8 @@ requireAuth(); requireRole(['teacher','class_teacher']);
 
 $activePage = 'marks';
 $pdo = db(); $user = currentUser(); $ayId = currentAcademicYearId(); $ay = currentAcademicYearName();
-$teacherRow = $pdo->prepare("SELECT * FROM teachers WHERE user_id=? LIMIT 1");
-$teacherRow->execute([$user['id']]); $teacher = $teacherRow->fetch();
-$teacherId = $teacher ? (int)$teacher['id'] : 0;
+include __DIR__.'/includes/resolve_teacher.php';
+
 
 if($_SERVER['REQUEST_METHOD']==='POST'&&$_POST['action']==='save_marks'){
     verifyCsrf();
@@ -18,6 +17,29 @@ if($_SERVER['REQUEST_METHOD']==='POST'&&$_POST['action']==='save_marks'){
             $pdo->prepare("INSERT INTO assessment_scores (student_id,class_id,subject_id,assessment_config_id,academic_year_id,marks_obtained,max_marks,entered_by,submitted_at,status) VALUES (?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE marks_obtained=VALUES(marks_obtained),status=VALUES(status),entered_by=VALUES(entered_by),submitted_at=VALUES(submitted_at),updated_at=NOW()")->execute([$sid,$clsId,$subId,$cfgId,$ayId,$val,$maxM,$user['id'],$submit?date('Y-m-d H:i:s'):null,$st]);
         }
         flash('success',$submit?'Marks submitted for approval.':'Marks saved as draft.');
+        // ── Notify on submit ──────────────────────────────
+        if ($submit && $clsId && $subId) {
+            try {
+                $cn  = $pdo->query("SELECT name FROM classes  WHERE id=$clsId")->fetchColumn()??'';
+                $sn  = $pdo->query("SELECT name FROM subjects WHERE id=$subId")->fetchColumn()??'';
+                $acn = $pdo->query("SELECT name FROM assessment_configs WHERE id=$cfgId")->fetchColumn()??'';
+                $link= BASE_URL.'/admin/marks_approval.php';
+                // Notify VP/Principal/Registrar to approve
+                notifyRoles(['vice_principal','principal','registrar','academic_dean'],
+                    'marks_submitted',
+                    "Marks Submitted: $cn – $sn",
+                    "{$user['name']} submitted $acn marks for $cn ($sn). Awaiting your approval.",
+                    $link
+                );
+                // Also notify class sponsor (if not the same teacher)
+                notifyClassSponsor($clsId, 'marks_submitted',
+                    "Marks Ready: $cn – $sn",
+                    "{$user['name']} submitted $acn marks for $sn in your class ($cn).",
+                    BASE_URL.'/portal/teacher/results.php?class_id='.$clsId,
+                    $user['id']
+                );
+            } catch (Throwable $e) {}
+        }
     }
     redirect(BASE_URL.'/portal/teacher/enter_marks.php?class_id='.$clsId.'&subject_id='.$subId.'&config_id='.$cfgId);
 }

@@ -4,9 +4,7 @@ requireAuth(); requireRole(['teacher','class_teacher']);
 
 $activePage = 'students';
 $pdo = db(); $user = currentUser(); $ayId = currentAcademicYearId(); $ay = currentAcademicYearName();
-$teacherRow = $pdo->prepare("SELECT * FROM teachers WHERE user_id=? LIMIT 1");
-$teacherRow->execute([$user['id']]); $teacher = $teacherRow->fetch();
-$teacherId = $teacher ? (int)$teacher['id'] : 0;
+include __DIR__.'/includes/resolve_teacher.php';
 
 $myClasses = $pdo->prepare("SELECT DISTINCT c.id,c.name FROM teacher_assignments ta JOIN classes c ON c.id=ta.class_id WHERE ta.teacher_id=? AND ta.academic_year_id=? ORDER BY c.name");
 $myClasses->execute([$teacherId,$ayId]); $myClasses=$myClasses->fetchAll();
