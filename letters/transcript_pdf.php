@@ -8,6 +8,7 @@
 // URL: /letters/transcript_pdf.php?student_id=N
 // ============================================================
 require_once dirname(__DIR__).'/config/db.php';
+require_once dirname(__DIR__).'/includes/doc_verify_helper.php';
 requireAuth();
 
 $pdo   = db();
@@ -454,5 +455,13 @@ $fullName = trim(($student['first_name']??'').' '.($student['middle_name']??'').
   </div>
 
 </div><!-- .page -->
+<?php
+$_tRef = 'TRN-'.date('Y').'-'.str_pad($stdId,4,'0',STR_PAD_LEFT);
+echo docVerifyStrip('transcript',$stdId,
+    trim(($student['first_name']??'').' '.($student['last_name']??'')),
+    $student['grade_name']??'',
+    currentAcademicYearName(),
+    $_tRef, isLoggedIn()?currentUserId():null, null, '+5 years');
+?>
 </body>
 </html>

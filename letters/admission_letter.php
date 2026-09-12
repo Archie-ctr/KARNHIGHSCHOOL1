@@ -1,5 +1,6 @@
 <?php
 require_once dirname(__DIR__).'/config/db.php';
+require_once dirname(__DIR__).'/includes/doc_verify_helper.php';
 requireAuth();
 $pdo=db(); $stdId=(int)($_GET['student_id']??0);
 if(!$stdId) die('Invalid.'); requireStaff();
@@ -52,4 +53,11 @@ $admNum=$student['admission_number']??('ADM-'.date('Y').'-'.str_pad($student['id
   </div>
   <div class="footer"><?=e($school)?> &nbsp;|&nbsp; Karnplay, Nimba County, Liberia &nbsp;|&nbsp; <?=e(setting('school_phone','+231 886 417 711'))?> &nbsp;|&nbsp; <?=date('Y')?></div>
 </div>
+<?php
+echo docVerifyStrip('admission',$stdId,
+    trim(($student['first_name']??'').' '.($student['last_name']??'')),
+    $student['grade_name']??'',
+    $ay,
+    $admNum, isLoggedIn()?currentUserId():null, null, '+2 years');
+?>
 </body></html>

@@ -1,5 +1,6 @@
 <?php
 require_once dirname(__DIR__).'/config/db.php';
+require_once dirname(__DIR__).'/includes/doc_verify_helper.php';
 requireAuth();
 $pdo=db(); $stdId=(int)($_GET['student_id']??0); $ayId=(int)($_GET['ay_id']??currentAcademicYearId());
 if(!$stdId) die('Invalid request.');
@@ -235,4 +236,11 @@ body{background:#2a1a0a;padding:20px;display:flex;flex-direction:column;align-it
   </div>
 </div>
 
+<?php
+echo docVerifyStrip('diploma',$stdId,
+    $studentFullName,
+    'Grade 12',
+    currentAcademicYearName(),
+    $certNum, isLoggedIn()?currentUserId():null, null, '+50 years');
+?>
 </body></html>

@@ -1,6 +1,7 @@
 <?php
 // Entrance Eligibility Letter — accessible by applicant (app + phone) or admin
 require_once dirname(__DIR__).'/config/db.php';
+require_once dirname(__DIR__).'/includes/doc_verify_helper.php';
 $pdo=db();
 $id=(int)($_GET['id']??0); $appNum=trim($_GET['app']??''); $phone=trim($_GET['phone']??'');
 $app=null;
@@ -62,4 +63,20 @@ $examTime=$app['entrance_exam_time']?:'9:00 AM';
   </div>
   <div class="footer-note">This is an official document of <?=e($school)?>. &nbsp;|&nbsp; Ref: <?=e($app['entrance_letter_ref'])?> &nbsp;|&nbsp; Generated: <?=date('F d, Y')?></div>
 </div>
+<?php
+$_appName = trim(($app['first_name']??'').' '.($app['middle_name']??'').' '.($app['last_name']??''));
+$_appStudId = (int)($app['student_id'] ?? 0);
+if (!$_appStudId) {
+    // Applicant not yet a student — use application id as a proxy, skip DB write
+    // We still show the QR strip but pointing to application ref
+    $_appStudId = (int)$appId;
+}
+echo docVerifyStrip('entrance_letter', $_appStudId,
+    $_appName,
+    $app['grade_applying_for'] ?? '',
+    $app['academic_year']      ?? '',
+    $app['entrance_letter_ref'],
+    isLoggedIn() ? currentUserId() : null,
+    null, '+1 year');
+?>
 </body></html>

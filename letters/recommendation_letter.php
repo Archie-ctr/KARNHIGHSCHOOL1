@@ -5,6 +5,7 @@
 //      &purpose=college|employment|scholarship|transfer|general
 // ============================================================
 require_once dirname(__DIR__).'/config/db.php';
+require_once dirname(__DIR__).'/includes/doc_verify_helper.php';
 requireAuth();
 requireStaff(); // only staff can issue recommendations
 
@@ -442,5 +443,12 @@ $refNumber = 'LOR-'.date('Y').'-'.str_pad($stdId, 4, '0', STR_PAD_LEFT).'-'.strt
   </div>
 
 </div><!-- .letter -->
+<?php
+echo docVerifyStrip('recommendation',$stdId,
+    $fullName,
+    $student['grade_name']??'',
+    $ay,
+    $refNumber, currentUserId(), $purpose, '+1 year');
+?>
 </body>
 </html>

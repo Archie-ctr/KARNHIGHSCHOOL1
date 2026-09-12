@@ -6,6 +6,7 @@
 // Format matches the official Liberian school report card.
 // ============================================================
 require_once dirname(__DIR__).'/config/db.php';
+require_once dirname(__DIR__).'/includes/doc_verify_helper.php';
 requireAuth();
 $pdo=db();
 $stdId=(int)($_GET['student_id']??0);
@@ -460,5 +461,13 @@ html,body{font-family:Arial,sans-serif;font-size:9.5pt;color:#000;background:#e0
 </div><!-- /card-back -->
 </div><!-- /page 2 -->
 
+<?php
+$_rcRef = 'RC-'.date('Y').'-'.str_pad($stdId,4,'0',STR_PAD_LEFT).'-'.($ayId??0);
+echo docVerifyStrip('report_card',$stdId,
+    $studentFullName,
+    $student['grade_name']??'',
+    $ay,
+    $_rcRef, isLoggedIn()?currentUserId():null, null, '+5 years');
+?>
 </body>
 </html>

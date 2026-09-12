@@ -1,5 +1,6 @@
 <?php
 require_once dirname(__DIR__).'/config/db.php';
+require_once dirname(__DIR__).'/includes/doc_verify_helper.php';
 requireAuth();
 $pdo=db(); $stdId=(int)($_GET['student_id']??0); $ayId=(int)($_GET['ay_id']??currentAcademicYearId());
 if(!$stdId) die('Invalid request.');
@@ -255,3 +256,11 @@ tbody tr:nth-child(even){background:#fdf8f9}
 </div>
 
 </body></html>
+<?php
+$_gsRef = 'GS-'.date('Y').'-'.str_pad($stdId,4,'0',STR_PAD_LEFT).'-'.($ayId??0);
+echo docVerifyStrip('gradesheet',$stdId,
+    trim(($student['first_name']??'').' '.($student['last_name']??'')),
+    $student['grade_name']??'',
+    $ay,
+    $_gsRef, isLoggedIn()?currentUserId():null, null, '+5 years');
+?>
