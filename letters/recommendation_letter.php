@@ -124,152 +124,70 @@ $refNumber = 'LOR-'.date('Y').'-'.str_pad($stdId, 4, '0', STR_PAD_LEFT).'-'.strt
     body {
       font-family: 'Times New Roman', Times, serif;
       background: #e8e8e8;
-      padding: 20px;
-      font-size: 12pt;
+      padding: 16px;
+      font-size: 10.5pt;
       color: #111;
-      line-height: 1.7;
+      line-height: 1.55;
     }
     .letter {
       background: #fff;
       max-width: 760px;
-      margin: 0 auto 30px;
-      padding: 38px 56px 44px;
+      margin: 0 auto 20px;
+      padding: 22px 42px 26px;
       box-shadow: 0 3px 16px rgba(0,0,0,.18);
       border: 1px solid #ccc;
       position: relative;
       overflow: hidden;
     }
-    /* Watermark */
     .wm-logo {
-      position: absolute;
-      top: 50%; left: 50%;
+      position: absolute; top: 50%; left: 50%;
       transform: translate(-50%,-50%);
-      width: 55%;
-      opacity: 0.055;
-      pointer-events: none;
-      user-select: none;
-      z-index: 0;
+      width: 52%; opacity: 0.055;
+      pointer-events: none; user-select: none; z-index: 0;
     }
-    /* Decorative top border */
     .letter::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 6px;
+      content: ''; position: absolute;
+      top: 0; left: 0; right: 0; height: 5px;
       background: linear-gradient(90deg, #ac2443 0%, #6b1029 50%, #ac2443 100%);
     }
-    /* All content above watermark */
     .letter > *:not(.wm-logo) { position: relative; z-index: 1 }
 
     /* Header */
-    .lh {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-bottom: 14px;
-      border-bottom: 2.5px solid #ac2443;
-      margin-bottom: 18px;
-    }
-    .lh-left { display:flex; align-items:center; gap:18px }
-    .lh img { width: 72px; height: 72px; object-fit:cover; border-radius:8px }
-    .sn { font-size: 18pt; font-weight: 700; color: #ac2443; font-family: Arial, sans-serif }
-    .ss { font-size: 10pt; color: #555; margin-top: 3px }
-    .lh-right { text-align:right; font-size:10pt; color:#555 }
+    .lh { display:flex; align-items:center; justify-content:space-between; padding-bottom:10px; border-bottom:2px solid #ac2443; margin-bottom:12px }
+    .lh-left { display:flex; align-items:center; gap:12px }
+    .lh img { width:58px; height:58px; object-fit:cover; border-radius:6px }
+    .sn { font-size:15pt; font-weight:700; color:#ac2443; font-family:Arial,sans-serif }
+    .ss { font-size:8.5pt; color:#555; margin-top:2px }
+    .lh-right { text-align:right; font-size:8.5pt; color:#555 }
 
-    /* Title banner */
-    .doc-title {
-      background: #ac2443;
-      color: #fff;
-      text-align: center;
-      padding: 10px 0;
-      font-size: 13pt;
-      font-weight: 700;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      margin-bottom: 22px;
-      border-radius: 2px;
-    }
-    .doc-subtitle {
-      text-align: center;
-      font-size: 10pt;
-      color: #666;
-      margin-top: -18px;
-      margin-bottom: 20px;
-      font-style: italic;
-    }
-
-    /* Meta row */
-    .meta-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 10.5pt;
-      color: #444;
-      margin-bottom: 20px;
-    }
+    .doc-title { background:#ac2443; color:#fff; text-align:center; padding:7px 0; font-size:11.5pt; font-weight:700; letter-spacing:.08em; text-transform:uppercase; margin-bottom:4px; border-radius:2px }
+    .doc-subtitle { text-align:center; font-size:8.5pt; color:#666; margin-bottom:12px; font-style:italic }
 
     /* Body */
-    .body { font-size: 12pt; line-height: 1.85; color: #111 }
-    .body p { margin-bottom: 14px }
+    .body { font-size:10pt; line-height:1.6; color:#111 }
+    .body p { margin-bottom:8px }
 
-    /* Highlight box */
-    .hbox {
-      background: #fdf1f4;
-      border-left: 4px solid #ac2443;
-      border-radius: 0 4px 4px 0;
-      padding: 14px 20px;
-      margin: 20px 0;
-      font-size: 11pt;
-    }
-    .hbox table { width: 100%; border-collapse: collapse }
-    .hbox td { padding: 4px 6px }
-    .hbox td:first-child { font-weight: 700; color: #ac2443; width: 210px; white-space: nowrap }
+    /* Compact 2-col info box */
+    .hbox { background:#fdf1f4; border-left:3px solid #ac2443; border-radius:0 4px 4px 0; padding:8px 14px; margin:10px 0; font-size:9pt }
+    .hbox-grid { display:grid; grid-template-columns:1fr 1fr; gap:2px 12px }
+    .hbox-item { display:flex; gap:5px; align-items:baseline; padding:2px 0; border-bottom:1px solid #f5d0da }
+    .hbox-item .lbl { font-weight:700; color:#ac2443; white-space:nowrap; min-width:90px; font-size:8.5pt }
+    .hbox-item .val { font-size:9pt }
 
     /* Signatures */
-    .sigs {
-      margin-top: 40px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 40px;
-    }
-    .sig { text-align: center }
-    .sig-space { height: 52px }
-    .sig-line {
-      border-top: 1.5px solid #333;
-      padding-top: 6px;
-      font-size: 11pt;
-      font-weight: 700;
-      color: #222;
-    }
-    .sig-sub { font-size: 10pt; color: #555 }
+    .sigs { margin-top:20px; display:grid; grid-template-columns:1fr 1fr; gap:30px }
+    .sig { text-align:center }
+    .sig-space { height:36px }
+    .sig-line { border-top:1.5px solid #333; padding-top:4px; font-size:10pt; font-weight:700; color:#222 }
+    .sig-sub { font-size:8.5pt; color:#555 }
+    .stamp-circle { width:72px; height:72px; border:2px dashed #ac2443; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; color:#cc8899; font-size:7pt; text-align:center; margin-top:6px }
 
-    /* Stamp circle */
-    .stamp-circle {
-      width: 90px; height: 90px;
-      border: 2px dashed #ac2443;
-      border-radius: 50%;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: #cc8899;
-      font-size: 8pt;
-      text-align: center;
-      margin-top: 10px;
-    }
+    .footer { margin-top:10px; padding-top:8px; border-top:1px solid #ddd; font-size:8pt; color:#888; text-align:center; line-height:1.5 }
 
-    /* Footer */
-    .footer {
-      margin-top: 24px;
-      padding-top: 12px;
-      border-top: 1px solid #ddd;
-      font-size: 9pt;
-      color: #888;
-      text-align: center;
-      line-height: 1.6;
-    }
-
+    @page { size: A4 portrait; margin: 10mm }
     @media print {
       body { background:#fff; padding:0 }
-      .letter { box-shadow:none; max-width:none; padding:18mm 22mm 20mm; border:none; margin:0 }
+      .letter { box-shadow:none; max-width:none; padding:0; border:none; margin:0 }
       .no-print { display:none !important }
     }
   </style>
@@ -348,53 +266,39 @@ $refNumber = 'LOR-'.date('Y').'-'.str_pad($stdId, 4, '0', STR_PAD_LEFT).'-'.strt
     echo "<p>$opening</p>";
     ?>
 
-    <!-- Student info box -->
+    <!-- Student info box — compact 2-col grid -->
     <div class="hbox">
-      <table>
-        <tr><td>Full Name:</td><td><strong><?= e($fullName) ?></strong></td></tr>
-        <tr><td>Student ID:</td><td><?= e($student['student_id'] ?? '—') ?></td></tr>
-        <tr><td>Current Grade:</td><td><?= e($student['grade_name'] ?? '—') ?> — <?= e($student['class_name'] ?? '—') ?></td></tr>
-        <tr><td>Admission Date:</td><td><?= $student['admission_date'] ? date('F d, Y', strtotime($student['admission_date'])) : '—' ?></td></tr>
+      <div class="hbox-grid">
+        <div class="hbox-item"><span class="lbl">Full Name:</span><span class="val"><strong><?= e($fullName) ?></strong></span></div>
+        <div class="hbox-item"><span class="lbl">Student ID:</span><span class="val"><?= e($student['student_id'] ?? '—') ?></span></div>
+        <div class="hbox-item"><span class="lbl">Grade / Class:</span><span class="val"><?= e(($student['grade_name']??'—').' — '.($student['class_name']??'—')) ?></span></div>
+        <div class="hbox-item"><span class="lbl">Admitted:</span><span class="val"><?= $student['admission_date'] ? date('d M Y', strtotime($student['admission_date'])) : '—' ?></span></div>
         <?php if ($gpa !== null): ?>
-        <tr><td>Cumulative GPA:</td><td><strong><?= number_format($gpa, 2) ?>%</strong> — <?= ucfirst(gpaDescriptor($gpa)) ?> standing</td></tr>
+        <div class="hbox-item"><span class="lbl">Cum. GPA:</span><span class="val"><strong><?= number_format($gpa,2) ?>%</strong> (<?= ucfirst(gpaDescriptor($gpa)) ?>)</span></div>
         <?php endif; ?>
         <?php if ($attPct !== null): ?>
-        <tr><td>Attendance Rate:</td><td><?= $attPct ?>% (<?= $att['present'] ?> / <?= $att['total'] ?> days present)</td></tr>
+        <div class="hbox-item"><span class="lbl">Attendance:</span><span class="val"><?= $attPct ?>% (<?= $att['present'] ?>/<?= $att['total'] ?> days)</span></div>
         <?php endif; ?>
-        <tr><td>Years at School:</td><td><?= $yearsAtSchool > 1 ? $yearsAtSchool.' years' : 'Less than 1 year' ?></td></tr>
-      </table>
+        <div class="hbox-item"><span class="lbl">Years at School:</span><span class="val"><?= $yearsAtSchool > 1 ? $yearsAtSchool.' years' : '&lt;1 year' ?></span></div>
+        <div class="hbox-item"><span class="lbl">Academic Year:</span><span class="val"><?= e($ay) ?></span></div>
+      </div>
     </div>
 
     <!-- Academic paragraph -->
     <?php if ($gpa !== null): ?>
-    <p>
-      Academically, <strong><?= e($firstName) ?></strong> has maintained a <?= gpaDescriptor($gpa) ?> performance record with a cumulative grade point average of <strong><?= number_format($gpa, 2) ?>%</strong> across <?= $yearsEnrolled > 1 ? $yearsEnrolled.' academic years' : 'the current academic year' ?>.
-      <?php if ($bestYear): ?>
-      <?= ucfirst($pronoun2) ?> strongest year was <strong><?= e($bestYear['ay_name']) ?></strong>, where <?= $pronoun ?> achieved an average of <strong><?= number_format((float)$bestYear['yr_gpa'], 2) ?>%</strong>.
-      <?php endif; ?>
-      <?= ucfirst($pronoun) ?> is <?= gpaAdjective($gpa) ?> and demonstrates a genuine commitment to learning.
-    </p>
+    <p>Academically, <strong><?= e($firstName) ?></strong> has maintained a <?= gpaDescriptor($gpa) ?> GPA of <strong><?= number_format($gpa,2) ?>%</strong><?= $bestYear ? ', achieving <strong>'.number_format((float)$bestYear['yr_gpa'],2).'%</strong> in '.$bestYear['ay_name'] : '' ?>, demonstrating <?= gpaAdjective($gpa) ?> commitment to learning.</p>
     <?php endif; ?>
 
     <!-- Attendance paragraph -->
     <?php if ($attPct !== null && $attPct >= 70): ?>
-    <p>
-      <?= ucfirst($pronoun2) ?> attendance record reflects a strong sense of responsibility and dedication to <?= $pronoun2 ?> education, with an attendance rate of <strong><?= $attPct ?>%</strong> in the current academic year.
-      <?php if ($attPct >= 90): ?>
-      This exemplary attendance is a testament to <?= $pronoun2 ?> discipline and commitment.
-      <?php endif; ?>
-    </p>
+    <p><?= ucfirst($pronoun2) ?> attendance rate of <strong><?= $attPct ?>%</strong> reflects strong dedication and responsibility toward <?= $pronoun2 ?> education.</p>
     <?php endif; ?>
 
     <!-- Conduct paragraph -->
     <?php if ($disciplineCount === 0): ?>
-    <p>
-      Throughout <?= $pronoun2 ?> enrolment at <?= e($school) ?>, <strong><?= e($firstName) ?></strong> has maintained a clean disciplinary record. <?= ucfirst($pronoun) ?> is known by faculty and staff as a respectful, well-mannered student who upholds the values of our institution. <?= ucfirst($pronoun) ?> relates positively with peers and demonstrates maturity beyond <?= $pronoun2 ?> years.
-    </p>
+    <p><?= ucfirst($pronoun) ?> has maintained a clean disciplinary record throughout <?= $pronoun2 ?> enrolment, and is regarded by faculty as respectful, well-mannered, and a positive influence among peers.</p>
     <?php else: ?>
-    <p>
-      <strong><?= e($firstName) ?></strong> is a growing young person who, like all students, has faced challenges during <?= $pronoun2 ?> time at <?= e($school) ?>. We believe <?= $pronoun ?> has shown a willingness to learn from these experiences and continues to grow in character and conduct.
-    </p>
+    <p><?= ucfirst($pronoun) ?> is a developing young person who continues to grow in character and conduct during <?= $pronoun2 ?> time at <?= e($school) ?>.</p>
     <?php endif; ?>
 
     <!-- Purpose-specific closing paragraph -->

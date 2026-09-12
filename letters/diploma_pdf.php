@@ -81,232 +81,129 @@ $refNumber = 'DIP-'.$ayId.'-'.str_pad($stdId,4,'0',STR_PAD_LEFT);
     * { box-sizing:border-box; margin:0; padding:0 }
     body {
       background: #c8b89a;
-      padding: 20px;
+      padding: 16px;
       display: flex;
       flex-direction: column;
       align-items: center;
       font-family: 'IM Fell English', Georgia, serif;
     }
 
-    /* ── Diploma frame ── */
+    /* ── Landscape single page ── */
+    @page { size: A4 landscape; margin: 0 }
+
     .diploma-wrap {
       position: relative;
-      width: 820px;
+      width: 277mm;       /* A4 landscape width minus margins */
       background: #fffdf7;
       box-shadow: 0 8px 40px rgba(0,0,0,.5);
-      border: 6px solid #8B6914;
+      border: 5px solid #8B6914;
     }
-    /* Pink outer decorative border like the KHS original */
     .diploma-wrap::before {
       content: '';
       position: absolute;
-      inset: 10px;
-      border: 2.5px solid #c9823a;
+      inset: 8px;
+      border: 2px solid #c9823a;
       pointer-events: none;
       z-index: 2;
     }
     .diploma-wrap::after {
       content: '';
       position: absolute;
-      inset: 16px;
+      inset: 13px;
       border: 1px solid #e8b86d;
       pointer-events: none;
       z-index: 2;
     }
 
-    /* ── Inner content ── */
     .diploma-inner {
       position: relative;
-      padding: 44px 64px 38px;
+      padding: 18px 52px 14px;
       z-index: 3;
-      min-height: 560px;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
 
-    /* Logo watermark */
     .dip-wm-logo {
       position: absolute;
       top: 50%; left: 50%;
       transform: translate(-50%,-50%);
-      width: 52%;
+      width: 44%;
       opacity: .055;
       pointer-events: none;
       z-index: 0;
     }
     .diploma-inner > *:not(.dip-wm-logo) { position: relative; z-index: 1 }
 
-    /* Corner ornaments */
-    .corner { position:absolute; font-size:24px; color:#8B6914; opacity:.7; z-index:3 }
-    .c-tl { top:20px;  left:24px  }
-    .c-tr { top:20px;  right:24px }
-    .c-bl { bottom:20px; left:24px  }
-    .c-br { bottom:20px; right:24px }
+    .corner { position:absolute; font-size:20px; color:#8B6914; opacity:.7; z-index:3 }
+    .c-tl { top:16px; left:20px }
+    .c-tr { top:16px; right:20px }
+    .c-bl { bottom:16px; left:20px }
+    .c-br { bottom:16px; right:20px }
 
-    /* ── Header ── */
+    /* Header */
     .dip-header {
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 22px;
-      margin-bottom: 12px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid #C9A227;
-    }
-    .dip-logo {
-      width: 70px; height: 70px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 3px solid #8B6914;
-      box-shadow: 0 2px 8px rgba(139,105,20,.3);
-    }
-    .dip-school-name {
-      font-family: 'Cinzel', Georgia, serif;
-      font-size: 26pt;
-      font-weight: 900;
-      color: #3a1f00;
-      letter-spacing: .06em;
-      text-shadow: 1px 1px 0 rgba(201,162,39,.4);
-      line-height: 1.1;
-    }
-    .dip-school-sub {
-      font-family: Arial, sans-serif;
-      font-size: 9.5pt;
-      color: #5a3400;
-      text-align: center;
-      line-height: 1.6;
-      margin-top: 2px;
-    }
-
-    /* ── Certifies that ── */
-    .dip-certifies {
-      font-family: 'IM Fell English', Georgia, serif;
-      font-style: italic;
-      font-size: 13pt;
-      color: #3a1f00;
-      margin: 14px 0 6px;
-      text-align: center;
-    }
-
-    /* ── Student name ── */
-    .dip-name {
-      font-family: 'Cinzel', Georgia, serif;
-      font-size: 20pt;
-      font-weight: 700;
-      color: #8B1a00;
-      letter-spacing: .08em;
-      text-align: center;
-      padding: 8px 40px;
-      border-bottom: 2px solid #C9A227;
-      border-top: 2px solid #C9A227;
-      margin: 4px 0 14px;
-      width: 100%;
-      text-shadow: 1px 1px 0 rgba(201,162,39,.2);
-    }
-
-    /* ── Body text ── */
-    .dip-body {
-      font-family: 'IM Fell English', Georgia, serif;
-      font-size: 11.5pt;
-      color: #2a1400;
-      text-align: center;
-      line-height: 1.75;
+      gap: 18px;
       margin-bottom: 6px;
-      max-width: 560px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #C9A227;
+    }
+    .dip-logo { width:54px; height:54px; border-radius:50%; object-fit:cover; border:2.5px solid #8B6914 }
+    .dip-school-name { font-family:'Cinzel',Georgia,serif; font-size:21pt; font-weight:900; color:#3a1f00; letter-spacing:.05em; line-height:1.1 }
+    .dip-school-sub  { font-family:Arial,sans-serif; font-size:8.5pt; color:#5a3400; text-align:center; line-height:1.5; margin-top:2px }
+
+    .dip-certifies { font-style:italic; font-size:11pt; color:#3a1f00; margin:7px 0 4px; text-align:center }
+
+    .dip-name {
+      font-family:'Cinzel',Georgia,serif; font-size:17pt; font-weight:700;
+      color:#8B1a00; letter-spacing:.08em; text-align:center;
+      padding:5px 32px; border-bottom:2px solid #C9A227; border-top:2px solid #C9A227;
+      margin:3px 0 8px; width:100%;
     }
 
-    /* ── DIPLOMA title ── */
-    .dip-title {
-      font-family: 'Cinzel', Georgia, serif;
-      font-size: 28pt;
-      font-weight: 900;
-      color: #8B6914;
-      letter-spacing: .15em;
-      text-align: center;
-      margin: 6px 0 14px;
-      text-shadow: 2px 2px 0 rgba(201,162,39,.3);
-    }
+    .dip-body { font-size:10.5pt; color:#2a1400; text-align:center; line-height:1.6; margin-bottom:3px; max-width:520px }
 
-    /* ── Witness text ── */
-    .dip-witness {
-      font-family: 'IM Fell English', Georgia, serif;
-      font-style: italic;
-      font-size: 10.5pt;
-      color: #3a1f00;
-      text-align: center;
-      line-height: 1.7;
-      margin-bottom: 14px;
-      max-width: 480px;
-    }
+    .dip-title { font-family:'Cinzel',Georgia,serif; font-size:22pt; font-weight:900; color:#8B6914; letter-spacing:.15em; text-align:center; margin:3px 0 8px }
 
-    /* ── Date line ── */
-    .dip-date {
-      font-family: 'IM Fell English', Georgia, serif;
-      font-size: 12pt;
-      color: #3a1f00;
-      text-align: center;
-      margin-bottom: 18px;
-    }
-    .dip-date sup { font-size: 8pt }
+    .dip-witness { font-style:italic; font-size:9.5pt; color:#3a1f00; text-align:center; line-height:1.6; margin-bottom:6px; max-width:460px }
 
-    /* ── Cert number ── */
-    .cert-num {
-      font-family: Arial, sans-serif;
-      font-size: 8pt;
-      color: #888;
-      text-align: center;
-      margin-bottom: 14px;
-      letter-spacing: .04em;
-    }
+    .dip-date { font-size:10.5pt; color:#3a1f00; text-align:center; margin-bottom:6px }
+    .dip-date sup { font-size:7pt }
 
-    /* ── Seal / medal ── */
-    .dip-seal {
-      width: 72px; height: 72px;
-      border-radius: 50%;
-      border: 3px double #C9A227;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: radial-gradient(circle, #fdf5dc, #fde8a0);
-      box-shadow: 0 2px 10px rgba(139,105,20,.4);
-      margin: 0 auto 16px;
-    }
+    .cert-num { font-family:Arial,sans-serif; font-size:7pt; color:#888; text-align:center; margin-bottom:6px }
 
-    /* ── Signatures ── */
+    /* Signatures row — horizontal to fit landscape */
     .dip-sigs {
-      width: 100%;
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      align-items: end;
-      gap: 20px;
-      margin-top: 4px;
+      width:100%; display:grid; grid-template-columns:1fr 60px 1fr;
+      align-items:end; gap:12px; margin-top:4px;
     }
-    .sig-col { text-align: center }
-    .sig-space { height: 48px }
-    .sig-line-rule { border-top: 1.5px solid #5a3400; padding-top: 5px }
-    .sig-label { font-family:Arial,sans-serif; font-size:10pt; font-weight:700; color:#3a1f00 }
-    .sig-sub   { font-family:Arial,sans-serif; font-size:8.5pt; color:#666 }
+    .sig-col { text-align:center }
+    .sig-space { height:32px }
+    .sig-line-rule { border-top:1.5px solid #5a3400; padding-top:4px }
+    .sig-label { font-family:Arial,sans-serif; font-size:9.5pt; font-weight:700; color:#3a1f00 }
+    .sig-sub   { font-family:Arial,sans-serif; font-size:8pt; color:#666 }
     .stamp-circle {
-      width:80px; height:80px; border-radius:50%;
-      border:2px dashed #8B6914;
-      display:inline-flex; align-items:center;
-      justify-content:center; color:#aaa; font-size:7pt;
-      text-align:center;
+      width:60px; height:60px; border-radius:50%; border:2px dashed #8B6914;
+      display:inline-flex; align-items:center; justify-content:center;
+      color:#aaa; font-size:6.5pt; text-align:center; margin-top:3px;
+    }
+    .dip-seal {
+      width:56px; height:56px; border-radius:50%; border:2.5px double #C9A227;
+      display:flex; align-items:center; justify-content:center;
+      background:radial-gradient(circle,#fdf5dc,#fde8a0);
+      box-shadow:0 2px 8px rgba(139,105,20,.35); margin:0 auto 6px;
     }
 
-    /* ── QR + disclaimer ── */
-    .dip-disclaimer {
-      font-family:Arial,sans-serif;
-      font-size:7.5pt; color:#9a8a6a;
-      text-align:center; font-style:italic;
-      margin-top:10px;
-    }
+    /* QR strip compacted */
+    .dip-disclaimer { font-family:Arial,sans-serif; font-size:7pt; color:#9a8a6a; text-align:center; font-style:italic; margin-top:5px }
 
     @media print {
       body { background:#fff; padding:0 }
-      .diploma-wrap { box-shadow:none; width:100% }
+      .diploma-wrap { box-shadow:none; width:100%; border:5px solid #8B6914 }
       .no-print { display:none !important }
     }
   </style>
@@ -314,9 +211,9 @@ $refNumber = 'DIP-'.$ayId.'-'.str_pad($stdId,4,'0',STR_PAD_LEFT);
 <body>
 
 <!-- Toolbar -->
-<div class="no-print" style="width:820px;margin:0 auto 12px;display:flex;justify-content:flex-end;gap:8px">
-  <button onclick="window.print()" style="padding:8px 20px;background:#8B6914;color:#fff;border:none;border-radius:5px;font-size:13px;font-weight:700;cursor:pointer">🖨 Print / Save PDF</button>
-  <a href="javascript:history.back()" style="padding:8px 16px;background:#6c757d;color:#fff;border-radius:5px;font-size:13px;font-weight:700;text-decoration:none">← Back</a>
+<div class="no-print" style="width:277mm;margin:0 auto 10px;display:flex;justify-content:flex-end;gap:8px">
+  <button onclick="window.print()" style="padding:7px 18px;background:#8B6914;color:#fff;border:none;border-radius:5px;font-size:13px;font-weight:700;cursor:pointer">🖨 Print / Save PDF</button>
+  <a href="javascript:history.back()" style="padding:7px 14px;background:#6c757d;color:#fff;border-radius:5px;font-size:13px;font-weight:700;text-decoration:none">← Back</a>
 </div>
 
 <div class="diploma-wrap">
