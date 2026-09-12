@@ -74,6 +74,11 @@ require_once dirname(__DIR__).'/includes/admin_header.php';
   <?php if ($canAdd): ?>
   <button class="button button-primary" onclick="document.getElementById('addDiscModal').style.display='flex'">+ Add Record</button>
   <?php endif; ?>
+  <div style="display:flex;gap:5px;flex-wrap:wrap">
+    <a href="<?= BASE_URL ?>/api/export.php?type=discipline&format=excel" class="button button-secondary" style="background:#1d6f42;color:#fff" target="_blank">📊 Excel</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=discipline&format=pdf" class="button button-secondary" style="background:#c00200;color:#fff" target="_blank">🖨 PDF</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=discipline&format=csv" class="button button-secondary">📥 CSV</a>
+  </div>
 </div>
 
 <form method="get" class="filter-row" style="margin-bottom:14px">

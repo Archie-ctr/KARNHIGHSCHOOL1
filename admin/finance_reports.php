@@ -130,7 +130,7 @@ $collectionPct = $targetLRD > 0 ? min(100, round($totalLRD/$targetLRD*100,1)) : 
     <p><?= e($ay) ?></p>
   </div>
   <div style="display:flex;gap:8px">
-    <a href="?export=csv&type=all_payments" class="button button-secondary button-sm">📥 All Payments CSV</a>
+    <span style="display:inline-flex;gap:4px;flex-wrap:wrap;align-items:center"><a href="?export=csv&type=all_payments" class="button button-secondary button-sm">&#x1F4E5; CSV</a><a href="<?= BASE_URL ?>/api/export.php?type=all_payments&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">&#x1F4CA; Excel</a><a href="<?= BASE_URL ?>/api/export.php?type=all_payments&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">&#x1F5A8; PDF</a></span>
     <a href="<?= BASE_URL ?>/admin/accounting.php" class="button button-secondary">📒 Cashbook</a>
   </div>
 </div>
@@ -209,7 +209,7 @@ $collectionPct = $targetLRD > 0 ? min(100, round($totalLRD/$targetLRD*100,1)) : 
 <!-- ── DAILY COLLECTION ───────────────────────────────────── -->
 <div style="display:flex;justify-content:space-between;margin-bottom:12px">
   <strong style="font-size:14px">Today: LRD <?= number_format($todayLRD) ?></strong>
-  <a href="?export=csv&type=daily" class="button button-secondary button-sm">📥 Today's CSV</a>
+  <span style="display:inline-flex;gap:4px;flex-wrap:wrap;align-items:center"><a href="?export=csv&type=daily" class="button button-secondary button-sm">&#x1F4E5; CSV</a><a href="<?= BASE_URL ?>/api/export.php?type=daily&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">&#x1F4CA; Excel</a><a href="<?= BASE_URL ?>/api/export.php?type=daily&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">&#x1F5A8; PDF</a></span>
 </div>
 <?php
 $todayAll = $pdo->query(
@@ -272,7 +272,7 @@ if (!empty($recentDays)):
 <!-- ── OUTSTANDING FEES ───────────────────────────────────── -->
 <div style="display:flex;justify-content:space-between;margin-bottom:12px">
   <span style="font-size:13px;color:var(--ink-soft)"><?= count($outstanding) ?> student<?= count($outstanding)!==1?'s':'' ?> with outstanding balances</span>
-  <a href="?export=csv&type=outstanding" class="button button-secondary button-sm">📥 Export CSV</a>
+  <span style="display:inline-flex;gap:4px;flex-wrap:wrap;align-items:center"><a href="?export=csv&type=outstanding" class="button button-secondary button-sm">&#x1F4E5; CSV</a><a href="<?= BASE_URL ?>/api/export.php?type=outstanding&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">&#x1F4CA; Excel</a><a href="<?= BASE_URL ?>/api/export.php?type=outstanding&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">&#x1F5A8; PDF</a></span>
 </div>
 <?php if (empty($outstanding)): ?>
 <div style="text-align:center;padding:48px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)">
@@ -333,7 +333,7 @@ if (!empty($recentDays)):
 <?php elseif ($tab === 'expenses_rep'): ?>
 <!-- ── EXPENSES REPORT ────────────────────────────────────── -->
 <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
-  <a href="?export=csv&type=expenses" class="button button-secondary button-sm">📥 Export CSV</a>
+  <span style="display:inline-flex;gap:4px;flex-wrap:wrap;align-items:center"><a href="?export=csv&type=expenses" class="button button-secondary button-sm">&#x1F4E5; CSV</a><a href="<?= BASE_URL ?>/api/export.php?type=expenses&format=excel" class="button button-secondary button-sm" style="background:#1d6f42;color:#fff" target="_blank">&#x1F4CA; Excel</a><a href="<?= BASE_URL ?>/api/export.php?type=expenses&format=pdf" class="button button-secondary button-sm" style="background:#c00200;color:#fff" target="_blank">&#x1F5A8; PDF</a></span>
 </div>
 <?php if (empty($expByCategory)): ?>
 <div style="text-align:center;padding:48px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)">

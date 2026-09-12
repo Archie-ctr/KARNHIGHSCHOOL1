@@ -145,6 +145,11 @@ $categories = ['Tuition','Registration','Examination','Sports','Library','Comput
     <p><?= e($ay) ?> &mdash; <?= date('F d, Y') ?></p>
   </div>
   <a href="<?= BASE_URL ?>/admin/finance.php" class="button button-secondary">💳 Record Payment</a>
+  <div style="display:flex;gap:5px;flex-wrap:wrap">
+    <a href="<?= BASE_URL ?>/api/export.php?type=cashbook&format=excel" class="button button-secondary" style="background:#1d6f42;color:#fff" target="_blank">📊 Excel</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=cashbook&format=pdf" class="button button-secondary" style="background:#c00200;color:#fff" target="_blank">🖨 PDF</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=cashbook&format=csv" class="button button-secondary">📥 CSV</a>
+  </div>
 </div>
 
 <!-- Summary metrics -->

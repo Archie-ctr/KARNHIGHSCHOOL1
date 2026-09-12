@@ -88,6 +88,12 @@ require_once dirname(__DIR__).'/includes/admin_header.php';
   <?php if ($canManage): ?>
   <button class="button button-primary" onclick="document.getElementById('addBookModal').style.display='flex'">+ Add Book</button>
   <?php endif; ?>
+  <div style="display:flex;gap:5px;flex-wrap:wrap">
+    <a href="<?= BASE_URL ?>/api/export.php?type=library_books&format=excel" class="button button-secondary" style="background:#1d6f42;color:#fff" target="_blank">📊 Books Excel</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=library_transactions&format=excel" class="button button-secondary" style="background:#1d6f42;color:#fff" target="_blank">📊 Loans Excel</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=library_books&format=pdf" class="button button-secondary" style="background:#c00200;color:#fff" target="_blank">🖨 Books PDF</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=library_transactions&format=pdf" class="button button-secondary" style="background:#c00200;color:#fff" target="_blank">🖨 Loans PDF</a>
+  </div>
 </div>
 
 <!-- Tabs — only show Issue tab if user can issue -->

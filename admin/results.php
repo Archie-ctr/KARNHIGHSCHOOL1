@@ -40,7 +40,13 @@ if ($selClass && $selSub) {
 
 <div class="page-heading">
   <div><div class="eyebrow">Assessment <span></span></div><h1>Results & Approval</h1></div>
-</div>
+  <?php if ($selClass): ?>
+  <div style="display:flex;gap:5px;flex-wrap:wrap">
+    <a href="<?= BASE_URL ?>/api/export.php?type=results&format=excel&class_id=<?= $selClass ?>" class="button button-secondary" style="background:#1d6f42;color:#fff" target="_blank">📊 Excel</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=results&format=pdf&class_id=<?= $selClass ?>" class="button button-secondary" style="background:#c00200;color:#fff" target="_blank">🖨 PDF</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=results&format=csv&class_id=<?= $selClass ?>" class="button button-secondary">📥 CSV</a>
+  </div>
+  <?php endif; ?>
 
 <form method="get" class="filter-row" style="margin-bottom:24px">
   <select name="class_id" class="filter-button" onchange="this.form.submit()" style="min-width:160px">

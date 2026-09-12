@@ -35,7 +35,15 @@ if ($selClass) {
 <div class="page-heading">
   <div><div class="eyebrow">Assessment <span></span></div><h1>Class Broadsheet</h1></div>
   <?php if ($selClass): ?>
-  <button onclick="window.print()" class="button button-secondary">🖨️ Print</button>
+  <div style="display:flex;gap:6px;flex-wrap:wrap">
+    <button onclick="window.print()" class="button button-secondary">&#x1F5A8;&#xFE0F; Print</button>
+    <a href="<?= BASE_URL ?>/api/export.php?type=broadsheet&format=excel&class_id=<?= $selClass ?>"
+       class="button button-secondary" style="background:#1d6f42;color:#fff" target="_blank">&#x1F4CA; Excel</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=broadsheet&format=pdf&class_id=<?= $selClass ?>"
+       class="button button-secondary" style="background:#c00200;color:#fff" target="_blank">&#x1F5A8; PDF</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=broadsheet&format=csv&class_id=<?= $selClass ?>"
+       class="button button-secondary">&#x1F4E5; CSV</a>
+  </div>
   <?php endif; ?>
 </div>
 
