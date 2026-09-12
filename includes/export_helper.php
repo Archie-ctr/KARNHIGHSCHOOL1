@@ -270,7 +270,7 @@ function excelExport(string $filename, array $headers, array $rows, string $shee
     header('Expires: 0');
     header('Pragma: public');
 
-    $esc = fn($v) => htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
+    $esc = fn($v) => htmlspecialchars((string)$v, ENT_QUOTES|ENT_XML1, 'UTF-8');
 
     echo '<?xml version="1.0" encoding="UTF-8"?>
 <?mso-application progid="Excel.Sheet"?>
@@ -279,9 +279,9 @@ function excelExport(string $filename, array $headers, array $rows, string $shee
   xmlns:x="urn:schemas-microsoft-com:office:excel"
   xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
 <DocumentProperties xmlns="urn:schemas-microsoft-com:office:office">
-  <Author>'.esc($school).'</Author>
+  <Author>'.$esc($school).'</Author>
   <Created>'.date('Y-m-d\TH:i:s\Z').'</Created>
-  <Title>'.esc($filename).'</Title>
+  <Title>'.$esc($filename).'</Title>
 </DocumentProperties>
 <Styles>
   <Style ss:ID="sTitle">
@@ -313,7 +313,7 @@ function excelExport(string $filename, array $headers, array $rows, string $shee
     </Borders>
   </Style>
 </Styles>
-<Worksheet ss:Name="'.esc(mb_substr($sheetName, 0, 31)).'">
+<Worksheet ss:Name="'.$esc(mb_substr($sheetName, 0, 31)).'">
 <Table>';
 
     $colCount = max(count($headers), 1);
@@ -321,14 +321,14 @@ function excelExport(string $filename, array $headers, array $rows, string $shee
     // School name row
     echo '<Row>
   <Cell ss:MergeAcross="'.($colCount-1).'" ss:StyleID="sTitle">
-    <Data ss:Type="String">'.esc($school).'</Data>
+    <Data ss:Type="String">'.$esc($school).'</Data>
   </Cell>
 </Row>';
 
     // Subtitle row
     echo '<Row>
   <Cell ss:MergeAcross="'.($colCount-1).'" ss:StyleID="sSub">
-    <Data ss:Type="String">'.esc($filename.' — Generated: '.$date).'</Data>
+    <Data ss:Type="String">'.$esc($filename.' — Generated: '.$date).'</Data>
   </Cell>
 </Row>';
 
@@ -338,7 +338,7 @@ function excelExport(string $filename, array $headers, array $rows, string $shee
     // Headers row
     echo '<Row>';
     foreach ($headers as $h) {
-        echo '<Cell ss:StyleID="sHeader"><Data ss:Type="String">'.esc($h).'</Data></Cell>';
+        echo '<Cell ss:StyleID="sHeader"><Data ss:Type="String">'.$esc($h).'</Data></Cell>';
     }
     echo '</Row>';
 
@@ -349,7 +349,7 @@ function excelExport(string $filename, array $headers, array $rows, string $shee
         foreach ((array)$row as $cell) {
             $val  = (string)$cell;
             $type = is_numeric($val) && !preg_match('/^0\d/', $val) ? 'Number' : 'String';
-            echo '<Cell ss:StyleID="'.$style.'"><Data ss:Type="'.$type.'">'.esc($val).'</Data></Cell>';
+            echo '<Cell ss:StyleID="'.$style.'"><Data ss:Type="'.$type.'">'.$esc($val).'</Data></Cell>';
         }
         echo '</Row>';
     }
@@ -357,7 +357,7 @@ function excelExport(string $filename, array $headers, array $rows, string $shee
     // Total row if data present
     if (!empty($rows)) {
         echo '<Row><Cell ss:MergeAcross="'.($colCount-1).'" ss:StyleID="sTotal">
-  <Data ss:Type="String">Total rows: '.count($rows).'  |  '.esc($school).'  |  Generated: '.esc($date).'</Data>
+  <Data ss:Type="String">Total rows: '.count($rows).'  |  '.$esc($school).'  |  Generated: '.$esc($date).'</Data>
 </Cell></Row>';
     }
 

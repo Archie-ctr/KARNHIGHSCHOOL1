@@ -1,18 +1,23 @@
 <?php
-$pageTitle='Reports'; $activeAdmin='reports';
-require_once dirname(__DIR__).'/includes/admin_header.php';
-$pdo=db(); $ayId=currentAcademicYearId(); $ay=currentAcademicYearName();
+// ── CSV EXPORTS — must run BEFORE any HTML output ─────────────
+require_once dirname(__DIR__).'/config/db.php';
+requireAuth();
 
-// ── CSV EXPORTS ────────────────────────────────────────────────
+$pdo   = db();
+$ayId  = currentAcademicYearId();
+$ay    = currentAcademicYearName();
 $export = trim($_GET['export'] ?? '');
 $type   = trim($_GET['type']   ?? '');
 $month  = trim($_GET['month']  ?? '');
 
 if ($export === 'csv' && $type) {
+    ob_end_clean(); // discard any buffered output
     $filename = $type.'_'.date('Y-m-d').'.csv';
-    header('Content-Type: text/csv');
+    header('Content-Type: text/csv; charset=utf-8');
     header('Content-Disposition: attachment; filename="'.$filename.'"');
+    header('Cache-Control: max-age=0');
     $fp = fopen('php://output','w');
+    fputs($fp, "\xEF\xBB\xBF"); // UTF-8 BOM
 
     switch ($type) {
 
@@ -72,6 +77,10 @@ if ($export === 'csv' && $type) {
     }
     fclose($fp); exit;
 }
+
+// ── Normal page render — include admin header after CSV check ──
+$pageTitle='Reports'; $activeAdmin='reports';
+require_once dirname(__DIR__).'/includes/admin_header.php';
 
 // ── Page data ──────────────────────────────────────────────────
 $tab = $_GET['tab'] ?? 'academic';

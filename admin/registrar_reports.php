@@ -1,22 +1,22 @@
 <?php
-$pageTitle   = 'Registrar Reports';
-$activeAdmin = 'registrar_reports';
-require_once dirname(__DIR__).'/includes/admin_header.php';
-requireRole(['sys_admin','super_admin','school_admin','principal','vice_principal','registrar']);
-
+require_once dirname(__DIR__).'/config/db.php';
+requireAuth();
 $pdo  = db();
 $ayId = currentAcademicYearId();
 $ay   = currentAcademicYearName();
 $tab  = $_GET['tab'] ?? 'enrollment';
 
-// ── CSV exports ───────────────────────────────────────────────
+// ── CSV exports — BEFORE any HTML output ─────────────────────
 $export = trim($_GET['export'] ?? '');
 $type   = trim($_GET['type']   ?? '');
 if ($export === 'csv' && $type) {
+    ob_end_clean();
     $filename = $type.'_'.date('Y-m-d').'.csv';
-    header('Content-Type: text/csv');
+    header('Content-Type: text/csv; charset=utf-8');
     header('Content-Disposition: attachment; filename="'.$filename.'"');
+    header('Cache-Control: max-age=0');
     $fp = fopen('php://output','w');
+    fputs($fp, "\xEF\xBB\xBF");
     switch ($type) {
         case 'enrollment':
             fputcsv($fp,['Student ID','Admission #','First Name','Last Name','Gender','DOB','County','Grade','Class','Status','Admission Date','Previous School']);
@@ -51,6 +51,12 @@ if ($export === 'csv' && $type) {
     }
     fclose($fp); exit;
 }
+
+// ── Normal page render ────────────────────────────────────────
+$pageTitle   = 'Registrar Reports';
+$activeAdmin = 'registrar_reports';
+require_once dirname(__DIR__).'/includes/admin_header.php';
+requireRole(['sys_admin','super_admin','school_admin','principal','vice_principal','registrar']);
 
 // ── Data ──────────────────────────────────────────────────────
 

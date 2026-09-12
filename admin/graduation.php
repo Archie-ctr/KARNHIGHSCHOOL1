@@ -133,12 +133,11 @@ $gradRecords = $pdo->prepare(
     "SELECT gr.*,
             s.student_id student_code, s.first_name, s.last_name, s.gender, s.date_of_birth, s.phone,
             g.name grade_name, c.name class_name,
-            u.name approved_by_name
+            NULL approved_by_name
      FROM graduation_records gr
      JOIN students s ON s.id=gr.student_id
      LEFT JOIN grades g ON g.id=s.current_grade_id
      LEFT JOIN classes c ON c.id=s.current_class_id
-     LEFT JOIN users u ON u.id=gr.approved_by
      WHERE gr.academic_year_id=?
      ORDER BY gr.status, s.last_name, s.first_name"
 );

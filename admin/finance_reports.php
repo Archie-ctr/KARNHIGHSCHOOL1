@@ -1,22 +1,22 @@
 <?php
-$pageTitle   = 'Financial Reports';
-$activeAdmin = 'finance_reports';
-require_once dirname(__DIR__).'/includes/admin_header.php';
-requireRole(['sys_admin','super_admin','school_admin','principal','accountant']);
-
+require_once dirname(__DIR__).'/config/db.php';
+requireAuth();
 $pdo  = db();
 $ayId = currentAcademicYearId();
 $ay   = currentAcademicYearName();
 $tab  = $_GET['tab'] ?? 'summary';
 
-// ── CSV exports ───────────────────────────────────────────────
+// ── CSV exports — BEFORE any HTML output ─────────────────────
 $export = trim($_GET['export'] ?? '');
 $type   = trim($_GET['type']   ?? '');
 if ($export === 'csv' && $type) {
+    ob_end_clean();
     $filename = 'finance_'.$type.'_'.date('Y-m-d').'.csv';
-    header('Content-Type: text/csv');
+    header('Content-Type: text/csv; charset=utf-8');
     header('Content-Disposition: attachment; filename="'.$filename.'"');
+    header('Cache-Control: max-age=0');
     $fp = fopen('php://output','w');
+    fputs($fp, "\xEF\xBB\xBF");
     switch ($type) {
         case 'daily':
             fputcsv($fp,['Receipt','Student','Student ID','Grade','Amount','Currency','Method','Date','Recorded By']);
@@ -39,6 +39,12 @@ if ($export === 'csv' && $type) {
     }
     fclose($fp); exit;
 }
+
+// ── Normal page render ────────────────────────────────────────
+$pageTitle   = 'Financial Reports';
+$activeAdmin = 'finance_reports';
+require_once dirname(__DIR__).'/includes/admin_header.php';
+requireRole(['sys_admin','super_admin','school_admin','principal','accountant']);
 
 // ── Data ──────────────────────────────────────────────────────
 
