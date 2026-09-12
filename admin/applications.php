@@ -59,20 +59,29 @@ if ($grade)  { $where[]='a.grade_applying_for=?'; $params[]=$grade; }
 if ($ayAppF) { $where[]='a.academic_year_id=?'; $params[]=$ayAppF; }
 $wsql = $where ? 'WHERE '.implode(' AND ',$where) : '';
 
-$total = (int)$pdo->prepare("SELECT COUNT(*) FROM applications a $wsql")->execute($params) ? $pdo->query("SELECT COUNT(*) FROM (SELECT a.id FROM applications a $wsql) t")->fetchColumn() : 0;
-// proper count
-$cnt = $pdo->prepare("SELECT COUNT(*) FROM applications a $wsql"); $cnt->execute($params); $total=(int)$cnt->fetchColumn();
-$pg  = paginate($total,$per,$page);
-$rows = $pdo->prepare("SELECT a.* FROM applications a $wsql ORDER BY a.created_at DESC LIMIT $per OFFSET {$pg['offset']}");
-$rows->execute($params); $apps = $rows->fetchAll();
+$cntStmt = $pdo->prepare("SELECT COUNT(*) FROM applications a $wsql");
+$cntStmt->execute($params);
+$total = (int)$cntStmt->fetchColumn();
+$pg    = paginate($total, $per, $page);
+try {
+    $rowStmt = $pdo->prepare("SELECT a.* FROM applications a $wsql ORDER BY a.created_at DESC LIMIT $per OFFSET {$pg['offset']}");
+    $rowStmt->execute($params);
+    $apps = $rowStmt->fetchAll();
+} catch (Throwable $e) { $apps = []; }
 
-$grades   = $pdo->query("SELECT name FROM grades WHERE is_active=1 ORDER BY sequence")->fetchAll(PDO::FETCH_COLUMN);
+try {
+    $grades = $pdo->query("SELECT name FROM grades WHERE is_active=1 ORDER BY sequence")->fetchAll(PDO::FETCH_COLUMN);
+} catch (Throwable $e) { $grades = []; }
 $statuses = ['Application Submitted','Under Review','Documents needed','Approved for entrance','Entrance scheduled','Entrance completed','Entrance passed','Admitted','Rejected','Waitlisted'];
 
 // Summary counts — scoped to selected year
 $summaryWhere = $ayAppF ? "WHERE academic_year_id=$ayAppF" : '';
-$summary = $pdo->query("SELECT status,COUNT(*) cnt FROM applications $summaryWhere GROUP BY status")->fetchAll(PDO::FETCH_KEY_PAIR);
-$allYearsApp = $pdo->query("SELECT id,name,is_current FROM academic_years ORDER BY start_date DESC")->fetchAll();
+try {
+    $summary = $pdo->query("SELECT status, COUNT(*) AS cnt FROM applications $summaryWhere GROUP BY status")->fetchAll(PDO::FETCH_KEY_PAIR);
+} catch (Throwable $e) { $summary = []; }
+try {
+    $allYearsApp = $pdo->query("SELECT id,name,is_current FROM academic_years ORDER BY start_date DESC")->fetchAll();
+} catch (Throwable $e) { $allYearsApp = []; }
 ?>
 
 <div class="page-heading">
