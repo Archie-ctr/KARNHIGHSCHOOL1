@@ -197,6 +197,10 @@ require_once dirname(__DIR__).'/includes/admin_header.php';
                 <button type="submit" class="filter-button button-sm" style="color:var(--error)">✕</button>
               </form>
               <?php endif; ?>
+              <a href="<?= BASE_URL ?>/admin/documents.php?student_id=<?= $st['id'] ?>"
+                 class="filter-button button-sm" title="Documents">📄 Docs</a>
+              <a href="<?= BASE_URL ?>/admin/registrar_records.php?student_id=<?= $st['id'] ?>"
+                 class="filter-button button-sm" title="Records">📊 Records</a>
             </div>
           </td>
           <?php endif; ?>
