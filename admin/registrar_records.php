@@ -146,6 +146,10 @@ $schoolName= setting('school_name','KARN HIGH SCHOOL');
     <a href="<?= BASE_URL ?>/admin/registrar_records.php" class="button button-secondary">← Back to Search</a>
     <a href="<?= BASE_URL ?>/letters/transcript_pdf.php?student_id=<?= $student['id'] ?>"
        class="button button-primary" target="_blank">📄 Print Transcript</a>
+    <a href="<?= BASE_URL ?>/letters/recommendation_letter.php?student_id=<?= $student['id'] ?>"
+       class="button button-secondary" target="_blank">✉️ Recommendation Letter</a>
+    <a href="<?= BASE_URL ?>/letters/admission_letter.php?student_id=<?= $student['id'] ?>"
+       class="button button-secondary" target="_blank">📋 Admission Letter</a>
   </div>
   <?php endif; ?>
 </div>
@@ -394,6 +398,7 @@ $docTypes = ['report_card'=>'📋 Report Card','birth_certificate'=>'📄 Birth 
           <a href="?student_id=<?= $s['id'] ?>&tab=history" class="filter-button button-sm">📊 Records</a>
           <a href="?student_id=<?= $s['id'] ?>&tab=documents" class="filter-button button-sm">📄 Docs</a>
           <a href="<?= BASE_URL ?>/letters/transcript_pdf.php?student_id=<?= $s['id'] ?>" class="filter-button button-sm" target="_blank">📜 Transcript</a>
+          <a href="<?= BASE_URL ?>/letters/recommendation_letter.php?student_id=<?= $s['id'] ?>" class="filter-button button-sm" target="_blank">✉️ Rec. Letter</a>
         </td>
       </tr>
       <?php endforeach; ?>
