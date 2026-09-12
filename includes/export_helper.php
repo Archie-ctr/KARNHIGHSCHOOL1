@@ -126,6 +126,10 @@ thead th.num{text-align:right}
 tbody tr:nth-child(even){background:#f5f7fa}
 td{padding:5px 7px;border-bottom:1px solid #e0e4ec;vertical-align:top}
 td.num{text-align:right;font-variant-numeric:tabular-nums}
+/* auto row numbers */
+tbody{counter-reset:rownum}
+tbody tr{counter-increment:rownum}
+tbody tr td:first-child::before{content:counter(rownum) " ";color:#aaa;font-size:7pt;margin-right:4px}
 tfoot tr{background:#e8eaf0;font-weight:700}
 tfoot td{padding:5px 7px;border-top:2px solid #1a2744}
 

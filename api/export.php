@@ -47,18 +47,38 @@ function getReportData(string $type, PDO $pdo, int $ayId, string $ay, int $class
 
         // ── STUDENTS ────────────────────────────────────────
         case 'students':
-            $headers = ['#','Student ID','Admission #','First Name','Last Name','Gender','Grade','Class','Status','Admission Date','Phone','County','Email'];
+            // Support grade_id, status, ay_id filters passed via GET
+            $sGradeId  = (int)($_GET['grade_id'] ?? 0);
+            $sStatus   = trim($_GET['status'] ?? '');
+            $sAyId     = (int)($_GET['ay_id'] ?? $ayId);
+            $sWhere    = ['1=1'];
+            $sParams   = [];
+            if ($sAyId)   { $sWhere[] = 's.academic_year_id=?';  $sParams[] = $sAyId;  }
+            if ($sGradeId){ $sWhere[] = 's.current_grade_id=?';  $sParams[] = $sGradeId; }
+            if ($sStatus) { $sWhere[] = 's.status=?';             $sParams[] = $sStatus;  }
+            $sWsql = implode(' AND ', $sWhere);
+
+            // Grade / AY name for subtitle
+            $sGradeName = $sGradeId
+                ? ($pdo->query("SELECT name FROM grades WHERE id=$sGradeId")->fetchColumn() ?: '')
+                : '';
+            $sAyName = $sAyId
+                ? ($pdo->query("SELECT name FROM academic_years WHERE id=$sAyId")->fetchColumn() ?: $ay)
+                : 'All Years';
+            $sSub = trim(($sGradeName ? $sGradeName.' — ' : '').($sStatus ? $sStatus.' — ' : '').$sAyName);
+
+            $headers = ['Student ID','Admission #','First Name','Last Name','Gender','Grade','Class','Status','Admission Date','Phone','County','Email'];
             $rows = safeQuery($pdo,
-                "SELECT @r:=@r+1, s.student_id,s.admission_number,s.first_name,s.last_name,
-                        s.gender,g.name,c.name,s.status,
+                "SELECT s.student_id,s.admission_number,s.first_name,s.last_name,
+                        s.gender,COALESCE(g.name,'—'),COALESCE(c.name,'—'),s.status,
                         COALESCE(DATE_FORMAT(s.admission_date,'%d %b %Y'),'—'),
                         COALESCE(s.phone,'—'),COALESCE(s.county,'—'),COALESCE(s.email,'—')
-                 FROM students s,(SELECT @r:=0) r
+                 FROM students s
                  LEFT JOIN grades g ON g.id=s.current_grade_id
                  LEFT JOIN classes c ON c.id=s.current_class_id
-                 WHERE s.academic_year_id=? ORDER BY s.last_name,s.first_name",
-                [$ayId]);
-            return ['title'=>'Student Directory','subtitle'=>'Academic Year: '.$ay,'headers'=>$headers,'rows'=>$rows,'numCols'=>[0]];
+                 WHERE $sWsql ORDER BY g.sequence,s.last_name,s.first_name",
+                $sParams);
+            return ['title'=>'Student Directory','subtitle'=>$sSub,'headers'=>$headers,'rows'=>$rows,'numCols'=>[]];
 
         // ── ENROLLMENT ──────────────────────────────────────
         case 'enrollment':
@@ -433,15 +453,15 @@ function getReportData(string $type, PDO $pdo, int $ayId, string $ay, int $class
 
         // ── GUARDIANS ────────────────────────────────────────
         case 'guardians':
-            $headers = ['#','First Name','Last Name','Relationship','Phone','Email','Children Linked','Address'];
+            $headers = ['First Name','Last Name','Relationship','Phone','Email','Children Linked','Address'];
             $rows = safeQuery($pdo,
-                "SELECT @r:=@r+1,g.first_name,g.last_name,g.relationship,
+                "SELECT g.first_name,g.last_name,g.relationship,
                         COALESCE(g.phone,'—'),COALESCE(g.email,'—'),
                         (SELECT COUNT(*) FROM student_guardians sg WHERE sg.guardian_id=g.id),
                         COALESCE(g.address,'—')
-                 FROM guardians g,(SELECT @r:=0) r
+                 FROM guardians g
                  ORDER BY g.first_name,g.last_name");
-            return ['title'=>'Guardian Directory','subtitle'=>'All Registered Guardians','headers'=>$headers,'rows'=>$rows,'numCols'=>[0,6]];
+            return ['title'=>'Guardian Directory','subtitle'=>'All Registered Guardians','headers'=>$headers,'rows'=>$rows,'numCols'=>[5]];
 
         // ── PROMOTION LIST ───────────────────────────────────
         case 'promotion_list':
@@ -449,27 +469,32 @@ function getReportData(string $type, PDO $pdo, int $ayId, string $ay, int $class
             $gradeNameP   = $gradeIdParam
                 ? ($pdo->query("SELECT name FROM grades WHERE id=$gradeIdParam")->fetchColumn() ?: 'Grade')
                 : 'All Grades';
-            $where  = ['s.status=\'Active\''];
+            $where  = ["s.status='Active'"];
             $params = [];
             if ($gradeIdParam) { $where[] = 's.current_grade_id=?'; $params[] = $gradeIdParam; }
             $wsql = implode(' AND ', $where);
-            $headers = ['#','Student ID','First Name','Last Name','Gender','Grade','Class','Avg Mark %','Promotion Status'];
+
+            $headers = ['Student ID','First Name','Last Name','Gender','Grade','Class','Avg Mark %','Promotion Status'];
             $rows = safeQuery($pdo,
-                "SELECT @r:=@r+1, s.student_id,s.first_name,s.last_name,s.gender,
+                "SELECT s.student_id,s.first_name,s.last_name,s.gender,
                         COALESCE(g.name,'—'),COALESCE(c.name,'—'),
                         COALESCE(CONCAT(ROUND(AVG(asc2.marks_obtained/asc2.max_marks*100),1),'%'),'—'),
                         COALESCE(pr.status,'Pending')
-                 FROM students s,(SELECT @r:=0) r
-                 LEFT JOIN grades g ON g.id=s.current_grade_id
+                 FROM students s
+                 LEFT JOIN grades g  ON g.id=s.current_grade_id
                  LEFT JOIN classes c ON c.id=s.current_class_id
-                 LEFT JOIN assessment_scores asc2 ON asc2.student_id=s.id
-                   AND asc2.academic_year_id=$ayId AND asc2.max_marks>0
-                 LEFT JOIN promotion_records pr ON pr.student_id=s.id
-                   AND pr.academic_year_id=$ayId
+                 LEFT JOIN assessment_scores asc2
+                   ON asc2.student_id=s.id
+                   AND asc2.academic_year_id=".intval($ayId)."
+                   AND asc2.max_marks>0
+                 LEFT JOIN promotion_records pr
+                   ON pr.student_id=s.id
+                   AND pr.academic_year_id=".intval($ayId)."
                  WHERE $wsql
-                 GROUP BY s.id ORDER BY g.sequence,s.last_name,s.first_name",
+                 GROUP BY s.id,s.student_id,s.first_name,s.last_name,s.gender,g.name,g.sequence,c.name,pr.status
+                 ORDER BY g.sequence,s.last_name,s.first_name",
                 $params);
-            return ['title'=>'Promotion List','subtitle'=>$gradeNameP.' — '.$ay,'headers'=>$headers,'rows'=>$rows,'numCols'=>[0,7]];
+            return ['title'=>'Promotion List','subtitle'=>$gradeNameP.' — '.$ay,'headers'=>$headers,'rows'=>$rows,'numCols'=>[6]];
 
         default:
             return ['title'=>'Unknown Report','subtitle'=>'','headers'=>['Error'],'rows'=>[['Unknown report type: '.$type]],'numCols'=>[]];
