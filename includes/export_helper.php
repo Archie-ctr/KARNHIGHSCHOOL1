@@ -23,7 +23,7 @@ if (!function_exists('pdfReportPage')) {
  * @param string $subtitle e.g. "Academic Year 2026/2027"
  * @param string $bodyHtml The table/content HTML
  */
-function pdfReportPage(string $title, string $subtitle, string $bodyHtml): never
+function pdfReportPage(string $title, string $subtitle, string $bodyHtml, string $filename = ''): never
 {
     $school  = setting('school_name',    'KARN HIGH SCHOOL');
     $address = setting('school_address', 'Karnplay City, Gbehlay-Geh District, Nimba County, Republic of Liberia');
@@ -33,6 +33,15 @@ function pdfReportPage(string $title, string $subtitle, string $bodyHtml): never
     $date    = date('d F Y');
     $time    = date('H:i');
 
+    // Safe filename for the download hint
+    $safeFile = $filename ?: preg_replace('/[^a-z0-9_\-]/i','_',str_replace(' ','_',$title));
+    $safeFile = $safeFile.'_'.date('Y-m-d').'.pdf';
+
+    // Tell the browser the intended filename (inline = display in browser, not force-download)
+    // Combined with window.print() the browser uses this name when "Save as PDF" is chosen
+    header('Content-Type: text/html; charset=UTF-8');
+    header('Content-Disposition: inline; filename="'.$safeFile.'"');
+
     // Inline all styles — no external CSS needed for print
     echo '<!DOCTYPE html>
 <html lang="en">
@@ -41,7 +50,43 @@ function pdfReportPage(string $title, string $subtitle, string $bodyHtml): never
 <title>'.htmlspecialchars($title).' — '.htmlspecialchars($school).'</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Arial,sans-serif;font-size:9pt;color:#111;background:#fff;padding:0}
+body{font-family:Arial,sans-serif;font-size:9pt;color:#111;background:#f0f2f5;padding:0}
+
+/* ── Download toolbar (hidden on print) ── */
+.pdf-toolbar{
+  position:sticky;top:0;z-index:9999;
+  background:#1a2744;
+  padding:10px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;
+  box-shadow:0 2px 8px rgba(0,0,0,.3);
+}
+.pdf-toolbar-title{color:rgba(255,255,255,.8);font-size:12px;font-weight:600}
+.pdf-toolbar-actions{display:flex;gap:8px;align-items:center}
+.btn-download{
+  background:#e8a020;color:#fff;border:none;
+  padding:9px 22px;border-radius:6px;
+  font-size:13px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;gap:7px;
+  transition:background .15s;
+}
+.btn-download:hover{background:#c8880e}
+.btn-close{
+  background:rgba(255,255,255,.12);color:#fff;border:none;
+  padding:8px 16px;border-radius:6px;
+  font-size:12px;font-weight:600;cursor:pointer;
+  text-decoration:none;display:inline-flex;align-items:center;gap:5px;
+}
+.btn-close:hover{background:rgba(255,255,255,.2)}
+.pdf-hint{font-size:11px;color:rgba(255,255,255,.5);font-style:italic}
+
+/* ── Page wrapper ── */
+.pdf-page-wrap{
+  max-width:210mm;
+  margin:16px auto;
+  background:#fff;
+  box-shadow:0 4px 24px rgba(0,0,0,.18);
+}
 
 /* ── Watermark ── */
 .wm{
@@ -57,7 +102,6 @@ body{font-family:Arial,sans-serif;font-size:9pt;color:#111;background:#fff;paddi
   justify-content:space-between;
   padding:12px 16px 10px;
   border-bottom:3px solid #1a2744;
-  margin-bottom:0;
   page-break-inside:avoid;
 }
 .rpt-header-left{display:flex;align-items:center;gap:12px}
@@ -67,16 +111,12 @@ body{font-family:Arial,sans-serif;font-size:9pt;color:#111;background:#fff;paddi
 .rpt-header-right{text-align:right;font-size:8pt;color:#666}
 
 /* ── Title block ── */
-.rpt-title-block{
-  background:#1a2744;color:#fff;
-  padding:8px 16px 6px;
-  margin-bottom:10px;
-}
+.rpt-title-block{background:#1a2744;color:#fff;padding:8px 16px 6px;}
 .rpt-title-block h1{font-size:13pt;font-weight:900;letter-spacing:.04em}
 .rpt-title-block p{font-size:8.5pt;opacity:.8;margin-top:2px}
 
 /* ── Content ── */
-.rpt-body{padding:0 16px 16px;position:relative;z-index:1}
+.rpt-body{padding:12px 16px 60px;position:relative;z-index:1}
 
 /* ── Tables ── */
 table{width:100%;border-collapse:collapse;margin-bottom:12px;font-size:8.5pt}
@@ -84,7 +124,6 @@ thead tr{background:#1a2744;color:#fff}
 thead th{padding:6px 7px;text-align:left;font-weight:700;font-size:8pt;white-space:nowrap}
 thead th.num{text-align:right}
 tbody tr:nth-child(even){background:#f5f7fa}
-tbody tr:hover{background:#eef2ff}
 td{padding:5px 7px;border-bottom:1px solid #e0e4ec;vertical-align:top}
 td.num{text-align:right;font-variant-numeric:tabular-nums}
 tfoot tr{background:#e8eaf0;font-weight:700}
@@ -111,8 +150,9 @@ tfoot td{padding:5px 7px;border-top:2px solid #1a2744}
 /* ── Print ── */
 @page{size:A4;margin:8mm 8mm 18mm 8mm}
 @media print{
-  body{background:#fff}
-  .no-print{display:none!important}
+  body{background:#fff;padding:0}
+  .pdf-toolbar{display:none!important}
+  .pdf-page-wrap{margin:0;box-shadow:none;max-width:none}
   .rpt-footer{position:fixed;bottom:0}
   .page-break{page-break-before:always}
   .wm{position:fixed}
@@ -120,6 +160,22 @@ tfoot td{padding:5px 7px;border-top:2px solid #1a2744}
 </style>
 </head>
 <body>
+
+<!-- ── Download toolbar ── -->
+<div class="pdf-toolbar no-print">
+  <div>
+    <div style="color:#fff;font-size:13px;font-weight:700">'.htmlspecialchars($title).'</div>
+    <div class="pdf-hint">Click "Save as PDF" below — choose <strong style="color:#e8a020">Save as PDF</strong> as destination in the print dialog</div>
+  </div>
+  <div class="pdf-toolbar-actions">
+    <button class="btn-download" onclick="window.print()">
+      &#x1F4E5; Save as PDF
+    </button>
+    <a href="javascript:history.back()" class="btn-close">&#x2190; Back</a>
+  </div>
+</div>
+
+<div class="pdf-page-wrap">
 
 <!-- Watermark -->
 <img class="wm" src="'.htmlspecialchars($logo).'" alt=""
@@ -157,6 +213,8 @@ tfoot td{padding:5px 7px;border-top:2px solid #1a2744}
 '.$bodyHtml.'
 </div>
 
+</div><!-- .pdf-page-wrap -->
+
 <!-- Footer (fixed at bottom on every print page) -->
 <div class="rpt-footer">
   <span><strong>'.htmlspecialchars($school).'</strong> &nbsp;|&nbsp; '.htmlspecialchars($address).'</span>
@@ -164,10 +222,19 @@ tfoot td{padding:5px 7px;border-top:2px solid #1a2744}
 </div>
 
 <script>
-// Auto-trigger print dialog when opened directly
-if (window.location.search.indexOf("autoprint=1") !== -1) {
-  window.onload = function(){ window.print(); }
-}
+// Auto-trigger print dialog on page load so user immediately sees Save-as-PDF
+// Small delay lets the page fully render (images, fonts) first
+window.addEventListener("load", function() {
+  // Set the document title to the safe filename so it appears in the print dialog
+  document.title = '.json_encode($safeFile).';
+  // Slight delay ensures all content is rendered before print dialog opens
+  setTimeout(function(){ window.print(); }, 600);
+});
+
+// After print dialog closes, restore the original title
+window.addEventListener("afterprint", function() {
+  document.title = '.json_encode($title.' — '.$school).';
+});
 </script>
 </body>
 </html>';

@@ -450,14 +450,13 @@ switch ($format) {
 
     case 'pdf':
         $body = buildReportTable('', $headers, $rows, $numCols);
-        // Add summary count above table
         $count = count($rows);
         $body  = '<p style="font-size:8.5pt;color:#555;margin-bottom:8px">
                     <strong>Total records:</strong> '.$count.'
                     &nbsp;&bull;&nbsp; <strong>Report:</strong> '.htmlspecialchars($title).'
                     &nbsp;&bull;&nbsp; <strong>'.htmlspecialchars($subtitle).'</strong>
                   </p>'.$body;
-        pdfReportPage($title, $subtitle, $body);
+        pdfReportPage($title, $subtitle, $body, $filename);
         break;
 
     case 'excel':
