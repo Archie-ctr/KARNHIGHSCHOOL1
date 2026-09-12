@@ -53,6 +53,16 @@ $isGrade12 = $selGrade && (int)$pdo->query("SELECT sequence FROM grades WHERE id
 
 <div class="page-heading">
   <div><div class="eyebrow">End of Year <span></span></div><h1>Promotion Management</h1><p>Review and process student promotion decisions for <?= e($ay) ?>.</p></div>
+  <?php if ($selGrade): ?>
+  <div style="display:flex;gap:5px;flex-wrap:wrap">
+    <a href="<?= BASE_URL ?>/api/export.php?type=promotion_list&format=pdf&grade_id=<?= $selGrade ?>"
+       class="button button-secondary" style="background:#c00200;color:#fff" target="_blank">🖨 PDF Report</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=promotion_list&format=excel&grade_id=<?= $selGrade ?>"
+       class="button button-secondary" style="background:#1d6f42;color:#fff" target="_blank">📊 Excel</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=promotion_list&format=csv&grade_id=<?= $selGrade ?>"
+       class="button button-secondary">📥 CSV</a>
+  </div>
+  <?php endif; ?>
 </div>
 
 <div class="alert alert-warning alert-sticky">⚠️ Promotion is permanent. Please review results carefully before processing. Always take a backup before bulk operations.</div>

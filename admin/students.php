@@ -101,7 +101,14 @@ require_once dirname(__DIR__).'/includes/admin_header.php';
   <?php if ($canAdd): ?>
   <button class="button button-primary" onclick="document.getElementById('addStudentModal').style.display='flex'">+ Add Student</button>
   <?php endif; ?>
-</div>
+  <div style="display:flex;gap:5px;flex-wrap:wrap">
+    <a href="<?= BASE_URL ?>/api/export.php?type=students&format=pdf<?= $gradeF?'&grade_id='.$gradeF:'' ?><?= $statusF?'&status='.urlencode($statusF):'' ?>"
+       class="button button-secondary" style="background:#c00200;color:#fff" target="_blank">🖨 PDF</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=students&format=excel<?= $gradeF?'&grade_id='.$gradeF:'' ?><?= $statusF?'&status='.urlencode($statusF):'' ?>"
+       class="button button-secondary" style="background:#1d6f42;color:#fff" target="_blank">📊 Excel</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=students&format=csv<?= $gradeF?'&grade_id='.$gradeF:'' ?><?= $statusF?'&status='.urlencode($statusF):'' ?>"
+       class="button button-secondary">📥 CSV</a>
+  </div>
 
 <div class="stat-mini-row">
   <div class="stat-mini-item"><strong><?= number_format($active) ?></strong><span>Active – <?= e($allYearsF[array_search($ayFilter,array_column($allYearsF,'id'))]['name'] ?? 'All years') ?></span></div>

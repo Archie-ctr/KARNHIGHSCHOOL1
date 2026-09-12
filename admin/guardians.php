@@ -18,7 +18,18 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
 $guardians=$pdo->query("SELECT g.*,(SELECT COUNT(*) FROM student_guardians sg WHERE sg.guardian_id=g.id) children FROM guardians g ORDER BY g.first_name")->fetchAll();
 $students=$pdo->query("SELECT id,student_id,CONCAT(first_name,' ',last_name) name FROM students WHERE status='Active' ORDER BY first_name")->fetchAll();
 ?>
-<div class="page-heading"><div><div class="eyebrow">Students <span></span></div><h1>Guardians</h1></div><button class="button button-primary" onclick="document.getElementById('addGModal').style.display='flex'">+ Add Guardian</button></div>
+<div class="page-heading">
+  <div><div class="eyebrow">Students <span></span></div><h1>Guardians</h1></div>
+  <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center">
+    <a href="<?= BASE_URL ?>/api/export.php?type=guardians&format=pdf"
+       class="button button-secondary" style="background:#c00200;color:#fff" target="_blank">🖨 PDF</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=guardians&format=excel"
+       class="button button-secondary" style="background:#1d6f42;color:#fff" target="_blank">📊 Excel</a>
+    <a href="<?= BASE_URL ?>/api/export.php?type=guardians&format=csv"
+       class="button button-secondary">📥 CSV</a>
+    <button class="button button-primary" onclick="document.getElementById('addGModal').style.display='flex'">+ Add Guardian</button>
+  </div>
+</div>
 <div class="table-wrap"><table>
   <thead><tr><th>Guardian</th><th>Relationship</th><th>Phone</th><th>Children Linked</th><th>Actions</th></tr></thead>
   <tbody><?php if(empty($guardians)):?><tr><td colspan="5" style="text-align:center;padding:28px;color:var(--ink-faint)">No guardians yet.</td></tr>

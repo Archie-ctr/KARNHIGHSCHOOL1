@@ -431,6 +431,46 @@ function getReportData(string $type, PDO $pdo, int $ayId, string $ay, int $class
                 [$ayId]);
             return ['title'=>'Library Transactions','subtitle'=>'Academic Year: '.$ay,'headers'=>$headers,'rows'=>$rows,'numCols'=>[7]];
 
+        // ── GUARDIANS ────────────────────────────────────────
+        case 'guardians':
+            $headers = ['#','First Name','Last Name','Relationship','Phone','Email','Children Linked','Address'];
+            $rows = safeQuery($pdo,
+                "SELECT @r:=@r+1,g.first_name,g.last_name,g.relationship,
+                        COALESCE(g.phone,'—'),COALESCE(g.email,'—'),
+                        (SELECT COUNT(*) FROM student_guardians sg WHERE sg.guardian_id=g.id),
+                        COALESCE(g.address,'—')
+                 FROM guardians g,(SELECT @r:=0) r
+                 ORDER BY g.first_name,g.last_name");
+            return ['title'=>'Guardian Directory','subtitle'=>'All Registered Guardians','headers'=>$headers,'rows'=>$rows,'numCols'=>[0,6]];
+
+        // ── PROMOTION LIST ───────────────────────────────────
+        case 'promotion_list':
+            $gradeIdParam = (int)($_GET['grade_id'] ?? 0);
+            $gradeNameP   = $gradeIdParam
+                ? ($pdo->query("SELECT name FROM grades WHERE id=$gradeIdParam")->fetchColumn() ?: 'Grade')
+                : 'All Grades';
+            $where  = ['s.status=\'Active\''];
+            $params = [];
+            if ($gradeIdParam) { $where[] = 's.current_grade_id=?'; $params[] = $gradeIdParam; }
+            $wsql = implode(' AND ', $where);
+            $headers = ['#','Student ID','First Name','Last Name','Gender','Grade','Class','Avg Mark %','Promotion Status'];
+            $rows = safeQuery($pdo,
+                "SELECT @r:=@r+1, s.student_id,s.first_name,s.last_name,s.gender,
+                        COALESCE(g.name,'—'),COALESCE(c.name,'—'),
+                        COALESCE(CONCAT(ROUND(AVG(asc2.marks_obtained/asc2.max_marks*100),1),'%'),'—'),
+                        COALESCE(pr.status,'Pending')
+                 FROM students s,(SELECT @r:=0) r
+                 LEFT JOIN grades g ON g.id=s.current_grade_id
+                 LEFT JOIN classes c ON c.id=s.current_class_id
+                 LEFT JOIN assessment_scores asc2 ON asc2.student_id=s.id
+                   AND asc2.academic_year_id=$ayId AND asc2.max_marks>0
+                 LEFT JOIN promotion_records pr ON pr.student_id=s.id
+                   AND pr.academic_year_id=$ayId
+                 WHERE $wsql
+                 GROUP BY s.id ORDER BY g.sequence,s.last_name,s.first_name",
+                $params);
+            return ['title'=>'Promotion List','subtitle'=>$gradeNameP.' — '.$ay,'headers'=>$headers,'rows'=>$rows,'numCols'=>[0,7]];
+
         default:
             return ['title'=>'Unknown Report','subtitle'=>'','headers'=>['Error'],'rows'=>[['Unknown report type: '.$type]],'numCols'=>[]];
     }
