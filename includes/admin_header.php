@@ -394,24 +394,19 @@ $sidebarAllowlist = [
   ],
 
   // ── Registrar ─────────────────────────────────────────────────
-  // ── Registrar ─────────────────────────────────────────────────
   // Official student records and enrollment authority.
-  // Responsible for: student applications, registration, admission
-  // processing, student profiles, enrollment/re-enrollment, transfers,
-  // withdrawals, student documents, IDs, academic records, transcripts,
-  // graduation/promotion lists, certificates.
-  // Can: create/update student records, verify documents, process
-  //   applications, prepare admission & promotion recommendations.
-  // Cannot: finalize admission decisions (→ Principal), change exam
-  //   results, approve major disciplinary actions.
+  // Full control over applications, entrance exams, and admission
+  // decisions (admit/reject students). Also manages student records,
+  // enrollment, transfers, documents, graduation lists.
   'registrar' => [
     'dashboard',
+    'approval_center',       // see pending admissions in approval center
 
-    // Admissions — process applications, prepare recommendations
+    // Admissions — FULL control: process, examine, decide, admit, reject
     '_sep_admissions',
-    'applications',          // student applications & admission processing
-    'entrance_exams',        // manage entrance exam scheduling
-    'admissions_mgr',        // prepare recommendations (final approval → Principal)
+    'applications',          // manage applications end-to-end
+    'entrance_exams',        // create & manage entrance exams
+    'admissions_mgr',        // final admit / reject decisions
 
     // Students — registration, profiles, enrollment, transfers
     '_sep_students',

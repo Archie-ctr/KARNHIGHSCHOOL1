@@ -191,11 +191,11 @@ SELECT 4, id FROM permissions WHERE id IN (
   150,151
 );
 
--- registrar (5): Admissions + student records
+-- registrar (5): Full admissions control + student records
 INSERT INTO role_permissions (role_id, permission_id)
 SELECT 5, id FROM permissions WHERE id IN (
   1, 10,11,12,14,15,17,18,19,
-  20,21,22,23,24,27,28,29,
+  20,21,22,23,24,25,26,27,28,29,   -- ALL admissions.* incl. approve(25) + reject(26)
   30,35,
   55,61,
   62,68,

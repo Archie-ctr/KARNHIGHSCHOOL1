@@ -76,7 +76,7 @@ if (can('marks.review')) {
     $pendingMarks=$pdo->prepare("SELECT asc2.*,s.first_name,s.last_name,s.student_id sid,sub.name sname,c.name cname,ac.name cfg_name,u.name entered_by_name FROM assessment_scores asc2 JOIN students s ON s.id=asc2.student_id JOIN subjects sub ON sub.id=asc2.subject_id JOIN classes c ON c.id=asc2.class_id JOIN assessment_configs ac ON ac.id=asc2.assessment_config_id LEFT JOIN users u ON u.id=asc2.entered_by WHERE asc2.status IN ('submitted','resubmitted') AND asc2.academic_year_id=? ORDER BY asc2.updated_at ASC LIMIT 30")
         ->execute([$ayId]) ? $pdo->query("SELECT asc2.*,s.first_name,s.last_name,s.student_id sid,sub.name sname,c.name cname,ac.name cfg_name,u.name entered_by_name FROM assessment_scores asc2 JOIN students s ON s.id=asc2.student_id JOIN subjects sub ON sub.id=asc2.subject_id JOIN classes c ON c.id=asc2.class_id JOIN assessment_configs ac ON ac.id=asc2.assessment_config_id LEFT JOIN users u ON u.id=asc2.entered_by WHERE asc2.status IN ('submitted','resubmitted') AND asc2.academic_year_id=$ayId ORDER BY asc2.updated_at ASC LIMIT 30")->fetchAll() : [];
 }
-if (can('admissions.approve')) {
+if (canAny(['admissions.approve','admissions.recommend'])) {
     $pendingAdmissions=$pdo->query("SELECT * FROM applications WHERE status IN ('Application Submitted','Under Review','Approved for entrance') ORDER BY created_at DESC LIMIT 20")->fetchAll();
 }
 if (can('discipline.approve')) {
