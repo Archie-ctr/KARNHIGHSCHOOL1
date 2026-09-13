@@ -1,14 +1,11 @@
 <?php
-$pageTitle   = 'Applications';
-$activeAdmin = 'applications';
-require_once dirname(__DIR__).'/includes/admin_header.php';
-requireRole(['principal','registrar','academic_dean','super_admin','vice_principal']);
+// ── POST must run BEFORE admin_header outputs HTML ────────────
+require_once dirname(__DIR__).'/config/db.php';
 
-$pdo = db();
-
-// ── Handle status actions ─────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    requireAuth();
     verifyCsrf();
+    $pdo    = db();
     $id     = (int)($_POST['app_id'] ?? 0);
     $action = $_POST['action'] ?? '';
     $note   = trim($_POST['note'] ?? '');
@@ -27,8 +24,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo->prepare("UPDATE applications SET status=?,reviewed_by=?,reviewed_at=NOW(),updated_at=NOW() WHERE id=?")->execute([$new, currentUser()['id'], $id]);
         $pdo->prepare("INSERT INTO application_status_history (application_id,old_status,new_status,changed_by,notes) VALUES (?,?,?,?,?)")->execute([$id,$old,$new,currentUser()['id'],$note]);
         auditLog('update_status','applications','application',$id,$old,$new);
-
-        // Auto-generate entrance letter ref
         if ($new === 'Approved for entrance') {
             $ref = 'KEL-'.date('Y').'-'.str_pad($id,5,'0',STR_PAD_LEFT);
             $pdo->prepare("UPDATE applications SET entrance_letter_ref=? WHERE id=? AND entrance_letter_ref IS NULL")->execute([$ref,$id]);
@@ -43,6 +38,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     redirect(BASE_URL.'/admin/applications.php?'.http_build_query(array_filter(['q'=>$_GET['q']??'','status'=>$_GET['status']??'','grade'=>$_GET['grade']??'','page'=>$_GET['page']??''])));
 }
+
+// ── Now output the page ───────────────────────────────────────
+$pageTitle   = 'Applications';
+$activeAdmin = 'applications';
+require_once dirname(__DIR__).'/includes/admin_header.php';
+requireRole(['principal','registrar','academic_dean','super_admin','vice_principal']);
 
 // ── Filters ───────────────────────────────────────────────────
 $q      = trim($_GET['q']      ?? '');

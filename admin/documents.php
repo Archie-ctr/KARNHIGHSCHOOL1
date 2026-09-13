@@ -1,71 +1,38 @@
 <?php
-$pageTitle   = 'Student Documents';
-$activeAdmin = 'documents';
-require_once dirname(__DIR__).'/includes/admin_header.php';
-requireRole(['registrar','principal','super_admin','school_admin','vice_principal']);
+// ── POST must run BEFORE admin_header outputs HTML ────────────
+require_once dirname(__DIR__).'/config/db.php';
 
-$pdo = db();
-
-// ── POST handler ──────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    requireAuth();
     verifyCsrf();
+    $pdo    = db();
     $action = $_POST['action'] ?? '';
     $stdId  = (int)($_POST['student_id'] ?? 0);
 
     if ($action === 'upload' && $stdId) {
-        // Support multiple file uploads
         $uploaded = 0; $failed = 0;
         $files = $_FILES['doc'] ?? [];
-
-        // Normalise to array-of-files format
         if (!empty($files['name'])) {
-            if (is_array($files['name'])) {
-                $fileList = [];
-                foreach ($files['name'] as $i => $name) {
-                    $fileList[] = [
-                        'name'     => $name,
-                        'type'     => $files['type'][$i],
-                        'tmp_name' => $files['tmp_name'][$i],
-                        'error'    => $files['error'][$i],
-                        'size'     => $files['size'][$i],
-                    ];
-                }
-            } else {
-                $fileList = [$files];
-            }
-
+            $fileList = is_array($files['name'])
+                ? array_map(fn($i) => ['name'=>$files['name'][$i],'type'=>$files['type'][$i],'tmp_name'=>$files['tmp_name'][$i],'error'=>$files['error'][$i],'size'=>$files['size'][$i]], array_keys($files['name']))
+                : [$files];
             $docType = $_POST['doc_type'] ?? 'other';
-
             foreach ($fileList as $file) {
                 if ($file['error'] === UPLOAD_ERR_NO_FILE) continue;
                 $path = uploadFile($file, 'student_docs/'.$stdId);
                 if ($path) {
-                    $pdo->prepare(
-                        "INSERT INTO student_documents
-                         (student_id,doc_type,file_name,file_path,file_size,mime_type,uploaded_by)
-                         VALUES (?,?,?,?,?,?,?)"
-                    )->execute([
-                        $stdId, $docType,
-                        $file['name'], $path,
-                        $file['size'], $file['type'],
-                        currentUser()['id']
-                    ]);
+                    $pdo->prepare("INSERT INTO student_documents (student_id,doc_type,file_name,file_path,file_size,mime_type,uploaded_by) VALUES (?,?,?,?,?,?,?)")
+                        ->execute([$stdId,$docType,$file['name'],$path,$file['size'],$file['type'],currentUser()['id']]);
                     $uploaded++;
-                } else {
-                    $failed++;
-                }
+                } else { $failed++; }
             }
         }
-
-        if ($uploaded > 0 && $failed === 0) {
-            flash('success', $uploaded === 1
-                ? 'Document uploaded successfully.'
-                : "$uploaded documents uploaded successfully.");
-        } elseif ($uploaded > 0) {
-            flash('warning', "$uploaded uploaded, $failed failed (check file type/size — PDF, JPG, PNG only, max 5 MB each).");
-        } else {
+        if ($uploaded > 0 && $failed === 0)
+            flash('success', $uploaded === 1 ? 'Document uploaded successfully.' : "$uploaded documents uploaded.");
+        elseif ($uploaded > 0)
+            flash('warning', "$uploaded uploaded, $failed failed — PDF/JPG/PNG only, max 5 MB.");
+        else
             flash('error', 'Upload failed. Only PDF, JPG and PNG files up to 5 MB are accepted.');
-        }
 
     } elseif ($action === 'delete' && $stdId) {
         $docId = (int)($_POST['doc_id'] ?? 0);
@@ -74,13 +41,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($doc) {
                 $pdo->prepare("DELETE FROM student_documents WHERE id=?")->execute([$docId]);
                 @unlink(UPLOAD_DIR.'/'.$doc['file_path']);
-                flash('success', 'Document "'.basename($doc['file_name']).'" deleted.');
+                flash('success', 'Document deleted.');
             }
         }
     }
-
     redirect(BASE_URL.'/admin/documents.php?student_id='.$stdId);
 }
+
+// ── Now output the page ───────────────────────────────────────
+$pageTitle   = 'Student Documents';
+$activeAdmin = 'documents';
+require_once dirname(__DIR__).'/includes/admin_header.php';
+requireRole(['registrar','principal','super_admin','school_admin','vice_principal']);
 
 // ── GET data ──────────────────────────────────────────────────
 $stdId    = (int)($_GET['student_id'] ?? 0);
@@ -372,6 +344,7 @@ function fmtBytes(int $bytes): string {
            style="flex:1;padding:9px;text-align:center;font-size:12px;font-weight:600;
                   color:var(--primary);text-decoration:none;border-right:1px solid var(--line);
                   transition:background .15s"
+           onclick="<?= $isImg ? "openDocModal('".addslashes($fileUrl)."','".addslashes(e($d['file_name']))."','image');return false;" : ($isPdf ? "openDocModal('".addslashes($fileUrl)."','".addslashes(e($d['file_name']))."','pdf');return false;" : '') ?>"
            onmouseenter="this.style.background='var(--primary-soft)'"
            onmouseleave="this.style.background=''">
           👁 View
@@ -524,5 +497,85 @@ document.getElementById('uploadForm')?.addEventListener('submit', function(e) {
   btn.textContent = '⏳ Uploading…';
 });
 </script>
+
+<!-- ── Document Viewer Modal ── -->
+<div id="docViewerModal" style="
+    display:none;position:fixed;inset:0;z-index:9999;
+    background:rgba(0,0,0,.75);
+    align-items:center;justify-content:center;padding:20px;
+">
+  <div style="
+      background:#fff;border-radius:10px;
+      width:100%;max-width:900px;max-height:90vh;
+      display:flex;flex-direction:column;
+      box-shadow:0 8px 40px rgba(0,0,0,.5);
+      overflow:hidden;
+  ">
+    <!-- Modal header -->
+    <div style="
+        display:flex;align-items:center;justify-content:space-between;
+        padding:14px 18px;border-bottom:1px solid var(--line);
+        background:var(--surface);flex-shrink:0;
+    ">
+      <div style="font-weight:700;font-size:14px;color:var(--ink)" id="docModalTitle">Document</div>
+      <div style="display:flex;gap:8px">
+        <a id="docModalOpenBtn" href="#" target="_blank"
+           class="button button-secondary button-sm">↗ Open in new tab</a>
+        <a id="docModalDownloadBtn" href="#" download
+           class="button button-secondary button-sm">⬇ Download</a>
+        <button onclick="closeDocModal()"
+           style="background:none;border:none;cursor:pointer;font-size:22px;color:var(--ink-soft);line-height:1;padding:0 4px"
+           title="Close">✕</button>
+      </div>
+    </div>
+    <!-- Modal body -->
+    <div id="docModalBody" style="flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;background:#f0f0f0;min-height:400px"></div>
+  </div>
+</div>
+
+<script>
+function openDocModal(url, name, type) {
+  const modal = document.getElementById('docViewerModal');
+  const body  = document.getElementById('docModalBody');
+  document.getElementById('docModalTitle').textContent = name;
+  document.getElementById('docModalOpenBtn').href     = url;
+  document.getElementById('docModalDownloadBtn').href = url;
+  document.getElementById('docModalDownloadBtn').setAttribute('download', name);
+  body.innerHTML = '';
+
+  if (type === 'image') {
+    const img = document.createElement('img');
+    img.src = url;
+    img.style.cssText = 'max-width:100%;max-height:80vh;object-fit:contain;display:block;margin:auto;padding:12px';
+    body.appendChild(img);
+  } else if (type === 'pdf') {
+    const iframe = document.createElement('iframe');
+    iframe.src = url;
+    iframe.style.cssText = 'width:100%;height:75vh;border:none;display:block';
+    iframe.title = name;
+    body.appendChild(iframe);
+  } else {
+    body.innerHTML = '<div style="padding:40px;text-align:center"><div style="font-size:52px;margin-bottom:14px">📄</div><p>Cannot preview this file type.</p><a href="'+url+'" target="_blank" class="button button-primary" style="margin-top:12px">Open File →</a></div>';
+  }
+
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDocModal() {
+  const modal = document.getElementById('docViewerModal');
+  modal.style.display = 'none';
+  document.getElementById('docModalBody').innerHTML = '';
+  document.body.style.overflow = '';
+}
+
+// Close on backdrop click
+document.getElementById('docViewerModal')?.addEventListener('click', function(e) {
+  if (e.target === this) closeDocModal();
+});
+// Close on Escape
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeDocModal();
+});
 
 <?php require_once dirname(__DIR__).'/includes/admin_footer.php'; ?>

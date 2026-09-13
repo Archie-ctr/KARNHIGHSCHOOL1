@@ -1,109 +1,68 @@
 <?php
-$pageTitle   = 'Graduation';
-$activeAdmin = 'graduation';
-require_once dirname(__DIR__).'/includes/admin_header.php';
-requireRole(['sys_admin','super_admin','school_admin','principal','vice_principal','registrar']);
+// ── POST must run BEFORE admin_header outputs HTML ────────────
+require_once dirname(__DIR__).'/config/db.php';
 
-$pdo  = db();
-$ayId = currentAcademicYearId();
-$ay   = currentAcademicYearName();
-$canApprove = isPrincipal();
-
-// ── Ensure table exists ───────────────────────────────────────
-try {
-    $pdo->exec("CREATE TABLE IF NOT EXISTS graduation_records (
-        id              INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        student_id      INT UNSIGNED NOT NULL UNIQUE,
-        academic_year_id INT UNSIGNED NOT NULL,
-        graduation_date DATE NOT NULL,
-        status          ENUM('eligible','approved','graduated','withheld') NOT NULL DEFAULT 'eligible',
-        overall_average DECIMAL(5,2) NULL,
-        certificate_number VARCHAR(40) NULL UNIQUE,
-        approved_by     INT UNSIGNED NULL,
-        approved_at     DATETIME NULL,
-        notes           TEXT NULL,
-        created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        INDEX idx_grad_ay (academic_year_id),
-        INDEX idx_grad_status (status)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-} catch (Throwable $e) {}
-
-// ── POST actions ──────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    requireAuth();
     verifyCsrf();
-    $action = $_POST['action'] ?? '';
+    $pdo       = db();
+    $ayId      = currentAcademicYearId();
+    $ay        = currentAcademicYearName();
+    $canApprove= isPrincipal() || hasRole(['super_admin','sys_admin','school_admin']);
+    $action    = $_POST['action'] ?? '';
 
     if ($action === 'generate_list') {
-        // Find all Grade 12 students with 'Graduated' status from promotion
-        $grade12 = $pdo->query(
-            "SELECT id FROM grades WHERE sequence=(SELECT MAX(sequence) FROM grades WHERE is_active=1) LIMIT 1"
-        )->fetchColumn();
-
+        $grade12 = $pdo->query("SELECT id FROM grades WHERE sequence=(SELECT MAX(sequence) FROM grades WHERE is_active=1) LIMIT 1")->fetchColumn();
         if ($grade12) {
             $eligible = $pdo->prepare(
                 "SELECT s.id, ROUND(AVG(asc2.marks_obtained/asc2.max_marks*100),1) avg_pct
                  FROM students s
                  LEFT JOIN assessment_scores asc2 ON asc2.student_id=s.id
-                   AND asc2.academic_year_id=? AND asc2.status IN ('approved','published')
-                   AND asc2.max_marks > 0
+                   AND asc2.academic_year_id=? AND asc2.status IN ('approved','published') AND asc2.max_marks>0
                  WHERE s.academic_year_id=? AND s.current_grade_id=? AND s.status='Active'
                  GROUP BY s.id"
             );
-            $eligible->execute([$ayId, $ayId, $grade12]);
-            $eligible = $eligible->fetchAll();
+            $eligible->execute([$ayId,$ayId,$grade12]);
             $inserted = 0;
-            foreach ($eligible as $e) {
+            foreach ($eligible->fetchAll() as $e) {
                 try {
                     $pdo->prepare(
                         "INSERT IGNORE INTO graduation_records
-                         (student_id,academic_year_id,graduation_date,overall_average,status)
+                         (student_id,academic_year_id,graduation_date,yearly_average,status)
                          VALUES (?,?,CURDATE(),?,'eligible')"
-                    )->execute([$e['id'], $ayId, $e['avg_pct']]);
+                    )->execute([$e['id'],$ayId,$e['avg_pct']]);
                     $inserted++;
                 } catch (Throwable $ex) {}
             }
-            auditLog('create','graduation','graduation_list',0,'','Generated '.$inserted.' records for '.$ay);
             flash('success','Graduation list generated — '.$inserted.' students added.');
         }
 
     } elseif ($action === 'approve_student' && $canApprove) {
         $sid = (int)($_POST['student_id'] ?? 0);
         if ($sid) {
-            $cert = 'KHS-CERT-'.date('Y').'-'.str_pad($sid, 5, '0', STR_PAD_LEFT);
+            $cert = 'KHS-CERT-'.date('Y').'-'.str_pad($sid,5,'0',STR_PAD_LEFT);
             $pdo->prepare(
-                "UPDATE graduation_records
-                 SET status='approved', approved_by=?, approved_at=NOW(), certificate_number=?
-                 WHERE student_id=?"
-            )->execute([currentUserId(), $cert, $sid]);
-            auditLog('approve','graduation','student',$sid,'eligible','approved');
-            flash('success','Student graduation approved. Certificate: '.$cert);
+                "UPDATE graduation_records SET status='approved',certificate_no=? WHERE student_id=? AND academic_year_id=?"
+            )->execute([$cert,$sid,$ayId]);
+            flash('success','Graduation approved. Certificate: '.$cert);
         }
 
     } elseif ($action === 'approve_all' && $canApprove) {
-        $rows = $pdo->prepare(
-            "SELECT gr.student_id FROM graduation_records gr
-             WHERE gr.academic_year_id=? AND gr.status='eligible'"
-        );
+        $rows = $pdo->prepare("SELECT student_id FROM graduation_records WHERE academic_year_id=? AND status='eligible'");
         $rows->execute([$ayId]);
         $count = 0;
         foreach ($rows->fetchAll() as $r) {
-            $cert = 'KHS-CERT-'.date('Y').'-'.str_pad($r['student_id'], 5, '0', STR_PAD_LEFT);
-            $pdo->prepare(
-                "UPDATE graduation_records
-                 SET status='approved', approved_by=?, approved_at=NOW(), certificate_number=?
-                 WHERE student_id=? AND status='eligible'"
-            )->execute([currentUserId(), $cert, $r['student_id']]);
+            $cert = 'KHS-CERT-'.date('Y').'-'.str_pad($r['student_id'],5,'0',STR_PAD_LEFT);
+            $pdo->prepare("UPDATE graduation_records SET status='approved',certificate_no=? WHERE student_id=? AND status='eligible'")->execute([$cert,$r['student_id']]);
             $count++;
         }
-        auditLog('approve_all','graduation','graduation_records',0,'','Approved '.$count.' students');
         flash('success','All eligible students approved ('.$count.').');
 
     } elseif ($action === 'graduate_student' && $canApprove) {
         $sid = (int)($_POST['student_id'] ?? 0);
         if ($sid) {
             $pdo->prepare("UPDATE graduation_records SET status='graduated' WHERE student_id=?")->execute([$sid]);
-            $pdo->prepare("UPDATE students SET status='Graduated', graduation_date=CURDATE() WHERE id=?")->execute([$sid]);
-            auditLog('graduate','graduation','student',$sid,'approved','graduated');
+            $pdo->prepare("UPDATE students SET status='Graduated',graduation_date=CURDATE() WHERE id=?")->execute([$sid]);
             flash('success','Student marked as graduated.');
         }
 
@@ -111,13 +70,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $sid  = (int)($_POST['student_id'] ?? 0);
         $note = trim($_POST['notes'] ?? '');
         if ($sid) {
-            $pdo->prepare("UPDATE graduation_records SET status='withheld', notes=? WHERE student_id=?")->execute([$note ?: null, $sid]);
-            auditLog('withhold','graduation','student',$sid,'','Withheld: '.$note);
-            flash('warning','Graduation withheld for student.');
+            $pdo->prepare("UPDATE graduation_records SET status='withheld',notes=? WHERE student_id=?")->execute([$note?:null,$sid]);
+            flash('warning','Graduation withheld.');
         }
     }
     redirect(BASE_URL.'/admin/graduation.php?tab='.urlencode($_POST['tab'] ?? 'list'));
 }
+
+// ── Now output the page ───────────────────────────────────────
+$pageTitle   = 'Graduation';
+$activeAdmin = 'graduation';
+require_once dirname(__DIR__).'/includes/admin_header.php';
+requireRole(['sys_admin','super_admin','school_admin','principal','vice_principal','registrar']);
 
 // ── Data ──────────────────────────────────────────────────────
 $tab = $_GET['tab'] ?? 'list';
@@ -132,8 +96,7 @@ $grade12Name = $grade12Id ? $pdo->query("SELECT name FROM grades WHERE id=$grade
 $gradRecords = $pdo->prepare(
     "SELECT gr.*,
             s.student_id student_code, s.first_name, s.last_name, s.gender, s.date_of_birth, s.phone,
-            g.name grade_name, c.name class_name,
-            NULL approved_by_name
+            g.name grade_name, c.name class_name
      FROM graduation_records gr
      JOIN students s ON s.id=gr.student_id
      LEFT JOIN grades g ON g.id=s.current_grade_id
@@ -237,14 +200,14 @@ $statusColor = ['eligible'=>'new-s','approved'=>'approved','graduated'=>'approve
         <td class="muted"><?= e($r['student_code']) ?></td>
         <td class="muted"><?= e($r['class_name'] ?? '—') ?></td>
         <td>
-          <?php if ($r['overall_average']): ?>
-          <strong style="color:<?= $r['overall_average']>=70?'var(--green)':($r['overall_average']>=50?'var(--warning)':'var(--error)') ?>">
-            <?= $r['overall_average'] ?>%
+          <?php if ($r['yearly_average']): ?>
+          <strong style="color:<?= $r['yearly_average']>=70?'var(--green)':($r['yearly_average']>=50?'var(--warning)':'var(--error)') ?>">
+            <?= $r['yearly_average'] ?>%
           </strong>
           <?php else: ?><span class="muted">—</span><?php endif; ?>
         </td>
         <td><span class="status <?= $statusColor[$r['status']]??'new-s' ?>"><?= ucfirst($r['status']) ?></span></td>
-        <td class="muted" style="font-size:12px"><?= e($r['certificate_number'] ?? '—') ?></td>
+        <td class="muted" style="font-size:12px"><?= e($r['certificate_no'] ?? '—') ?></td>
         <td>
           <?php if ($canApprove): ?>
           <div style="display:flex;gap:5px;flex-wrap:wrap">
@@ -349,8 +312,8 @@ $certified = array_filter($gradRecords, fn($r) => in_array($r['status'],['approv
       <?php foreach ($certified as $r): ?>
       <tr>
         <td><strong><?= e($r['first_name'].' '.$r['last_name']) ?></strong><div style="font-size:11px;color:var(--ink-faint)"><?= e($r['student_code']) ?></div></td>
-        <td><code style="font-size:12px"><?= e($r['certificate_number']) ?></code></td>
-        <td class="muted"><?= e($r['approved_by_name'] ?? '—') ?></td>
+        <td><code style="font-size:12px"><?= e($r['certificate_no'] ?? '—') ?></code></td>
+        <td class="muted">—</td>
         <td><span class="status <?= $r['status']==='graduated'?'approved':'new-s' ?>"><?= ucfirst($r['status']) ?></span></td>
         <td>
           <a href="<?= BASE_URL ?>/letters/graduation_cert.php?student_id=<?= $r['student_id'] ?>&ay_id=<?= $ayId ?>"
