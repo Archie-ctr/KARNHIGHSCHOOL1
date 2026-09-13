@@ -248,47 +248,108 @@ $statusColors = ['pending'=>'pending','approved'=>'new-s','completed'=>'approved
 
 <?php elseif ($tab === 'new'): ?>
 <!-- ── NEW MOVEMENT REQUEST ───────────────────────────────── -->
-<div class="panel" style="padding:28px;max-width:560px">
-  <h3 style="font-weight:700;margin-bottom:16px">New Student Movement Request</h3>
-  <form method="post">
-    <?= csrfField() ?><input type="hidden" name="action" value="add_movement"/><input type="hidden" name="tab" value="list"/>
-    <div class="form-group">
-      <label>Student *
-        <select name="student_id" required>
-          <option value="">Select student…</option>
+<div style="max-width:620px">
+  <div style="background:var(--surface);border:1.5px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06)">
+
+    <!-- Form header -->
+    <div style="background:#1a2744;padding:18px 24px;display:flex;align-items:center;gap:12px">
+      <div style="width:38px;height:38px;border-radius:8px;background:rgba(255,255,255,.12);
+                  display:flex;align-items:center;justify-content:center;font-size:18px">➡️</div>
+      <div>
+        <div style="font-size:15px;font-weight:800;color:#fff">New Student Movement Request</div>
+        <div style="font-size:11.5px;color:rgba(255,255,255,.5);margin-top:1px">Transfers, withdrawals and re-enrolments</div>
+      </div>
+    </div>
+
+    <form method="post" style="padding:24px">
+      <?= csrfField() ?>
+      <input type="hidden" name="action" value="add_movement"/>
+      <input type="hidden" name="tab"    value="list"/>
+
+      <!-- Student -->
+      <div style="margin-bottom:18px">
+        <label style="display:block;font-size:12px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">
+          Student <span style="color:var(--error)">*</span>
+        </label>
+        <select name="student_id" required
+                style="width:100%;padding:10px 14px;border:1.5px solid var(--line);border-radius:8px;
+                       font-size:13px;background:var(--bg);color:var(--ink)">
+          <option value="">— Select student —</option>
           <?php foreach ($allStudents as $s): ?>
-          <option value="<?= $s['id'] ?>"><?= e($s['name']) ?> (<?= e($s['student_id']) ?>)</option>
+          <option value="<?= $s['id'] ?>"><?= e($s['name']) ?> &nbsp; (<?= e($s['student_id']) ?>)</option>
           <?php endforeach; ?>
         </select>
-      </label>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Movement Type *
-          <select name="movement_type" required id="movType" onchange="toggleDest()">
-            <option value="">Select type…</option>
+      </div>
+
+      <!-- Movement Type + Effective Date -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px">
+        <div>
+          <label style="display:block;font-size:12px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">
+            Movement Type <span style="color:var(--error)">*</span>
+          </label>
+          <select name="movement_type" required id="movType" onchange="toggleDest()"
+                  style="width:100%;padding:10px 14px;border:1.5px solid var(--line);border-radius:8px;
+                         font-size:13px;background:var(--bg);color:var(--ink)">
+            <option value="">— Select type —</option>
             <?php foreach ($typeLabels as $k => $l): ?>
             <option value="<?= $k ?>"><?= $l ?></option>
             <?php endforeach; ?>
           </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:12px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">
+            Effective Date <span style="color:var(--error)">*</span>
+          </label>
+          <input type="date" name="effective_date" required value="<?= date('Y-m-d') ?>"
+                 style="width:100%;padding:10px 14px;border:1.5px solid var(--line);border-radius:8px;
+                        font-size:13px;background:var(--bg);color:var(--ink)"/>
+        </div>
+      </div>
+
+      <!-- Destination School (conditional) -->
+      <div id="destField" style="display:none;margin-bottom:18px">
+        <label style="display:block;font-size:12px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">
+          Destination School
         </label>
+        <input type="text" name="destination_school"
+               placeholder="e.g. ABC School, Monrovia"
+               style="width:100%;padding:10px 14px;border:1.5px solid var(--line);border-radius:8px;
+                      font-size:13px;background:var(--bg);color:var(--ink)"/>
       </div>
-      <div class="form-group">
-        <label>Effective Date *<input type="date" name="effective_date" required value="<?= date('Y-m-d') ?>"/></label>
+
+      <!-- Reason -->
+      <div style="margin-bottom:18px">
+        <label style="display:block;font-size:12px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">
+          Reason <span style="color:var(--error)">*</span>
+        </label>
+        <textarea name="reason" rows="4" required
+                  placeholder="Provide the reason for this movement request…"
+                  style="width:100%;padding:10px 14px;border:1.5px solid var(--line);border-radius:8px;
+                         font-size:13px;background:var(--bg);color:var(--ink);
+                         font-family:inherit;line-height:1.6;resize:vertical"></textarea>
       </div>
-    </div>
-    <div class="form-group" id="destField" style="display:none">
-      <label>Destination School<input type="text" name="destination_school" placeholder="e.g. ABC School, Monrovia"/></label>
-    </div>
-    <div class="form-group">
-      <label>Reason *<textarea name="reason" rows="3" required placeholder="Reason for transfer/withdrawal…"></textarea></label>
-    </div>
-    <p style="font-size:12px;color:var(--ink-soft);margin-bottom:14px">
-      ℹ️ This request will be submitted for principal approval. The student's status will be updated automatically upon approval.
-    </p>
-    <button type="submit" class="button button-primary">Submit Request</button>
-  </form>
+
+      <!-- Info note -->
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;
+                  padding:12px 14px;margin-bottom:20px;display:flex;gap:10px;align-items:flex-start">
+        <span style="font-size:16px;flex-shrink:0">ℹ️</span>
+        <div style="font-size:12.5px;color:#1e40af;line-height:1.6">
+          This request will be submitted for <strong>principal approval</strong>.
+          The student's status will be updated automatically upon approval.
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <a href="?tab=list" class="button button-secondary">Cancel</a>
+        <button type="submit" class="button button-primary" style="padding:10px 28px">
+          ➡️ Submit Request
+        </button>
+      </div>
+    </form>
+  </div>
 </div>
+
 <script>
 function toggleDest(){
   var t=document.getElementById('movType').value;

@@ -131,89 +131,135 @@ try {
 
   <div class="table-wrap">
     <table>
-      <thead><tr><th>Applicant</th><th>App Number</th><th>Grade</th><th>Submitted</th><th>Status</th><th>Documents</th><th>Actions</th></tr></thead>
+      <thead>
+        <tr>
+          <th>Applicant</th>
+          <th>App #</th>
+          <th>Grade</th>
+          <th>Submitted</th>
+          <th>Status</th>
+          <th>Docs</th>
+          <th style="min-width:220px">Actions</th>
+        </tr>
+      </thead>
       <tbody>
         <?php if (empty($apps)): ?>
         <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--ink-faint)">No applications found.</td></tr>
         <?php else: ?>
         <?php foreach ($apps as $app):
           $ini = strtoupper(substr($app['first_name'],0,1).substr($app['last_name'],0,1));
+          // Button colours per action
+          $wf = match($app['status']) {
+            'Application Submitted' => [['review','🔍 Review','var(--primary)'],['docs','📄 Req. Docs','var(--warning)'],['reject','✗ Reject','var(--error)']],
+            'Under Review'          => [['approve','✓ Approve','var(--green)'],['docs','📄 Req. Docs','var(--warning)'],['reject','✗ Reject','var(--error)']],
+            'Documents needed'      => [['review','🔍 Review','var(--primary)'],['reject','✗ Reject','var(--error)']],
+            'Approved for entrance' => [['schedule','📅 Schedule Exam','#6366f1']],
+            'Entrance scheduled'    => [['admit','🎓 Admit','var(--green)'],['reject','✗ Reject','var(--error)']],
+            default                 => [],
+          };
         ?>
         <tr>
-          <td><div class="person"><div class="avatar-sm"><?= e($ini) ?></div><div>
-            <strong><?= e($app['first_name'].($app['middle_name']?' '.$app['middle_name']:'').' '.$app['last_name']) ?></strong>
-            <div style="font-size:11.5px;color:var(--ink-faint)"><?= e($app['phone']) ?></div>
-          </div></div></td>
+          <td>
+            <div class="person">
+              <div class="avatar-sm"><?= e($ini) ?></div>
+              <div>
+                <strong><?= e($app['first_name'].($app['middle_name']?' '.$app['middle_name']:'').' '.$app['last_name']) ?></strong>
+                <div style="font-size:11px;color:var(--ink-faint)"><?= e($app['phone']) ?></div>
+              </div>
+            </div>
+          </td>
           <td class="muted" style="font-size:12px"><?= e($app['application_number']) ?></td>
-          <td><?= e($app['grade_applying_for']) ?></td>
-          <td class="muted"><?= date('M d, Y',strtotime($app['created_at'])) ?></td>
+          <td style="font-size:13px"><?= e($app['grade_applying_for']) ?></td>
+          <td class="muted" style="font-size:12px"><?= date('d M Y', strtotime($app['created_at'])) ?></td>
           <td><?= statusBadge($app['status']) ?></td>
           <td><?= statusBadge($app['document_status']??'Pending') ?></td>
           <td>
-            <div style="display:flex;gap:5px;flex-wrap:wrap">
-              <!-- View detail toggle -->
-              <button class="filter-button button-sm" onclick="toggleDetail('d<?= $app['id'] ?>')">👁 View</button>
+            <!-- Action buttons row -->
+            <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center">
 
-              <!-- Workflow buttons -->
-              <?php
-              $wf = match($app['status']) {
-                'Application Submitted' => [['review','Under Review'],['docs','Req. Docs']],
-                'Under Review'          => [['approve','Approve for Entrance'],['docs','Req. Docs'],['reject','Reject']],
-                'Documents needed'      => [['review','Review'],['reject','Reject']],
-                'Approved for entrance' => [['schedule','Schedule Exam']],
-                'Entrance scheduled'    => [['admit','Admit'],['reject','Reject']],
-                default                 => [],
-              };
-              foreach ($wf as [$act,$lbl]):
-              ?>
-              <form method="post" style="display:inline">
+              <!-- View button → opens modal -->
+              <button
+                class="filter-button button-sm"
+                style="background:#1a2744;color:#fff;border-color:#1a2744"
+                onclick="openAppModal(<?= htmlspecialchars(json_encode([
+                  'id'                  => $app['id'],
+                  'name'                => $app['first_name'].($app['middle_name']?' '.$app['middle_name']:'').' '.$app['last_name'],
+                  'ini'                 => $ini,
+                  'app_number'          => $app['application_number'],
+                  'grade'               => $app['grade_applying_for'],
+                  'status'              => $app['status'],
+                  'submitted'           => date('d M Y', strtotime($app['created_at'])),
+                  'phone'               => $app['phone']     ?? '—',
+                  'email'               => $app['email']     ?? '—',
+                  'dob'                 => $app['date_of_birth'] ?? '—',
+                  'gender'              => $app['gender']    ?? '—',
+                  'county'              => $app['county']    ?? '—',
+                  'district'            => $app['district']  ?? '—',
+                  'community'           => $app['community'] ?? '—',
+                  'prev_school'         => $app['previous_school']    ?? '—',
+                  'last_grade'          => $app['last_grade_completed'] ?? '—',
+                  'guardian_name'       => $app['guardian_name']         ?? '—',
+                  'guardian_rel'        => $app['guardian_relationship'] ?? '—',
+                  'guardian_phone'      => $app['guardian_phone']        ?? '—',
+                  'guardian_email'      => $app['guardian_email']        ?? '—',
+                  'doc_status'          => $app['document_status'] ?? 'Pending',
+                  'exam_date'           => $app['entrance_exam_date'] ?? '—',
+                  'exam_time'           => $app['entrance_exam_time'] ?? '—',
+                  'letter_ref'          => $app['entrance_letter_ref'] ?? '—',
+                  'internal_notes'      => $app['internal_notes'] ?? '',
+                  'ay'                  => $app['academic_year'] ?? $ay,
+                ]), ENT_QUOTES) ?>)">
+                👁 View
+              </button>
+
+              <!-- Workflow action buttons -->
+              <?php foreach ($wf as [$act,$lbl,$col]): ?>
+              <form method="post" style="display:inline" <?= $act==='reject'?"onsubmit=\"return confirm('Reject this application?')\"":'' ?>>
                 <?= csrfField() ?>
                 <input type="hidden" name="action" value="<?= e($act) ?>"/>
                 <input type="hidden" name="app_id" value="<?= $app['id'] ?>"/>
-                <button type="submit" class="filter-button button-sm"><?= e($lbl) ?></button>
+                <button type="submit" class="filter-button button-sm"
+                        style="color:<?= $col ?>;border-color:<?= $col ?>;font-weight:700">
+                  <?= e($lbl) ?>
+                </button>
               </form>
               <?php endforeach; ?>
 
+              <!-- Entrance letter link -->
               <?php if (!empty($app['entrance_letter_ref'])): ?>
-              <a href="<?= BASE_URL ?>/letters/entrance_letter.php?id=<?= $app['id'] ?>" class="filter-button button-sm" target="_blank">📄 Letter</a>
-              <?php endif; ?>
-            </div>
-
-            <!-- Detail panel -->
-            <div id="d<?= $app['id'] ?>" style="display:none;margin-top:10px;background:var(--bg);border-radius:var(--radius-sm);padding:14px;font-size:13px;line-height:1.9;min-width:380px">
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 16px">
-                <span><strong>DOB:</strong> <?= e($app['date_of_birth']) ?></span>
-                <span><strong>Gender:</strong> <?= e($app['gender']) ?></span>
-                <span><strong>Email:</strong> <?= e($app['email']??'—') ?></span>
-                <span><strong>County:</strong> <?= e($app['county']) ?></span>
-                <span><strong>Previous School:</strong> <?= e($app['previous_school']??'—') ?></span>
-                <span><strong>Last Grade:</strong> <?= e($app['last_grade_completed']??'—') ?></span>
-                <span><strong>Guardian:</strong> <?= e($app['guardian_name'].' ('.$app['guardian_relationship'].')') ?></span>
-                <span><strong>G. Phone:</strong> <?= e($app['guardian_phone']) ?></span>
-                <?php if (!empty($app['entrance_exam_date'])): ?>
-                <span><strong>Exam Date:</strong> <?= e($app['entrance_exam_date']) ?></span>
-                <span><strong>Exam Time:</strong> <?= e($app['entrance_exam_time'] ?? '—') ?></span>
-                <?php endif; ?>
-                <?php if (!empty($app['entrance_letter_ref'])): ?>
-                <span><strong>Letter Ref:</strong> <?= e($app['entrance_letter_ref']) ?></span>
-                <?php endif; ?>
-              </div>
-              <?php if (!empty($app['internal_notes'])): ?>
-              <div style="margin-top:8px;padding:8px;background:var(--warning-soft);border-radius:4px;font-size:12px"><strong>Notes:</strong> <?= e($app['internal_notes']) ?></div>
+              <a href="<?= BASE_URL ?>/letters/entrance_letter.php?id=<?= $app['id'] ?>"
+                 class="filter-button button-sm" target="_blank"
+                 style="color:#6366f1;border-color:#6366f1">
+                📄 Letter
+              </a>
               <?php endif; ?>
 
-              <!-- Schedule exam date inline -->
+              <!-- Schedule exam (if approved) -->
               <?php if ($app['status']==='Approved for entrance'): ?>
-              <form method="post" style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-                <?= csrfField() ?>
-                <input type="hidden" name="action" value="set_exam_date"/>
-                <input type="hidden" name="app_id" value="<?= $app['id'] ?>"/>
-                <input type="date" name="exam_date" class="filter-button" style="padding:5px 10px" value="<?= e($app['entrance_exam_date'] ?? '') ?>"/>
-                <input type="time" name="exam_time" class="filter-button" style="padding:5px 10px" value="<?= e($app['entrance_exam_time'] ?? '') ?>"/>
-                <button type="submit" class="button button-primary button-sm">Save Date</button>
-              </form>
+              <button class="filter-button button-sm" style="color:#6366f1"
+                      onclick="document.getElementById('examForm<?= $app['id'] ?>').style.display=document.getElementById('examForm<?= $app['id'] ?>').style.display==='none'?'flex':'none'">
+                🗓 Set Date
+              </button>
               <?php endif; ?>
             </div>
+
+            <!-- Exam date inline form (collapsed) -->
+            <?php if ($app['status']==='Approved for entrance'): ?>
+            <form id="examForm<?= $app['id'] ?>" method="post"
+                  style="display:none;margin-top:8px;gap:8px;align-items:center;flex-wrap:wrap;
+                         padding:10px;background:var(--bg);border-radius:var(--radius-sm);border:1px solid var(--line)">
+              <?= csrfField() ?>
+              <input type="hidden" name="action" value="set_exam_date"/>
+              <input type="hidden" name="app_id" value="<?= $app['id'] ?>"/>
+              <label style="font-size:12px;font-weight:600">Date
+                <input type="date" name="exam_date" class="filter-button" style="padding:5px 10px;margin-top:2px" value="<?= e($app['entrance_exam_date'] ?? '') ?>"/>
+              </label>
+              <label style="font-size:12px;font-weight:600">Time
+                <input type="time" name="exam_time" class="filter-button" style="padding:5px 10px;margin-top:2px" value="<?= e($app['entrance_exam_time'] ?? '') ?>"/>
+              </label>
+              <button type="submit" class="button button-primary button-sm" style="align-self:flex-end">Save</button>
+            </form>
+            <?php endif; ?>
           </td>
         </tr>
         <?php endforeach; ?>
@@ -233,5 +279,196 @@ try {
   </div>
   <?php endif; ?>
 </div>
+
+<!-- ══ APPLICATION MODAL ══════════════════════════════════ -->
+<div id="appModal" style="
+    display:none;position:fixed;inset:0;z-index:9999;
+    background:rgba(10,10,20,.8);
+    align-items:center;justify-content:center;padding:16px">
+  <div style="
+      background:var(--surface);border-radius:12px;
+      width:100%;max-width:720px;max-height:92vh;
+      display:flex;flex-direction:column;
+      box-shadow:0 24px 80px rgba(0,0,0,.5);overflow:hidden">
+
+    <!-- Header -->
+    <div style="background:#1a2744;padding:16px 20px;display:flex;align-items:center;gap:14px;flex-shrink:0">
+      <div id="appModalAvatar"
+           style="width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.15);
+                  color:#fff;font-size:15px;font-weight:800;display:flex;align-items:center;
+                  justify-content:center;flex-shrink:0">
+      </div>
+      <div style="flex:1;min-width:0">
+        <div id="appModalName" style="font-size:16px;font-weight:800;color:#fff"></div>
+        <div id="appModalSub"  style="font-size:11.5px;color:rgba(255,255,255,.55);margin-top:2px"></div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0">
+        <span id="appModalStatus"></span>
+        <button onclick="closeAppModal()"
+                style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);
+                       border-radius:6px;color:#fff;font-size:18px;cursor:pointer;
+                       width:32px;height:32px;display:flex;align-items:center;justify-content:center"
+                title="Close (Esc)">✕</button>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div style="display:flex;background:#f4f5f8;border-bottom:2px solid var(--line);flex-shrink:0">
+      <button id="appTab1" onclick="switchAppTab(1)"
+              style="padding:10px 20px;font-size:13px;font-weight:700;border:none;cursor:pointer;
+                     border-bottom:3px solid var(--primary);color:var(--primary);background:none">
+        👤 Personal
+      </button>
+      <button id="appTab2" onclick="switchAppTab(2)"
+              style="padding:10px 20px;font-size:13px;font-weight:700;border:none;cursor:pointer;
+                     border-bottom:3px solid transparent;color:var(--ink-soft);background:none">
+        👨‍👩‍👧 Guardian
+      </button>
+      <button id="appTab3" onclick="switchAppTab(3)"
+              style="padding:10px 20px;font-size:13px;font-weight:700;border:none;cursor:pointer;
+                     border-bottom:3px solid transparent;color:var(--ink-soft);background:none">
+        🎓 Academic
+      </button>
+      <button id="appTab4" onclick="switchAppTab(4)"
+              style="padding:10px 20px;font-size:13px;font-weight:700;border:none;cursor:pointer;
+                     border-bottom:3px solid transparent;color:var(--ink-soft);background:none">
+        📋 Exam & Notes
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div style="flex:1;overflow-y:auto;padding:20px 24px">
+
+      <!-- Pane 1: Personal -->
+      <div id="appPane1">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <?php
+          $appFields1 = [
+            ['Full Name','name'],['Application #','app_number'],
+            ['Date of Birth','dob'],['Gender','gender'],
+            ['Phone','phone'],['Email','email'],
+            ['County','county'],['District','district'],
+            ['Community','community'],['Academic Year','ay'],
+          ];
+          foreach ($appFields1 as [$lbl,$key]): ?>
+          <div style="background:var(--bg);border-radius:8px;padding:12px 14px;border:1px solid var(--line)">
+            <div style="font-size:10.5px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px"><?= $lbl ?></div>
+            <div style="font-size:13px;color:var(--ink);font-weight:600" data-field="<?= $key ?>">—</div>
+          </div>
+          <?php endforeach; ?>
+        </div>
+      </div>
+
+      <!-- Pane 2: Guardian -->
+      <div id="appPane2" style="display:none">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <?php
+          $appFields2 = [
+            ['Guardian Name','guardian_name'],['Relationship','guardian_rel'],
+            ['Guardian Phone','guardian_phone'],['Guardian Email','guardian_email'],
+          ];
+          foreach ($appFields2 as [$lbl,$key]): ?>
+          <div style="background:var(--bg);border-radius:8px;padding:12px 14px;border:1px solid var(--line)">
+            <div style="font-size:10.5px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px"><?= $lbl ?></div>
+            <div style="font-size:13px;color:var(--ink);font-weight:600" data-field="<?= $key ?>">—</div>
+          </div>
+          <?php endforeach; ?>
+        </div>
+      </div>
+
+      <!-- Pane 3: Academic -->
+      <div id="appPane3" style="display:none">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <?php
+          $appFields3 = [
+            ['Grade Applying For','grade'],['Previous School','prev_school'],
+            ['Last Grade Completed','last_grade'],['Document Status','doc_status'],
+            ['Date Submitted','submitted'],['Status','status'],
+          ];
+          foreach ($appFields3 as [$lbl,$key]): ?>
+          <div style="background:var(--bg);border-radius:8px;padding:12px 14px;border:1px solid var(--line)">
+            <div style="font-size:10.5px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px"><?= $lbl ?></div>
+            <div style="font-size:13px;color:var(--ink);font-weight:600" data-field="<?= $key ?>">—</div>
+          </div>
+          <?php endforeach; ?>
+        </div>
+      </div>
+
+      <!-- Pane 4: Exam & Notes -->
+      <div id="appPane4" style="display:none">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <?php
+          $appFields4 = [
+            ['Exam Date','exam_date'],['Exam Time','exam_time'],
+            ['Entrance Letter Ref','letter_ref'],
+          ];
+          foreach ($appFields4 as [$lbl,$key]): ?>
+          <div style="background:var(--bg);border-radius:8px;padding:12px 14px;border:1px solid var(--line)">
+            <div style="font-size:10.5px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px"><?= $lbl ?></div>
+            <div style="font-size:13px;color:var(--ink);font-weight:600" data-field="<?= $key ?>">—</div>
+          </div>
+          <?php endforeach; ?>
+        </div>
+        <div id="appModalNotes" style="display:none;margin-top:14px;padding:14px;background:#fffbeb;border:1px solid #f59e0b;border-radius:8px;font-size:13px">
+          <strong>Internal Notes:</strong>
+          <div id="appModalNotesText" style="margin-top:4px;color:var(--ink)"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="padding:12px 20px;background:#f4f5f8;border-top:1px solid var(--line);
+                display:flex;justify-content:space-between;align-items:center;flex-shrink:0;font-size:12px;color:var(--ink-soft)">
+      <span>KARN HIGH SCHOOL — Admissions</span>
+      <button onclick="closeAppModal()"
+              class="button button-secondary button-sm">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var _appData = null;
+function openAppModal(d) {
+  _appData = d;
+  // Header
+  document.getElementById('appModalAvatar').textContent = d.ini;
+  document.getElementById('appModalName').textContent   = d.name;
+  document.getElementById('appModalSub').textContent    = d.app_number + '  ·  ' + d.grade + '  ·  Submitted ' + d.submitted;
+  document.getElementById('appModalStatus').innerHTML   =
+    '<span style="padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(255,255,255,.15);color:#fff">'+ d.status +'</span>';
+  // Fill all data-field cells
+  document.querySelectorAll('#appModal [data-field]').forEach(function(el) {
+    el.textContent = d[el.dataset.field] || '—';
+  });
+  // Notes
+  var notesWrap = document.getElementById('appModalNotes');
+  var notesText = document.getElementById('appModalNotesText');
+  if (d.internal_notes) {
+    notesText.textContent = d.internal_notes;
+    notesWrap.style.display = 'block';
+  } else {
+    notesWrap.style.display = 'none';
+  }
+  switchAppTab(1);
+  document.getElementById('appModal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeAppModal() {
+  document.getElementById('appModal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+function switchAppTab(n) {
+  for (var i=1; i<=4; i++) {
+    var btn  = document.getElementById('appTab'+i);
+    var pane = document.getElementById('appPane'+i);
+    var active = i === n;
+    btn.style.borderBottomColor = active ? 'var(--primary)' : 'transparent';
+    btn.style.color = active ? 'var(--primary)' : 'var(--ink-soft)';
+    pane.style.display = active ? 'block' : 'none';
+  }
+}
+document.getElementById('appModal').addEventListener('click', function(e){ if(e.target===this) closeAppModal(); });
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAppModal(); });
+</script>
 
 <?php require_once dirname(__DIR__).'/includes/admin_footer.php'; ?>

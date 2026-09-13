@@ -201,6 +201,28 @@ require_once dirname(__DIR__).'/includes/admin_header.php';
                  class="filter-button button-sm" title="Documents">📄 Docs</a>
               <a href="<?= BASE_URL ?>/admin/registrar_records.php?student_id=<?= $st['id'] ?>"
                  class="filter-button button-sm" title="Records">📊 Records</a>
+              <button class="filter-button button-sm"
+                      style="background:#1a2744;color:#fff;border-color:#1a2744"
+                      onclick="openStudentModal(<?= htmlspecialchars(json_encode([
+                        'id'             => $st['id'],
+                        'ini'            => $ini,
+                        'name'           => $st['first_name'].' '.($st['middle_name']??'').' '.$st['last_name'],
+                        'student_id'     => $st['student_id'],
+                        'admission_no'   => $st['admission_number'] ?? '—',
+                        'grade'          => $st['grade_name'] ?? '—',
+                        'class'          => $st['class_name'] ?? '—',
+                        'gender'         => $st['gender']    ?? '—',
+                        'dob'            => $st['date_of_birth'] ?? '—',
+                        'phone'          => $st['phone']     ?? '—',
+                        'email'          => $st['email']     ?? '—',
+                        'county'         => $st['county']    ?? '—',
+                        'address'        => $st['current_address'] ?? ($st['address'] ?? '—'),
+                        'nationality'    => $st['nationality'] ?? '—',
+                        'status'         => $st['status'],
+                        'admission_date' => $st['admission_date'] ?? '—',
+                      ]), ENT_QUOTES) ?>)">
+                👁 View
+              </button>
             </div>
           </td>
           <?php endif; ?>
@@ -261,5 +283,104 @@ require_once dirname(__DIR__).'/includes/admin_header.php';
   </div>
 </div>
 <?php endif; ?>
+
+<!-- ══ STUDENT VIEW MODAL ══════════════════════════════════ -->
+<div id="studentModal" style="
+    display:none;position:fixed;inset:0;z-index:9999;
+    background:rgba(10,10,20,.8);
+    align-items:center;justify-content:center;padding:16px">
+  <div style="
+      background:var(--surface);border-radius:12px;
+      width:100%;max-width:580px;max-height:88vh;
+      display:flex;flex-direction:column;
+      box-shadow:0 24px 80px rgba(0,0,0,.5);overflow:hidden">
+
+    <!-- Header -->
+    <div style="background:#1a2744;padding:16px 20px;display:flex;align-items:center;gap:14px;flex-shrink:0">
+      <div id="sMAvatar"
+           style="width:46px;height:46px;border-radius:50%;background:var(--primary);
+                  color:#fff;font-size:16px;font-weight:800;display:flex;align-items:center;
+                  justify-content:center;flex-shrink:0"></div>
+      <div style="flex:1;min-width:0">
+        <div id="sMName" style="font-size:16px;font-weight:800;color:#fff"></div>
+        <div id="sMSub"  style="font-size:11.5px;color:rgba(255,255,255,.55);margin-top:2px"></div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0;align-items:center">
+        <span id="sMStatus"></span>
+        <button onclick="document.getElementById('studentModal').style.display='none';document.body.style.overflow=''"
+                style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);
+                       border-radius:6px;color:#fff;font-size:18px;cursor:pointer;
+                       width:32px;height:32px;display:flex;align-items:center;justify-content:center">✕</button>
+      </div>
+    </div>
+
+    <!-- Body: 2-column info grid -->
+    <div style="flex:1;overflow-y:auto;padding:20px 24px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px" id="sMGrid"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)">
+        <a id="sMDocsLink"    href="#" class="button button-secondary button-sm">📄 Documents</a>
+        <a id="sMRecordsLink" href="#" class="button button-secondary button-sm">📊 Academic Records</a>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="padding:10px 20px;background:#f4f5f8;border-top:1px solid var(--line);
+                display:flex;justify-content:flex-end;flex-shrink:0">
+      <button onclick="document.getElementById('studentModal').style.display='none';document.body.style.overflow=''"
+              class="button button-secondary button-sm">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function openStudentModal(d) {
+  document.getElementById('sMAvatar').textContent = d.ini;
+  document.getElementById('sMName').textContent   = d.name.trim();
+  document.getElementById('sMSub').textContent    = d.student_id + '  ·  ' + d.grade + (d.class && d.class!=='—' ? ' / '+d.class : '');
+  document.getElementById('sMStatus').innerHTML   =
+    '<span style="padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(255,255,255,.15);color:#fff">'+d.status+'</span>';
+
+  var base = '<?= BASE_URL ?>';
+  document.getElementById('sMDocsLink').href    = base+'/admin/documents.php?student_id=' + (d.id||'');
+  document.getElementById('sMRecordsLink').href = base+'/admin/registrar_records.php?student_id=' + (d.id||'');
+
+  var fields = [
+    ['Student ID',      d.student_id],
+    ['Admission #',     d.admission_no],
+    ['Gender',          d.gender],
+    ['Date of Birth',   d.dob],
+    ['Grade',           d.grade],
+    ['Class',           d.class],
+    ['Phone',           d.phone],
+    ['Email',           d.email],
+    ['County',          d.county],
+    ['Nationality',     d.nationality],
+    ['Address',         d.address],
+    ['Admission Date',  d.admission_date],
+  ];
+  var grid = document.getElementById('sMGrid');
+  grid.innerHTML = '';
+  fields.forEach(function(f) {
+    var card = document.createElement('div');
+    card.style.cssText = 'background:var(--bg);border-radius:8px;padding:11px 13px;border:1px solid var(--line)';
+    card.innerHTML =
+      '<div style="font-size:10px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">'+f[0]+'</div>'+
+      '<div style="font-size:13px;font-weight:600;color:var(--ink)">'+(f[1]||'—')+'</div>';
+    grid.appendChild(card);
+  });
+
+  document.getElementById('studentModal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+document.getElementById('studentModal').addEventListener('click', function(e){
+  if(e.target===this){ this.style.display='none'; document.body.style.overflow=''; }
+});
+document.addEventListener('keydown', function(e){
+  if(e.key==='Escape'){
+    var m=document.getElementById('studentModal');
+    if(m&&m.style.display==='flex'){m.style.display='none';document.body.style.overflow='';}
+  }
+});
+</script>
 
 <?php require_once dirname(__DIR__).'/includes/admin_footer.php'; ?>

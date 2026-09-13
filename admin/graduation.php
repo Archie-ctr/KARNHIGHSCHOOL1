@@ -215,44 +215,76 @@ $statusColor = ['eligible'=>'new-s','approved'=>'approved','graduated'=>'approve
         <td class="muted" style="font-size:12px"><?= e($r['certificate_no'] ?? '—') ?></td>
         <td>
           <?php if ($canApprove): ?>
-          <div style="display:flex;gap:5px;flex-wrap:wrap">
+          <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center">
             <?php if ($r['status'] === 'eligible'): ?>
             <form method="post" style="display:inline">
               <?= csrfField() ?><input type="hidden" name="action" value="approve_student"/>
               <input type="hidden" name="student_id" value="<?= $r['student_id'] ?>"/>
               <input type="hidden" name="tab" value="list"/>
-              <button type="submit" class="filter-button button-sm" style="color:var(--green)">✓ Approve</button>
+              <button type="submit" class="filter-button button-sm"
+                      style="color:var(--green);border-color:var(--green);font-weight:700">
+                ✓ Approve
+              </button>
             </form>
-            <button class="filter-button button-sm" style="color:var(--error)"
-              onclick="document.getElementById('withholdModal<?= $r['student_id'] ?>').style.display='flex'">✗ Withhold</button>
+            <button class="filter-button button-sm"
+                    style="color:var(--error);border-color:var(--error);font-weight:700"
+                    onclick="document.getElementById('withholdModal<?= $r['student_id'] ?>').style.display='flex'">
+              ✗ Withhold
+            </button>
             <?php elseif ($r['status'] === 'approved'): ?>
             <form method="post" style="display:inline">
               <?= csrfField() ?><input type="hidden" name="action" value="graduate_student"/>
               <input type="hidden" name="student_id" value="<?= $r['student_id'] ?>"/>
               <input type="hidden" name="tab" value="list"/>
-              <button type="submit" class="filter-button button-sm" style="color:var(--primary)">🏅 Graduate</button>
+              <button type="submit" class="filter-button button-sm"
+                      style="color:var(--primary);border-color:var(--primary);font-weight:700">
+                🏅 Graduate
+              </button>
             </form>
-            <a href="<?= BASE_URL ?>/letters/graduation_cert.php?student_id=<?= $r['student_id'] ?>&ay_id=<?= $ayId ?>"
-               class="filter-button button-sm" target="_blank">📜 Certificate</a>
+            <a href="<?= BASE_URL ?>/letters/diploma_pdf.php?student_id=<?= $r['student_id'] ?>&ay_id=<?= $ayId ?>"
+               class="filter-button button-sm"
+               style="color:#6366f1;border-color:#6366f1;font-weight:700"
+               target="_blank">📜 Diploma</a>
             <?php elseif ($r['status'] === 'graduated'): ?>
-            <a href="<?= BASE_URL ?>/letters/graduation_cert.php?student_id=<?= $r['student_id'] ?>&ay_id=<?= $ayId ?>"
-               class="filter-button button-sm" target="_blank">📜 Certificate</a>
+            <a href="<?= BASE_URL ?>/letters/diploma_pdf.php?student_id=<?= $r['student_id'] ?>&ay_id=<?= $ayId ?>"
+               class="filter-button button-sm"
+               style="color:#6366f1;border-color:#6366f1;font-weight:700"
+               target="_blank">📜 Diploma</a>
+            <?php elseif ($r['status'] === 'withheld'): ?>
+            <span style="font-size:11px;color:var(--error);font-style:italic">Withheld</span>
             <?php endif; ?>
           </div>
 
           <!-- Withhold modal per student -->
-          <div id="withholdModal<?= $r['student_id'] ?>" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;padding:20px">
-            <div style="background:#fff;border-radius:var(--radius-lg);max-width:420px;width:100%;padding:28px;box-shadow:var(--shadow-lg)">
-              <h3 style="margin-bottom:8px">Withhold Graduation</h3>
-              <p style="font-size:13px;color:var(--ink-soft);margin-bottom:16px">Provide a reason for withholding graduation for <strong><?= $name ?></strong>.</p>
+          <div id="withholdModal<?= $r['student_id'] ?>"
+               style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);
+                      z-index:200;align-items:center;justify-content:center;padding:20px">
+            <div style="background:var(--surface);border-radius:12px;max-width:420px;
+                        width:100%;padding:28px;box-shadow:0 12px 40px rgba(0,0,0,.3)">
+              <h3 style="margin-bottom:8px;font-size:16px">⚠️ Withhold Graduation</h3>
+              <p style="font-size:13px;color:var(--ink-soft);margin-bottom:16px">
+                Provide a reason for withholding graduation for
+                <strong><?= $name ?></strong>.
+              </p>
               <form method="post">
-                <?= csrfField() ?><input type="hidden" name="action" value="withhold"/>
+                <?= csrfField() ?>
+                <input type="hidden" name="action" value="withhold"/>
                 <input type="hidden" name="student_id" value="<?= $r['student_id'] ?>"/>
                 <input type="hidden" name="tab" value="list"/>
-                <textarea name="notes" rows="3" placeholder="Reason (required)" required style="width:100%;padding:10px;border:1.5px solid var(--line);border-radius:var(--radius-sm);font-family:inherit;font-size:13px;margin-bottom:12px"></textarea>
+                <textarea name="notes" rows="3" required
+                          placeholder="Reason (required)"
+                          style="width:100%;padding:10px;border:1.5px solid var(--line);
+                                 border-radius:8px;font-family:inherit;font-size:13px;
+                                 margin-bottom:12px;resize:vertical"></textarea>
                 <div style="display:flex;gap:8px;justify-content:flex-end">
-                  <button type="button" onclick="document.getElementById('withholdModal<?= $r['student_id'] ?>').style.display='none'" class="button button-secondary">Cancel</button>
-                  <button type="submit" class="button" style="background:var(--error);color:#fff">Withhold</button>
+                  <button type="button"
+                          onclick="document.getElementById('withholdModal<?= $r['student_id'] ?>').style.display='none'"
+                          class="button button-secondary button-sm">Cancel</button>
+                  <button type="submit"
+                          class="button button-sm"
+                          style="background:var(--error);color:#fff;border:none">
+                    ✗ Withhold
+                  </button>
                 </div>
               </form>
             </div>

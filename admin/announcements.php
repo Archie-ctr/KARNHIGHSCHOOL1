@@ -402,25 +402,38 @@ $priLabel = ['urgent'=>'🚨 Urgent','high'=>'⚠️ High','normal'=>'📢 Norma
       <!-- Expiry + Public -->
       <div class="form-row" style="margin-bottom:16px">
         <div class="form-group">
-          <label style="font-weight:700;font-size:13px">Expiry Date (optional)
+          <label style="font-weight:700;font-size:13px">Expiry Date
+            <span style="font-weight:400;color:var(--ink-faint)">(optional)</span>
             <input type="date" name="expires_at" style="margin-top:4px"
                    min="<?= date('Y-m-d') ?>"/>
           </label>
         </div>
-        <div class="form-group" style="justify-content:flex-end">
-          <label style="flex-direction:row;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin-top:20px">
-            <input type="checkbox" name="is_public" value="1"/>
+        <div class="form-group">
+          <div style="font-weight:700;font-size:13px;margin-bottom:8px">Visibility</div>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;
+                        padding:8px 10px;border:1.5px solid var(--line);border-radius:7px;background:var(--bg)">
+            <input type="checkbox" name="is_public" value="1" style="width:16px;height:16px"/>
             🌐 Show on public website
           </label>
         </div>
       </div>
 
-      <!-- Publish options -->
-      <div style="background:var(--bg);border-radius:8px;padding:12px 14px;margin-bottom:16px">
-        <div style="font-size:12px;font-weight:700;color:var(--ink-soft);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em">Publication</div>
-        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
-          <input type="checkbox" name="publish_now" value="1" checked/>
-          Publish immediately (uncheck to save as draft)
+      <!-- Publication -->
+      <div style="background:#f0f9ff;border:1.5px solid #bae6fd;border-radius:8px;
+                  padding:14px 16px;margin-bottom:18px">
+        <div style="font-size:11.5px;font-weight:800;color:#0369a1;
+                    text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">
+          📅 Publication Setting
+        </div>
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
+          <input type="checkbox" name="publish_now" value="1" checked
+                 style="width:16px;height:16px;margin-top:2px;flex-shrink:0"/>
+          <span style="font-size:13px;color:#0c4a6e;line-height:1.5">
+            <strong>Publish immediately</strong><br>
+            <span style="font-size:12px;color:#0369a1;font-weight:400">
+              Uncheck to save as draft and publish later
+            </span>
+          </span>
         </label>
       </div>
 

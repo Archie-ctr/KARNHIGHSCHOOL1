@@ -405,16 +405,26 @@ $docTypes = ['report_card'=>'📋 Report Card','birth_certificate'=>'📄 Birth 
         <td class="muted"><?= e($s['grade_name'] ?? '—') ?></td>
         <td><span class="status <?= $s['status']==='Active'?'approved':($s['status']==='Graduated'?'approved':'warning') ?>"><?= e($s['status']) ?></span></td>
         <td>
-          <a href="?student_id=<?= $s['id'] ?>&tab=history" class="filter-button button-sm">📊 Records</a>
-          <a href="?student_id=<?= $s['id'] ?>&tab=documents" class="filter-button button-sm">📄 Docs</a>
-          <a href="<?= BASE_URL ?>/letters/transcript_pdf.php?student_id=<?= $s['id'] ?>" class="filter-button button-sm" target="_blank">📜 Transcript</a>
-          <a href="<?= BASE_URL ?>/letters/recommendation_letter.php?student_id=<?= $s['id'] ?>" class="filter-button button-sm" target="_blank">✉️ Rec. Letter</a>
-          <?php if (in_array((int)($s['current_grade_id']??0),[4,7,10,13])): ?>
-          <a href="<?= BASE_URL ?>/letters/wassce_clearance.php?student_id=<?= $s['id'] ?>" class="filter-button button-sm" target="_blank">📋 Clearance</a>
-          <?php endif; ?>
-          <?php if ((int)($s['current_grade_id']??0)===13): ?>
-          <a href="<?= BASE_URL ?>/letters/diploma_pdf.php?student_id=<?= $s['id'] ?>" class="filter-button button-sm" target="_blank">🎓 Diploma</a>
-          <?php endif; ?>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center">
+            <a href="?student_id=<?= $s['id'] ?>&tab=history" class="filter-button button-sm"
+               style="background:#1a2744;color:#fff;border-color:#1a2744;font-weight:700">👁 View</a>
+            <a href="?student_id=<?= $s['id'] ?>&tab=documents" class="filter-button button-sm">📄 Docs</a>
+            <a href="<?= BASE_URL ?>/letters/transcript_pdf.php?student_id=<?= $s['id'] ?>"
+               class="filter-button button-sm" target="_blank"
+               style="color:#6366f1;border-color:#6366f1">📜 Transcript</a>
+            <a href="<?= BASE_URL ?>/letters/recommendation_letter.php?student_id=<?= $s['id'] ?>"
+               class="filter-button button-sm" target="_blank">✉️ Rec.</a>
+            <?php if (in_array((int)($s['current_grade_id']??0),[4,7,10,13])): ?>
+            <a href="<?= BASE_URL ?>/letters/wassce_clearance.php?student_id=<?= $s['id'] ?>"
+               class="filter-button button-sm" target="_blank"
+               style="color:var(--green);border-color:var(--green)">📋 Clearance</a>
+            <?php endif; ?>
+            <?php if ((int)($s['current_grade_id']??0)===13): ?>
+            <a href="<?= BASE_URL ?>/letters/diploma_pdf.php?student_id=<?= $s['id'] ?>"
+               class="filter-button button-sm" target="_blank"
+               style="color:#d97706;border-color:#d97706">🎓 Diploma</a>
+            <?php endif; ?>
+          </div>
         </td>
       </tr>
       <?php endforeach; ?>
