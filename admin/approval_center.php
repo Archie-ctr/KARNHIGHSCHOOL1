@@ -47,6 +47,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    // ── Direct discipline resolve ─────────────────────────────
+    elseif ($action === 'approve' && isset($_POST['discipline_id'])) {
+        $discId = (int)($_POST['discipline_id'] ?? 0);
+        if ($discId) {
+            $pdo->prepare("UPDATE discipline_records SET resolved=1,updated_at=NOW() WHERE id=?")->execute([$discId]);
+            auditLog('resolve','discipline','discipline_record',$discId,'unresolved','resolved');
+            flash('success','Discipline case resolved.');
+        }
+    }
+
     // ── Marks group approval/return ────────────────────────────
     elseif (in_array($action, ['approve_marks_group','return_marks_group'], true)) {
         $classId  = (int)($_POST['class_id']  ?? 0);
@@ -617,10 +627,8 @@ function openApprovalModal(ctx, actionType) {
   } else if (ctx.type === 'discipline') {
     document.getElementById('aModalAction').value        = 'approve';
     document.getElementById('aModalDisciplineId').value  = ctx.discipline_id;
-    // Use req_id for discipline: POST handler uses req_id
-    // Actually discipline uses a direct resolve — override action
-    document.getElementById('aModalAction').value = 'approve';
-    document.getElementById('aModalReqId').value  = '';
+    document.getElementById('aModalReqId').value         = '';
+    // discipline only supports resolve (approve) — hide return/reject labels
   } else {
     // General request
     document.getElementById('aModalAction').value  = actionType;

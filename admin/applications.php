@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $pageTitle   = 'Applications';
 $activeAdmin = 'applications';
 require_once dirname(__DIR__).'/includes/admin_header.php';
-requireRole(['principal','registrar','academic_dean','super_admin','vice_principal']);
+requirePermission('admissions.view');
 
 $pdo = db();
 // ── Filters ───────────────────────────────────────────────────
