@@ -290,6 +290,11 @@ function fmtBytes(int $bytes): string {
            data-url="<?= e($fileUrl) ?>"
            data-name="<?= e($d['file_name']) ?>"
            data-type="<?= $isImg ? 'image' : ($isPdf ? 'pdf' : 'other') ?>"
+           data-label="<?= e($docLabel) ?>"
+           data-icon="<?= e($dIcon) ?>"
+           data-size="<?= $d['file_size'] ? e(fmtBytes((int)$d['file_size'])) : '—' ?>"
+           data-date="<?= e(date('d M Y H:i', strtotime($d['created_at']))) ?>"
+           data-uploader="<?= e($d['uploaded_by_name'] ?? '—') ?>"
            class="doc-view-btn">
         <?php if ($isImg): ?>
           <img src="<?= $fileUrl ?>"
@@ -349,6 +354,11 @@ function fmtBytes(int $bytes): string {
            data-url="<?= e($fileUrl) ?>"
            data-name="<?= e($d['file_name']) ?>"
            data-type="<?= $isImg ? 'image' : ($isPdf ? 'pdf' : 'other') ?>"
+           data-label="<?= e($docLabel) ?>"
+           data-icon="<?= e($dIcon) ?>"
+           data-size="<?= $d['file_size'] ? e(fmtBytes((int)$d['file_size'])) : '—' ?>"
+           data-date="<?= e(date('d M Y H:i', strtotime($d['created_at']))) ?>"
+           data-uploader="<?= e($d['uploaded_by_name'] ?? '—') ?>"
            class="doc-view-btn"
            style="flex:1;padding:9px;text-align:center;font-size:12px;font-weight:600;
                   color:var(--primary);text-decoration:none;border-right:1px solid var(--line);
@@ -409,76 +419,138 @@ function fmtBytes(int $bytes): string {
 <?php endif; ?>
 
 <script>
-// ── Document modal: delegate to all .doc-view-btn elements ────
-document.addEventListener('click', function(e) {
-  const btn = e.target.closest('.doc-view-btn');
-  if (!btn) return;
-  e.preventDefault();
-  const url  = btn.dataset.url;
-  const name = btn.dataset.name;
-  const type = btn.dataset.type || 'other';
-  if (url) openDocModal(url, name, type);
-});
+// ── Active tab tracker ────────────────────────────────────────
+let _currentDocTab = 'preview';
 
-function openDocModal(url, name, type) {
+function switchDocTab(tab) {
+  _currentDocTab = tab;
+  const tabs    = ['preview','details'];
+  const primary = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#6c3cff';
+
+  tabs.forEach(t => {
+    const btn  = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
+    const pane = document.getElementById('docPane' + t.charAt(0).toUpperCase() + t.slice(1));
+    if (!btn || !pane) return;
+    const active = t === tab;
+    btn.style.borderBottomColor = active ? (primary || '#6c3cff') : 'transparent';
+    btn.style.color = active ? (primary || '#6c3cff') : '#888';
+    pane.style.display = active ? 'flex' : 'none';
+  });
+}
+
+// ── Open modal ────────────────────────────────────────────────
+function openDocModal(d) {
   const modal = document.getElementById('docViewerModal');
-  const body  = document.getElementById('docModalBody');
-  if (!modal || !body) return;
+  if (!modal) return;
 
-  document.getElementById('docModalTitle').textContent = name || 'Document';
-  document.getElementById('docModalOpenBtn').href      = url;
-  document.getElementById('docModalDownloadBtn').href  = url;
-  if (name) document.getElementById('docModalDownloadBtn').setAttribute('download', name);
+  // Populate header
+  document.getElementById('docModalIcon').textContent  = d.icon  || '📄';
+  document.getElementById('docModalTitle').textContent = d.name  || 'Document';
+  document.getElementById('docModalMeta').textContent  = (d.label || '') + (d.size ? '  ·  ' + d.size : '');
+  document.getElementById('docModalOpenBtn').href      = d.url;
+  document.getElementById('docModalDownloadBtn').href  = d.url;
+  document.getElementById('docModalDownloadBtn').setAttribute('download', d.name || 'document');
+  document.getElementById('docModalFooterRight').textContent = d.date ? 'Uploaded ' + d.date + (d.uploader && d.uploader !== '—' ? '  by  ' + d.uploader : '') : '';
 
-  body.innerHTML = '';
+  // ── Preview pane ──────────────────────────────────────────
+  const preview = document.getElementById('docPanePreview');
+  preview.innerHTML = '';
 
-  if (type === 'image') {
-    const img = document.createElement('img');
-    img.src   = url;
-    img.alt   = name;
-    img.style.cssText = 'max-width:100%;max-height:78vh;object-fit:contain;display:block;margin:auto;padding:16px';
-    body.appendChild(img);
-  } else if (type === 'pdf') {
-    // Try embed first (better browser support than iframe for local files)
+  if (d.type === 'image') {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'padding:16px;display:flex;align-items:center;justify-content:center;width:100%';
+    const img  = document.createElement('img');
+    img.src    = d.url;
+    img.alt    = d.name;
+    img.style.cssText = 'max-width:100%;max-height:72vh;object-fit:contain;border-radius:6px;box-shadow:0 4px 20px rgba(0,0,0,.2)';
+    img.onerror = () => { wrap.innerHTML = '<div style="text-align:center;color:#888"><div style="font-size:52px;margin-bottom:12px">🖼️</div><div>Image could not be loaded.</div></div>'; };
+    wrap.appendChild(img);
+    preview.appendChild(wrap);
+
+  } else if (d.type === 'pdf') {
     const embed = document.createElement('embed');
-    embed.src   = url;
+    embed.src   = d.url + '#toolbar=1&navpanes=1&scrollbar=1';
     embed.type  = 'application/pdf';
-    embed.style.cssText = 'width:100%;height:76vh;display:block;border:none';
-    // Fallback link if embed doesn't render
+    embed.style.cssText = 'width:100%;height:72vh;border:none;display:block';
     const fallback = document.createElement('div');
-    fallback.style.cssText = 'padding:20px;text-align:center;font-size:13px;color:#666;margin-top:8px';
-    fallback.innerHTML = 'If the PDF doesn\'t display, <a href="'+url+'" target="_blank" style="color:var(--primary);font-weight:700">click here to open it</a>.';
-    body.appendChild(embed);
-    body.appendChild(fallback);
+    fallback.style.cssText = 'padding:16px;font-size:12px;color:#666;text-align:center;border-top:1px solid #ddd;background:#fafafa';
+    fallback.innerHTML = 'PDF not rendering? <a href="'+d.url+'" target="_blank" style="color:var(--primary);font-weight:700">Open in new tab ↗</a>';
+    preview.style.flexDirection = 'column';
+    preview.style.alignItems    = 'stretch';
+    preview.appendChild(embed);
+    preview.appendChild(fallback);
+
   } else {
-    body.innerHTML =
-      '<div style="padding:48px;text-align:center">' +
-        '<div style="font-size:52px;margin-bottom:16px">📄</div>' +
-        '<p style="margin-bottom:16px;color:#555">Preview not available for this file type.</p>' +
-        '<a href="'+url+'" target="_blank" ' +
-           'style="display:inline-block;padding:10px 24px;background:var(--primary);' +
-                  'color:#fff;border-radius:6px;font-weight:700;text-decoration:none">Open File →</a>' +
+    preview.innerHTML =
+      '<div style="text-align:center;padding:52px 24px">' +
+        '<div style="font-size:56px;margin-bottom:16px">📄</div>' +
+        '<p style="font-size:14px;color:#555;margin-bottom:20px">No preview available for this file type.</p>' +
+        '<a href="'+d.url+'" target="_blank" ' +
+           'style="display:inline-block;padding:10px 28px;background:#1a2744;' +
+                  'color:#fff;border-radius:8px;font-weight:700;text-decoration:none;font-size:13px">↗ Open File</a>' +
       '</div>';
   }
+
+  // ── Details pane ─────────────────────────────────────────
+  const tbody = document.getElementById('docDetailsTable');
+  tbody.innerHTML = '';
+  const rows = [
+    ['File Name',     d.name    || '—'],
+    ['Document Type', d.label   || '—'],
+    ['File Size',     d.size    || '—'],
+    ['Date Uploaded', d.date    || '—'],
+    ['Uploaded By',   d.uploader|| '—'],
+    ['File URL',      '<a href="'+d.url+'" target="_blank" style="color:var(--primary);word-break:break-all">'+d.url+'</a>'],
+  ];
+  rows.forEach(([label, value]) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td style="padding:10px 12px;font-weight:700;color:#555;white-space:nowrap;width:140px;' +
+           'border-bottom:1px solid #eee;vertical-align:top;font-size:12px">'+label+'</td>'+
+      '<td style="padding:10px 12px;color:#222;border-bottom:1px solid #eee;font-size:13px">'+value+'</td>';
+    tbody.appendChild(tr);
+  });
+
+  // Show preview tab by default
+  switchDocTab('preview');
 
   modal.style.display = 'flex';
   document.body.style.overflow = 'hidden';
 }
 
+// ── Close modal ───────────────────────────────────────────────
 function closeDocModal() {
   const modal = document.getElementById('docViewerModal');
   if (!modal) return;
   modal.style.display = 'none';
-  document.getElementById('docModalBody').innerHTML = '';
+  const preview = document.getElementById('docPanePreview');
+  if (preview) { preview.innerHTML = ''; preview.style.flexDirection = ''; preview.style.alignItems = ''; }
   document.body.style.overflow = '';
 }
 
-// Close modal on backdrop click
+// ── Event delegation for .doc-view-btn ───────────────────────
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.doc-view-btn');
+  if (!btn) return;
+  e.preventDefault();
+  openDocModal({
+    url:      btn.dataset.url      || '',
+    name:     btn.dataset.name     || 'Document',
+    type:     btn.dataset.type     || 'other',
+    label:    btn.dataset.label    || '',
+    icon:     btn.dataset.icon     || '📄',
+    size:     btn.dataset.size     || '',
+    date:     btn.dataset.date     || '',
+    uploader: btn.dataset.uploader || '',
+  });
+});
+
+// Close on backdrop click
 document.getElementById('docViewerModal')?.addEventListener('click', function(e) {
   if (e.target === this) closeDocModal();
 });
 
-// Close on Escape key
+// Close on Escape
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeDocModal();
 });
@@ -492,11 +564,9 @@ if (searchInput && select) {
     const q = this.value.toLowerCase();
     select.innerHTML = '';
     allOptions.forEach(opt => {
-      if (!q || opt.text.toLowerCase().includes(q)) {
-        select.appendChild(opt.cloneNode(true));
-      }
+      if (!q || opt.text.toLowerCase().includes(q)) select.appendChild(opt.cloneNode(true));
     });
-    if (select.options.length === 0) {
+    if (!select.options.length) {
       const empty = document.createElement('option');
       empty.text = 'No matches found';
       select.appendChild(empty);
@@ -516,26 +586,19 @@ function showFilePreview(files) {
 
   Array.from(files).forEach(file => {
     const ext  = file.name.split('.').pop().toLowerCase();
-    const icon = ext === 'pdf' ? '📕' : ['jpg','jpeg','png'].includes(ext) ? '🖼️' : '📄';
-    const size = file.size >= 1048576 ? (file.size/1048576).toFixed(1)+' MB'
-               : file.size >= 1024    ? (file.size/1024).toFixed(0)+' KB'
+    const icon = ext==='pdf' ? '📕' : ['jpg','jpeg','png'].includes(ext) ? '🖼️' : '📄';
+    const size = file.size>=1048576 ? (file.size/1048576).toFixed(1)+' MB'
+               : file.size>=1024    ? (file.size/1024).toFixed(0)+' KB'
                : file.size+' B';
-
     const item = document.createElement('div');
     item.style.cssText = 'display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px 12px;font-size:12px;max-width:280px';
-    item.innerHTML =
-      '<span style="font-size:20px">'+icon+'</span>'+
-      '<div style="min-width:0">'+
-        '<div style="font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:190px" title="'+file.name+'">'+file.name+'</div>'+
-        '<div style="color:var(--ink-faint)">'+size+'</div>'+
-      '</div>';
-
+    item.innerHTML = '<span style="font-size:20px">'+icon+'</span><div style="min-width:0"><div style="font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:190px" title="'+file.name+'">'+file.name+'</div><div style="color:var(--ink-faint)">'+size+'</div></div>';
     if (['jpg','jpeg','png'].includes(ext)) {
       const img = document.createElement('img');
       img.style.cssText = 'width:36px;height:36px;object-fit:cover;border-radius:4px;flex-shrink:0;order:-1';
-      const reader = new FileReader();
-      reader.onload = ev => { img.src = ev.target.result; };
-      reader.readAsDataURL(file);
+      const r = new FileReader();
+      r.onload = ev => { img.src = ev.target.result; };
+      r.readAsDataURL(file);
       item.prepend(img);
     }
     wrap.appendChild(item);
@@ -543,80 +606,154 @@ function showFilePreview(files) {
 
   const note = document.createElement('div');
   note.style.cssText = 'font-size:12px;color:var(--primary);font-weight:700;padding:4px 0 0';
-  note.textContent = files.length + ' file' + (files.length > 1 ? 's' : '') + ' selected — ready to upload';
-
+  note.textContent = files.length+' file'+(files.length>1?'s':'')+' selected — ready to upload';
   list.appendChild(wrap);
   list.appendChild(note);
 
   const btn = document.getElementById('uploadBtn');
-  if (btn) btn.textContent = '📤 Upload ' + files.length + ' file' + (files.length > 1 ? 's' : '');
+  if (btn) btn.textContent = '📤 Upload '+files.length+' file'+(files.length>1?'s':'');
 }
 
 // ── Drag-and-drop ─────────────────────────────────────────────
 function handleDrop(e) {
   e.preventDefault();
   const zone = document.getElementById('dropZone');
-  if (zone) { zone.style.borderColor = ''; zone.style.background = 'var(--primary-soft)'; }
+  if (zone) { zone.style.borderColor=''; zone.style.background='var(--primary-soft)'; }
   const dt = e.dataTransfer;
-  if (dt && dt.files.length > 0) {
-    const input = document.getElementById('fileInput');
-    if (input) { input.files = dt.files; showFilePreview(dt.files); }
+  if (dt && dt.files.length>0) {
+    const inp = document.getElementById('fileInput');
+    if (inp) { inp.files=dt.files; showFilePreview(dt.files); }
   }
 }
 
-// ── Upload form validation + spinner ─────────────────────────
+// ── Upload spinner ────────────────────────────────────────────
 document.getElementById('uploadForm')?.addEventListener('submit', function(e) {
   const files = document.getElementById('fileInput')?.files;
-  if (!files || files.length === 0) {
-    e.preventDefault();
-    alert('Please select at least one file to upload.');
-    return;
-  }
+  if (!files || files.length===0) { e.preventDefault(); alert('Please select at least one file.'); return; }
   const btn = document.getElementById('uploadBtn');
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ Uploading…'; }
+  if (btn) { btn.disabled=true; btn.textContent='⏳ Uploading…'; }
 });
 </script>
 
 <!-- ── Document Viewer Modal ── -->
 <div id="docViewerModal" style="
     display:none;position:fixed;inset:0;z-index:9999;
-    background:rgba(0,0,0,.78);
+    background:rgba(10,10,20,.82);
     align-items:center;justify-content:center;padding:16px;
 ">
   <div style="
-      background:#fff;border-radius:10px;
-      width:100%;max-width:920px;max-height:92vh;
+      background:var(--surface,#fff);
+      border-radius:12px;
+      width:100%;max-width:860px;
+      max-height:94vh;
       display:flex;flex-direction:column;
-      box-shadow:0 12px 48px rgba(0,0,0,.5);
-      overflow:hidden;position:relative;
+      box-shadow:0 24px 80px rgba(0,0,0,.6);
+      overflow:hidden;
   ">
-    <!-- Header -->
+
+    <!-- ── Top bar ── -->
     <div style="
-        display:flex;align-items:center;justify-content:space-between;
-        padding:14px 18px;border-bottom:1px solid var(--line);
-        background:var(--surface);flex-shrink:0;gap:10px;
+        display:flex;align-items:center;gap:10px;
+        padding:12px 16px;
+        background:#1a2744;
+        flex-shrink:0;
     ">
-      <div style="font-weight:700;font-size:14px;color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"
-           id="docModalTitle">Document</div>
+      <!-- File type icon -->
+      <span id="docModalIcon" style="font-size:22px;flex-shrink:0">📄</span>
+      <!-- File name + type -->
+      <div style="flex:1;min-width:0">
+        <div id="docModalTitle"
+             style="font-weight:700;font-size:13.5px;color:#fff;
+                    overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+          Document
+        </div>
+        <div id="docModalMeta"
+             style="font-size:10.5px;color:rgba(255,255,255,.5);margin-top:1px">
+        </div>
+      </div>
+      <!-- Action buttons -->
       <div style="display:flex;gap:6px;flex-shrink:0">
-        <a id="docModalOpenBtn" href="#" target="_blank"
-           class="button button-secondary button-sm">↗ New tab</a>
         <a id="docModalDownloadBtn" href="#" download
-           class="button button-secondary button-sm">⬇ Download</a>
+           style="display:inline-flex;align-items:center;gap:5px;
+                  padding:6px 13px;border-radius:6px;font-size:12px;font-weight:700;
+                  background:rgba(255,255,255,.12);color:#fff;
+                  text-decoration:none;transition:background .15s;border:1px solid rgba(255,255,255,.15)"
+           onmouseenter="this.style.background='rgba(255,255,255,.22)'"
+           onmouseleave="this.style.background='rgba(255,255,255,.12)'">
+          ⬇ Download
+        </a>
+        <a id="docModalOpenBtn" href="#" target="_blank"
+           style="display:inline-flex;align-items:center;gap:5px;
+                  padding:6px 13px;border-radius:6px;font-size:12px;font-weight:700;
+                  background:rgba(255,255,255,.12);color:#fff;
+                  text-decoration:none;transition:background .15s;border:1px solid rgba(255,255,255,.15)"
+           onmouseenter="this.style.background='rgba(255,255,255,.22)'"
+           onmouseleave="this.style.background='rgba(255,255,255,.12)'">
+          ↗ Open
+        </a>
         <button onclick="closeDocModal()"
-           style="background:none;border:1px solid var(--line);border-radius:6px;
-                  cursor:pointer;font-size:18px;color:var(--ink-soft);
-                  line-height:1;padding:4px 8px;transition:all .15s"
-           onmouseenter="this.style.background='var(--bg)'"
-           onmouseleave="this.style.background='none'"
-           title="Close (Esc)">✕</button>
+                style="display:inline-flex;align-items:center;justify-content:center;
+                       width:32px;height:32px;border-radius:6px;font-size:18px;
+                       background:rgba(255,255,255,.12);color:#fff;
+                       border:1px solid rgba(255,255,255,.15);cursor:pointer;
+                       transition:background .15s"
+                onmouseenter="this.style.background='rgba(220,50,50,.5)'"
+                onmouseleave="this.style.background='rgba(255,255,255,.12)'"
+                title="Close (Esc)">✕</button>
       </div>
     </div>
-    <!-- Body -->
-    <div id="docModalBody"
-         style="flex:1;overflow:auto;display:flex;align-items:center;
-                justify-content:center;background:#f0f0f0;min-height:420px">
+
+    <!-- ── Tab bar ── -->
+    <div style="
+        display:flex;gap:0;
+        background:#f4f5f8;
+        border-bottom:2px solid var(--line,#e5e7eb);
+        flex-shrink:0;
+    ">
+      <button id="tabPreview"
+              onclick="switchDocTab('preview')"
+              style="padding:10px 20px;font-size:13px;font-weight:700;
+                     border:none;background:none;cursor:pointer;
+                     border-bottom:3px solid var(--primary,#6c3cff);
+                     color:var(--primary,#6c3cff);transition:all .15s">
+        🔍 Preview
+      </button>
+      <button id="tabDetails"
+              onclick="switchDocTab('details')"
+              style="padding:10px 20px;font-size:13px;font-weight:700;
+                     border:none;background:none;cursor:pointer;
+                     border-bottom:3px solid transparent;
+                     color:var(--ink-soft,#888);transition:all .15s">
+        📋 Details
+      </button>
     </div>
+
+    <!-- ── Preview pane ── -->
+    <div id="docPanePreview"
+         style="flex:1;overflow:auto;display:flex;align-items:center;
+                justify-content:center;background:#e8e8e8;min-height:440px">
+    </div>
+
+    <!-- ── Details pane (hidden by default) ── -->
+    <div id="docPaneDetails" style="display:none;flex:1;overflow:auto;padding:24px;background:var(--surface,#fff)">
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <tbody id="docDetailsTable"></tbody>
+      </table>
+    </div>
+
+    <!-- ── Footer ── -->
+    <div style="
+        padding:9px 16px;
+        background:#f4f5f8;
+        border-top:1px solid var(--line,#e5e7eb);
+        display:flex;justify-content:space-between;align-items:center;
+        font-size:11.5px;color:var(--ink-soft,#888);
+        flex-shrink:0;
+    ">
+      <span id="docModalFooterLeft">KARN HIGH SCHOOL — Official Document</span>
+      <span id="docModalFooterRight"></span>
+    </div>
+
   </div>
 </div>
 
