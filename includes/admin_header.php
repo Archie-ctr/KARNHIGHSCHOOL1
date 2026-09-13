@@ -72,6 +72,7 @@ $sidebar = [
   'expenses'         => ['Expenses & Budget',  '💸', BASE_URL.'/admin/expenses.php',            'finance.view'],
   'student_transfers'=> ['Transfers & Withdrawals','➡️',BASE_URL.'/admin/student_transfers.php','students.view'],
   'graduation'       => ['Graduation',         '🎓', BASE_URL.'/admin/graduation.php',          'promotion.view'],
+  'wassce_clearance' => ['WASSCE Clearance',   '📋', BASE_URL.'/admin/wassce_clearance.php',    'admissions.recommend'],
   'executive_reports'=> ['Executive Reports',  '📈', BASE_URL.'/admin/executive_reports.php',   'reports.view'],
   'accounting'       => ['Accounting',         '📒', BASE_URL.'/admin/accounting.php',          'finance.view'],
   'finance_reports'  => ['Financial Reports',  '📊', BASE_URL.'/admin/finance_reports.php',     'finance.view'],
@@ -255,7 +256,7 @@ $sidebarAllowlist = [
     'finance',               // financial dashboard
     'expenses',              // expense & fee waiver approvals
     'graduation',            // graduation approval
-    'discipline',
+    'wassce_clearance',      // WASSCE/WACE clearance
     'library',
 
     // Communications
@@ -417,6 +418,7 @@ $sidebarAllowlist = [
     'student_transfers',     // transfers, withdrawals, re-enrollment
     'promotion',             // prepare promotion & graduation lists
     'graduation',            // graduation candidates & certificates
+    'wassce_clearance',      // WASSCE/WACE clearance management
 
     // Academics — view-only for enrollment placement context
     '_sep_academics',
