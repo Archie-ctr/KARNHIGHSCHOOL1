@@ -286,7 +286,11 @@ function fmtBytes(int $bytes): string {
           display:flex;align-items:center;justify-content:center;
           border-bottom:1px solid var(--line);
           position:relative;overflow:hidden;cursor:pointer;
-      " onclick="window.open('<?= $fileUrl ?>','_blank')">
+      "
+           data-url="<?= e($fileUrl) ?>"
+           data-name="<?= e($d['file_name']) ?>"
+           data-type="<?= $isImg ? 'image' : ($isPdf ? 'pdf' : 'other') ?>"
+           class="doc-view-btn">
         <?php if ($isImg): ?>
           <img src="<?= $fileUrl ?>"
                alt="<?= e($d['file_name']) ?>"
@@ -341,11 +345,14 @@ function fmtBytes(int $bytes): string {
       <div style="
           display:flex;gap:0;border-top:1px solid var(--line);
       ">
-        <a href="<?= $fileUrl ?>" target="_blank"
+        <a href="<?= $fileUrl ?>"
+           data-url="<?= e($fileUrl) ?>"
+           data-name="<?= e($d['file_name']) ?>"
+           data-type="<?= $isImg ? 'image' : ($isPdf ? 'pdf' : 'other') ?>"
+           class="doc-view-btn"
            style="flex:1;padding:9px;text-align:center;font-size:12px;font-weight:600;
                   color:var(--primary);text-decoration:none;border-right:1px solid var(--line);
                   transition:background .15s"
-           onclick="<?= $isImg ? "openDocModal('".addslashes($fileUrl)."','".addslashes(e($d['file_name']))."','image');return false;" : ($isPdf ? "openDocModal('".addslashes($fileUrl)."','".addslashes(e($d['file_name']))."','pdf');return false;" : '') ?>"
            onmouseenter="this.style.background='var(--primary-soft)'"
            onmouseleave="this.style.background=''">
           👁 View
@@ -402,11 +409,85 @@ function fmtBytes(int $bytes): string {
 <?php endif; ?>
 
 <script>
+// ── Document modal: delegate to all .doc-view-btn elements ────
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.doc-view-btn');
+  if (!btn) return;
+  e.preventDefault();
+  const url  = btn.dataset.url;
+  const name = btn.dataset.name;
+  const type = btn.dataset.type || 'other';
+  if (url) openDocModal(url, name, type);
+});
+
+function openDocModal(url, name, type) {
+  const modal = document.getElementById('docViewerModal');
+  const body  = document.getElementById('docModalBody');
+  if (!modal || !body) return;
+
+  document.getElementById('docModalTitle').textContent = name || 'Document';
+  document.getElementById('docModalOpenBtn').href      = url;
+  document.getElementById('docModalDownloadBtn').href  = url;
+  if (name) document.getElementById('docModalDownloadBtn').setAttribute('download', name);
+
+  body.innerHTML = '';
+
+  if (type === 'image') {
+    const img = document.createElement('img');
+    img.src   = url;
+    img.alt   = name;
+    img.style.cssText = 'max-width:100%;max-height:78vh;object-fit:contain;display:block;margin:auto;padding:16px';
+    body.appendChild(img);
+  } else if (type === 'pdf') {
+    // Try embed first (better browser support than iframe for local files)
+    const embed = document.createElement('embed');
+    embed.src   = url;
+    embed.type  = 'application/pdf';
+    embed.style.cssText = 'width:100%;height:76vh;display:block;border:none';
+    // Fallback link if embed doesn't render
+    const fallback = document.createElement('div');
+    fallback.style.cssText = 'padding:20px;text-align:center;font-size:13px;color:#666;margin-top:8px';
+    fallback.innerHTML = 'If the PDF doesn\'t display, <a href="'+url+'" target="_blank" style="color:var(--primary);font-weight:700">click here to open it</a>.';
+    body.appendChild(embed);
+    body.appendChild(fallback);
+  } else {
+    body.innerHTML =
+      '<div style="padding:48px;text-align:center">' +
+        '<div style="font-size:52px;margin-bottom:16px">📄</div>' +
+        '<p style="margin-bottom:16px;color:#555">Preview not available for this file type.</p>' +
+        '<a href="'+url+'" target="_blank" ' +
+           'style="display:inline-block;padding:10px 24px;background:var(--primary);' +
+                  'color:#fff;border-radius:6px;font-weight:700;text-decoration:none">Open File →</a>' +
+      '</div>';
+  }
+
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDocModal() {
+  const modal = document.getElementById('docViewerModal');
+  if (!modal) return;
+  modal.style.display = 'none';
+  document.getElementById('docModalBody').innerHTML = '';
+  document.body.style.overflow = '';
+}
+
+// Close modal on backdrop click
+document.getElementById('docViewerModal')?.addEventListener('click', function(e) {
+  if (e.target === this) closeDocModal();
+});
+
+// Close on Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeDocModal();
+});
+
 // ── Live filter for student select ────────────────────────────
 const searchInput = document.getElementById('studentSearch');
 const select      = document.getElementById('studentSelect');
 if (searchInput && select) {
-  const allOptions = Array.from(select.options);
+  const allOptions = Array.from(select.options).map(o => o.cloneNode(true));
   searchInput.addEventListener('input', function() {
     const q = this.value.toLowerCase();
     select.innerHTML = '';
@@ -417,7 +498,7 @@ if (searchInput && select) {
     });
     if (select.options.length === 0) {
       const empty = document.createElement('option');
-      empty.text = 'No matches';
+      empty.text = 'No matches found';
       select.appendChild(empty);
     }
   });
@@ -426,6 +507,7 @@ if (searchInput && select) {
 // ── File preview before upload ────────────────────────────────
 function showFilePreview(files) {
   const list = document.getElementById('filePreviewList');
+  if (!list) return;
   list.innerHTML = '';
   if (!files || files.length === 0) return;
 
@@ -433,150 +515,109 @@ function showFilePreview(files) {
   wrap.style.cssText = 'display:flex;flex-wrap:wrap;gap:10px;padding:12px;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius)';
 
   Array.from(files).forEach(file => {
-    const item = document.createElement('div');
-    item.style.cssText = 'display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px 12px;font-size:12px;max-width:260px';
-
     const ext  = file.name.split('.').pop().toLowerCase();
     const icon = ext === 'pdf' ? '📕' : ['jpg','jpeg','png'].includes(ext) ? '🖼️' : '📄';
     const size = file.size >= 1048576 ? (file.size/1048576).toFixed(1)+' MB'
-               : file.size >= 1024 ? (file.size/1024).toFixed(0)+' KB'
+               : file.size >= 1024    ? (file.size/1024).toFixed(0)+' KB'
                : file.size+' B';
 
+    const item = document.createElement('div');
+    item.style.cssText = 'display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px 12px;font-size:12px;max-width:280px';
     item.innerHTML =
       '<span style="font-size:20px">'+icon+'</span>'+
       '<div style="min-width:0">'+
-        '<div style="font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px" title="'+file.name+'">'+file.name+'</div>'+
+        '<div style="font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:190px" title="'+file.name+'">'+file.name+'</div>'+
         '<div style="color:var(--ink-faint)">'+size+'</div>'+
       '</div>';
 
-    // If image, show thumbnail
     if (['jpg','jpeg','png'].includes(ext)) {
       const img = document.createElement('img');
       img.style.cssText = 'width:36px;height:36px;object-fit:cover;border-radius:4px;flex-shrink:0;order:-1';
       const reader = new FileReader();
-      reader.onload = e => { img.src = e.target.result; };
+      reader.onload = ev => { img.src = ev.target.result; };
       reader.readAsDataURL(file);
       item.prepend(img);
     }
-
     wrap.appendChild(item);
   });
 
-  const countNote = document.createElement('div');
-  countNote.style.cssText = 'font-size:12px;color:var(--primary);font-weight:700;padding:4px 0 0';
-  countNote.textContent = files.length + ' file' + (files.length > 1 ? 's' : '') + ' selected — ready to upload';
-  list.appendChild(wrap);
-  list.appendChild(countNote);
+  const note = document.createElement('div');
+  note.style.cssText = 'font-size:12px;color:var(--primary);font-weight:700;padding:4px 0 0';
+  note.textContent = files.length + ' file' + (files.length > 1 ? 's' : '') + ' selected — ready to upload';
 
-  // Update upload button
-  document.getElementById('uploadBtn').textContent = '📤 Upload ' + files.length + ' file' + (files.length > 1 ? 's' : '');
+  list.appendChild(wrap);
+  list.appendChild(note);
+
+  const btn = document.getElementById('uploadBtn');
+  if (btn) btn.textContent = '📤 Upload ' + files.length + ' file' + (files.length > 1 ? 's' : '');
 }
 
 // ── Drag-and-drop ─────────────────────────────────────────────
 function handleDrop(e) {
   e.preventDefault();
-  document.getElementById('dropZone').style.borderColor = '';
-  document.getElementById('dropZone').style.background  = 'var(--primary-soft)';
+  const zone = document.getElementById('dropZone');
+  if (zone) { zone.style.borderColor = ''; zone.style.background = 'var(--primary-soft)'; }
   const dt = e.dataTransfer;
   if (dt && dt.files.length > 0) {
     const input = document.getElementById('fileInput');
-    input.files  = dt.files;
-    showFilePreview(dt.files);
+    if (input) { input.files = dt.files; showFilePreview(dt.files); }
   }
 }
 
-// ── Auto-submit feedback: show spinner on upload button ───────
+// ── Upload form validation + spinner ─────────────────────────
 document.getElementById('uploadForm')?.addEventListener('submit', function(e) {
-  const files = document.getElementById('fileInput').files;
+  const files = document.getElementById('fileInput')?.files;
   if (!files || files.length === 0) {
     e.preventDefault();
     alert('Please select at least one file to upload.');
     return;
   }
   const btn = document.getElementById('uploadBtn');
-  btn.disabled = true;
-  btn.textContent = '⏳ Uploading…';
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Uploading…'; }
 });
 </script>
 
 <!-- ── Document Viewer Modal ── -->
 <div id="docViewerModal" style="
     display:none;position:fixed;inset:0;z-index:9999;
-    background:rgba(0,0,0,.75);
-    align-items:center;justify-content:center;padding:20px;
+    background:rgba(0,0,0,.78);
+    align-items:center;justify-content:center;padding:16px;
 ">
   <div style="
       background:#fff;border-radius:10px;
-      width:100%;max-width:900px;max-height:90vh;
+      width:100%;max-width:920px;max-height:92vh;
       display:flex;flex-direction:column;
-      box-shadow:0 8px 40px rgba(0,0,0,.5);
-      overflow:hidden;
+      box-shadow:0 12px 48px rgba(0,0,0,.5);
+      overflow:hidden;position:relative;
   ">
-    <!-- Modal header -->
+    <!-- Header -->
     <div style="
         display:flex;align-items:center;justify-content:space-between;
         padding:14px 18px;border-bottom:1px solid var(--line);
-        background:var(--surface);flex-shrink:0;
+        background:var(--surface);flex-shrink:0;gap:10px;
     ">
-      <div style="font-weight:700;font-size:14px;color:var(--ink)" id="docModalTitle">Document</div>
-      <div style="display:flex;gap:8px">
+      <div style="font-weight:700;font-size:14px;color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"
+           id="docModalTitle">Document</div>
+      <div style="display:flex;gap:6px;flex-shrink:0">
         <a id="docModalOpenBtn" href="#" target="_blank"
-           class="button button-secondary button-sm">↗ Open in new tab</a>
+           class="button button-secondary button-sm">↗ New tab</a>
         <a id="docModalDownloadBtn" href="#" download
            class="button button-secondary button-sm">⬇ Download</a>
         <button onclick="closeDocModal()"
-           style="background:none;border:none;cursor:pointer;font-size:22px;color:var(--ink-soft);line-height:1;padding:0 4px"
-           title="Close">✕</button>
+           style="background:none;border:1px solid var(--line);border-radius:6px;
+                  cursor:pointer;font-size:18px;color:var(--ink-soft);
+                  line-height:1;padding:4px 8px;transition:all .15s"
+           onmouseenter="this.style.background='var(--bg)'"
+           onmouseleave="this.style.background='none'"
+           title="Close (Esc)">✕</button>
       </div>
     </div>
-    <!-- Modal body -->
-    <div id="docModalBody" style="flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;background:#f0f0f0;min-height:400px"></div>
+    <!-- Body -->
+    <div id="docModalBody"
+         style="flex:1;overflow:auto;display:flex;align-items:center;
+                justify-content:center;background:#f0f0f0;min-height:420px">
+    </div>
   </div>
 </div>
-
-<script>
-function openDocModal(url, name, type) {
-  const modal = document.getElementById('docViewerModal');
-  const body  = document.getElementById('docModalBody');
-  document.getElementById('docModalTitle').textContent = name;
-  document.getElementById('docModalOpenBtn').href     = url;
-  document.getElementById('docModalDownloadBtn').href = url;
-  document.getElementById('docModalDownloadBtn').setAttribute('download', name);
-  body.innerHTML = '';
-
-  if (type === 'image') {
-    const img = document.createElement('img');
-    img.src = url;
-    img.style.cssText = 'max-width:100%;max-height:80vh;object-fit:contain;display:block;margin:auto;padding:12px';
-    body.appendChild(img);
-  } else if (type === 'pdf') {
-    const iframe = document.createElement('iframe');
-    iframe.src = url;
-    iframe.style.cssText = 'width:100%;height:75vh;border:none;display:block';
-    iframe.title = name;
-    body.appendChild(iframe);
-  } else {
-    body.innerHTML = '<div style="padding:40px;text-align:center"><div style="font-size:52px;margin-bottom:14px">📄</div><p>Cannot preview this file type.</p><a href="'+url+'" target="_blank" class="button button-primary" style="margin-top:12px">Open File →</a></div>';
-  }
-
-  modal.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-}
-
-function closeDocModal() {
-  const modal = document.getElementById('docViewerModal');
-  modal.style.display = 'none';
-  document.getElementById('docModalBody').innerHTML = '';
-  document.body.style.overflow = '';
-}
-
-// Close on backdrop click
-document.getElementById('docViewerModal')?.addEventListener('click', function(e) {
-  if (e.target === this) closeDocModal();
-});
-// Close on Escape
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') closeDocModal();
-});
 
 <?php require_once dirname(__DIR__).'/includes/admin_footer.php'; ?>
