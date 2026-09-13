@@ -83,6 +83,11 @@ $activeAdmin = 'graduation';
 require_once dirname(__DIR__).'/includes/admin_header.php';
 requireRole(['sys_admin','super_admin','school_admin','principal','vice_principal','registrar']);
 
+$pdo  = db();
+$ayId = currentAcademicYearId();
+$ay   = currentAcademicYearName();
+$canApprove = isPrincipal() || hasRole(['super_admin','sys_admin','school_admin']);
+
 // ── Data ──────────────────────────────────────────────────────
 $tab = $_GET['tab'] ?? 'list';
 

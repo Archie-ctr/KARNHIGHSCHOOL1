@@ -55,7 +55,8 @@ require_once dirname(__DIR__).'/includes/admin_header.php';
 requireRole(['registrar','principal','super_admin','school_admin','vice_principal']);
 
 // ── GET data ──────────────────────────────────────────────────
-$stdId    = (int)($_GET['student_id'] ?? 0);
+$pdo   = db();
+$stdId = (int)($_GET['student_id'] ?? 0);
 $students = $pdo->query(
     "SELECT s.id, s.student_id sid, CONCAT(s.first_name,' ',s.last_name) name,
             g.name grade_name

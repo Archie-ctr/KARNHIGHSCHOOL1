@@ -45,6 +45,7 @@ $activeAdmin = 'applications';
 require_once dirname(__DIR__).'/includes/admin_header.php';
 requireRole(['principal','registrar','academic_dean','super_admin','vice_principal']);
 
+$pdo = db();
 // ── Filters ───────────────────────────────────────────────────
 $q      = trim($_GET['q']      ?? '');
 $status = trim($_GET['status'] ?? '');
