@@ -36,6 +36,26 @@ if(!$student) die('Student not found.');
 
 $rc=$pdo->query("SELECT * FROM report_cards WHERE student_id=$stdId AND academic_year_id=$ayId LIMIT 1")->fetch();
 if(!$rc||$rc['status']!=='published') die('Report card not yet published.');
+// ── Fee block ─────────────────────────────────────────────────
+if ((isStudent() || hasRole('parent')) && studentOwesFees($stdId,$ayId)) {
+    $owed = number_format(studentOwedAmount($stdId,$ayId),2);
+    $ay2  = $pdo->query("SELECT name FROM academic_years WHERE id=$ayId")->fetchColumn();
+    http_response_code(402);
+    die('<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Access Restricted</title>
+    <style>body{font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#fff5f5;margin:0}
+    .box{text-align:center;max-width:420px;padding:40px;background:#fff;border:2px solid #fecaca;border-radius:12px}
+    h2{color:#991b1b;margin-bottom:10px}p{color:#7f1d1d;font-size:14px;line-height:1.6}
+    .amt{background:#fef2f2;border:1px solid #fecaca;padding:10px 20px;border-radius:8px;margin-top:14px;display:inline-block;font-size:14px;color:#991b1b;font-weight:700}
+    a{display:inline-block;margin-top:18px;padding:10px 22px;background:#1a2744;color:#fff;text-decoration:none;border-radius:6px;font-size:14px}
+    </style></head><body><div class="box">
+    <div style="font-size:52px">🚫</div>
+    <h2>Document Access Restricted</h2>
+    <p>Your school fees for <strong>'.htmlspecialchars($ay2,ENT_QUOTES).'</strong> have not been fully settled.
+    All official documents are locked until your balance is cleared.</p>
+    <div class="amt">Outstanding: LRD '.$owed.'</div>
+    <br><a href="javascript:history.back()">← Go Back</a>
+    </div></body></html>');
+}
 
 $ay=$pdo->query("SELECT name FROM academic_years WHERE id=$ayId")->fetchColumn();
 $school = setting('school_name','KARN HIGH SCHOOL');

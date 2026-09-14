@@ -59,6 +59,9 @@ if ($rc) {
 
 $schoolName = setting('school_name','KARN HIGH SCHOOL');
 $ini = strtoupper(substr($student['first_name'],0,1).substr($student['last_name'],0,1));
+
+// ── Fee block ─────────────────────────────────────────────────
+$feeBlocked = studentOwesFees((int)$student['id'], $ayId);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -93,6 +96,27 @@ $ini = strtoupper(substr($student['first_name'],0,1).substr($student['last_name'
   </div>
 
   <?php foreach(getFlash() as $f):?><div class="alert alert-<?=$f['type']?>"><?=e($f['message'])?></div><?php endforeach;?>
+
+  <?php if ($feeBlocked): ?>
+  <!-- ── FEE BLOCK ── -->
+  <div style="background:#fef2f2;border:2px solid #fecaca;border-radius:var(--radius);
+              padding:28px 24px;margin-bottom:24px;text-align:center">
+    <div style="font-size:44px;margin-bottom:12px">🚫</div>
+    <h3 style="color:#991b1b;font-weight:800;margin-bottom:8px">Access Restricted — Outstanding Fees</h3>
+    <p style="color:#7f1d1d;font-size:14px;max-width:480px;margin:0 auto 16px">
+      Your school fees for the <strong><?=e($ay)?></strong> academic year have not been fully settled.
+      Your gradesheet, report card, and other documents are locked until payment is complete.
+    </p>
+    <p style="font-size:13px;color:#991b1b;font-weight:600">
+      Please visit the school finance office to clear your balance.
+    </p>
+    <div style="margin-top:16px;padding:12px 16px;background:#fff;border:1px solid #fecaca;
+                border-radius:8px;display:inline-block;font-size:13px;color:#7f1d1d">
+      <strong>Outstanding Balance:</strong>
+      LRD <?=number_format(studentOwedAmount((int)$student['id'],$ayId),2)?>
+    </div>
+  </div>
+  <?php else: ?>
 
   <!-- Grade 12 diploma notice -->
   <?php if ($isGr12 && $rc && $rc['status'] === 'published'): ?>
@@ -281,6 +305,8 @@ $ini = strtoupper(substr($student['first_name'],0,1).substr($student['last_name'
   <?php endif; // show gradesheet content ?>
 
   <?php endif; // rc published ?>
+
+  <?php endif; // fee block ?>
 
 </div>
 </div>

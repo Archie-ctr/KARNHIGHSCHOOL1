@@ -36,6 +36,25 @@ $student = $pdo->query(
      WHERE s.id = $stdId LIMIT 1"
 )->fetch();
 if (!$student) { http_response_code(404); die('Student not found.'); }
+// ── Fee block ─────────────────────────────────────────────────
+if ((isStudent() || hasRole('parent')) && studentOwesFees($stdId, currentAcademicYearId())) {
+    $owed = number_format(studentOwedAmount($stdId, currentAcademicYearId()), 2);
+    http_response_code(402);
+    die('<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Access Restricted</title>
+    <style>body{font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#fff5f5;margin:0}
+    .box{text-align:center;max-width:420px;padding:40px;background:#fff;border:2px solid #fecaca;border-radius:12px}
+    h2{color:#991b1b;margin-bottom:10px}p{color:#7f1d1d;font-size:14px;line-height:1.6}
+    .amt{background:#fef2f2;border:1px solid #fecaca;padding:10px 20px;border-radius:8px;margin-top:14px;display:inline-block;font-size:14px;color:#991b1b;font-weight:700}
+    a{display:inline-block;margin-top:18px;padding:10px 22px;background:#1a2744;color:#fff;text-decoration:none;border-radius:6px;font-size:14px}
+    </style></head><body><div class="box">
+    <div style="font-size:52px">🚫</div>
+    <h2>Document Access Restricted</h2>
+    <p>Your school fees have not been fully settled. All official documents are locked until your balance is cleared.
+    Please visit the school finance office.</p>
+    <div class="amt">Outstanding: LRD '.$owed.'</div>
+    <br><a href="javascript:history.back()">← Go Back</a>
+    </div></body></html>');
+}
 
 // ── Determine which grade columns to show ─────────────────────
 // For Grade 12 students: show 10th, 11th, 12th

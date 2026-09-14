@@ -24,13 +24,14 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
             $ok->execute([$teacher['id'],$clsId,$subId,$ayId]);
             if (!(int)$ok->fetchColumn()) { flash('error','You are not assigned to this class and subject.'); redirect(BASE_URL.'/admin/marks_entry.php'); }
 
-            // Block entry if the period is not currently open
-            $periodOpen = (int)$pdo->prepare(
-                "SELECT COUNT(*) FROM assessment_configs ac JOIN periods p ON p.id=ac.period_id
-                 WHERE ac.id=? AND ac.is_active=1 AND p.is_current=1"
-            )->execute([$cfgId]) ? $pdo->query("SELECT COUNT(*) FROM assessment_configs ac JOIN periods p ON p.id=ac.period_id WHERE ac.id=$cfgId AND ac.is_active=1 AND p.is_current=1")->fetchColumn() : 0;
-            if (!$periodOpen) {
-                flash('error', 'This assessment period is not currently open. Please wait for the admin to open it.');
+            // Block entry unless the Marks Submission window is open for this config's period
+            $winOpen = (int)$pdo->query(
+                "SELECT COUNT(*) FROM assessment_configs ac
+                 JOIN periods p ON p.id=ac.period_id
+                 WHERE ac.id=$cfgId AND ac.is_active=1 AND p.window_marks_entry=1"
+            )->fetchColumn();
+            if (!$winOpen) {
+                flash('error', 'Marks submission is not currently open for this period. Wait for the administrator to open the Marks Submission window.');
                 redirect(BASE_URL.'/admin/marks_entry.php');
             }
         }
@@ -94,14 +95,14 @@ if ($isTeacher) {
     $classes=$pdo->prepare("SELECT id,name FROM classes WHERE academic_year_id=? ORDER BY name")->execute([$ayId])?$pdo->query("SELECT id,name FROM classes WHERE academic_year_id=$ayId ORDER BY name")->fetchAll():[];
 }
 $subjects=$pdo->query("SELECT id,name FROM subjects WHERE is_active=1 ORDER BY name")->fetchAll();
-// Teachers only see the currently open period (is_active=1 AND period is_current=1)
-// Admins/coordinators see all active configs
+// Teachers only see configs where the Marks Submission window is open
 if ($isTeacher) {
     $configs = $pdo->prepare(
-        "SELECT ac.id, ac.name, ac.max_marks
+        "SELECT ac.id, ac.name, ac.max_marks,
+                p.name period_name, p.window_notes_open, p.window_notes_review, p.window_test
          FROM assessment_configs ac
          JOIN periods p ON p.id=ac.period_id
-         WHERE ac.academic_year_id=? AND ac.is_active=1 AND p.is_current=1
+         WHERE ac.academic_year_id=? AND ac.is_active=1 AND p.window_marks_entry=1
          ORDER BY ac.sequence"
     );
     $configs->execute([$ayId]); $configs=$configs->fetchAll();
@@ -161,32 +162,80 @@ require_once dirname(__DIR__).'/includes/admin_header.php';
 </div>
 
 <?php
-// ── Entry window notice ───────────────────────────────────────
+// ── Activity window banners for teachers ──────────────────────
 if ($isTeacher) {
-    if (empty($configs)) {
+    // Fetch all currently open windows for this AY
+    try {
+        $openWins = $pdo->query(
+            "SELECT p.name pname, p.window_notes_open, p.window_notes_review,
+                    p.window_test, p.window_marks_entry
+             FROM periods p JOIN semesters s ON s.id=p.semester_id
+             WHERE s.academic_year_id=$ayId
+               AND (p.window_notes_open=1 OR p.window_notes_review=1
+                    OR p.window_test=1 OR p.window_marks_entry=1)
+             ORDER BY p.sequence"
+        )->fetchAll();
+    } catch (Throwable $e) { $openWins=[]; }
+
+    $windowStyles = [
+        'notes_open'   => ['icon'=>'📝','label'=>'Note Period',      'bg'=>'#eff6ff','color'=>'#1d4ed8','border'=>'#bfdbfe'],
+        'notes_review' => ['icon'=>'🔍','label'=>'Note Review',      'bg'=>'#f5f3ff','color'=>'#7c3aed','border'=>'#ddd6fe'],
+        'test'         => ['icon'=>'📋','label'=>'Test / Exam',      'bg'=>'#fffbeb','color'=>'#b45309','border'=>'#fde68a'],
+        'marks_entry'  => ['icon'=>'✏️','label'=>'Marks Submission', 'bg'=>'#f0fdf4','color'=>'#065f46','border'=>'#a7f3d0'],
+    ];
+
+    if (empty($openWins)) {
         echo '<div style="background:#fef3c7;border:1px solid #fbbf24;border-radius:var(--radius);
                           padding:18px 20px;margin-bottom:20px;display:flex;align-items:flex-start;gap:12px">
               <span style="font-size:24px">🔒</span>
               <div>
-                <strong style="font-size:14px;color:#92400e">Marks Entry is Currently Closed</strong>
+                <strong style="font-size:14px;color:#92400e">No Activity Window is Currently Open</strong>
                 <p style="font-size:13px;color:#78350f;margin-top:4px">
-                  No assessment period is open right now. The admin will open a period when it is time to enter marks.
-                  You will be notified when entry opens.
+                  All period windows are closed. The administrator will open the appropriate window
+                  (Note Period → Note Review → Test → Marks Submission) when it is time.
+                  You will be notified when a window opens.
                 </p>
               </div>
             </div>';
     } else {
-        $openName = $configs[0]['name'] ?? '';
-        echo '<div style="background:#d1fae5;border:1px solid #6ee7b7;border-radius:var(--radius);
-                          padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px">
-              <span style="font-size:22px">🟢</span>
-              <div>
-                <strong style="font-size:13.5px;color:#065f46">Entry Open: '.e($openName).'</strong>
-                <p style="font-size:12.5px;color:#047857;margin-top:2px">
-                  You can now enter and submit marks for this period.
-                </p>
-              </div>
-            </div>';
+        foreach ($openWins as $ow) {
+            $wtype = $ow['window_marks_entry'] ? 'marks_entry'
+                   : ($ow['window_test']         ? 'test'
+                   : ($ow['window_notes_review']  ? 'notes_review' : 'notes_open'));
+            $ws = $windowStyles[$wtype];
+            $icon  = $ws['icon']; $label = $ws['label'];
+            $bg    = $ws['bg'];   $color  = $ws['color']; $bdr = $ws['border'];
+            $pname = htmlspecialchars($ow['pname'], ENT_QUOTES);
+            if ($wtype === 'marks_entry') {
+                echo "<div style=\"background:$bg;border:1.5px solid $bdr;border-radius:var(--radius);
+                              padding:14px 18px;margin-bottom:12px;display:flex;align-items:center;gap:12px\">
+                      <span style=\"font-size:22px\">$icon</span>
+                      <div>
+                        <strong style=\"font-size:13.5px;color:$color\">Marks Submission Open: $pname</strong>
+                        <p style=\"font-size:12.5px;color:$color;opacity:.85;margin-top:2px\">
+                          Select your class, subject, and assessment below to enter and submit marks for approval.
+                        </p>
+                      </div>
+                    </div>";
+            } else {
+                echo "<div style=\"background:$bg;border:1px solid $bdr;border-radius:var(--radius);
+                              padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px\">
+                      <span style=\"font-size:20px\">$icon</span>
+                      <div style=\"font-size:13px;color:$color\">
+                        <strong>$label</strong> is currently active for <strong>$pname</strong>.
+                        <span style=\"opacity:.8;\"> — Marks entry is not yet open for this period.</span>
+                      </div>
+                    </div>";
+            }
+        }
+        if (empty($configs)) {
+            echo '<div style="background:#fef3c7;border:1px solid #fde68a;border-radius:var(--radius);
+                              padding:14px 18px;margin-bottom:12px;font-size:13px;color:#92400e">
+                  ⏳ <strong>Marks entry is not yet open.</strong>
+                  Other windows are active but Marks Submission has not been opened yet.
+                  Wait for the administrator to advance to the Marks Submission phase.
+                </div>';
+        }
     }
 }
 ?>

@@ -47,6 +47,9 @@ if ($child) {
     }
 }
 $schoolName = setting('school_name', 'KARN HIGH SCHOOL');
+
+// ── Fee block ─────────────────────────────────────────────────
+$feeBlocked = $child ? studentOwesFees((int)$child['id'], $ayId) : false;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -84,6 +87,26 @@ $schoolName = setting('school_name', 'KARN HIGH SCHOOL');
 
   <?php elseif (!$child): ?>
   <div class="alert alert-warning">Child not found. <a href="<?= BASE_URL ?>/portal/parent/">Go back</a>.</div>
+
+  <?php elseif ($feeBlocked): ?>
+  <!-- ── FEE BLOCK ── -->
+  <div style="background:#fef2f2;border:2px solid #fecaca;border-radius:var(--radius);
+              padding:28px 24px;margin-bottom:24px;text-align:center">
+    <div style="font-size:44px;margin-bottom:12px">🚫</div>
+    <h3 style="color:#991b1b;font-weight:800;margin-bottom:8px">Access Restricted — Outstanding Fees</h3>
+    <p style="color:#7f1d1d;font-size:14px;max-width:480px;margin:0 auto 16px">
+      <?=e($child['first_name'])?>'s school fees for <strong><?=e($ay)?></strong> have not been fully settled.
+      The gradesheet and all documents are locked until payment is complete.
+    </p>
+    <p style="font-size:13px;color:#991b1b;font-weight:600">
+      Please visit the school finance office to clear the balance.
+    </p>
+    <div style="margin-top:16px;padding:12px 16px;background:#fff;border:1px solid #fecaca;
+                border-radius:8px;display:inline-block;font-size:13px;color:#7f1d1d">
+      <strong>Outstanding Balance:</strong>
+      LRD <?=number_format(studentOwedAmount((int)$child['id'],$ayId),2)?>
+    </div>
+  </div>
 
   <?php elseif (!$rc || $rc['status'] === 'draft'): ?>
   <div style="background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:48px;text-align:center">

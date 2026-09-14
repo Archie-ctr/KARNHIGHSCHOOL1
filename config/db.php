@@ -518,3 +518,139 @@ function workflowBadge(string $status): string {
     [$icon,$cls,$label]=$icons[$status]??['?','pending',$status];
     return '<span class="status '.$cls.'">'.$icon.' '.e($label).'</span>';
 }
+
+// ── Fee balance helpers ───────────────────────────────────────
+/**
+ * Returns the total amount a student still owes for a given academic year.
+ * Logic: sum of all mandatory fee_structures for student's grade
+ *        minus total payments recorded for that student + year.
+ * Returns 0.0 if fully paid or no fees set up.
+ */
+function studentOwedAmount(int $studentId, int $ayId): float {
+    try {
+        $pdo = db();
+        // Get student grade
+        $gradeId = (int)$pdo->query("SELECT current_grade_id FROM students WHERE id=$studentId LIMIT 1")->fetchColumn();
+        if (!$gradeId) return 0.0;
+
+        // Total mandatory fees for this grade+year
+        $feeTotal = (float)$pdo->prepare(
+            "SELECT COALESCE(SUM(amount),0) FROM fee_structures
+             WHERE academic_year_id=? AND is_active=1 AND is_mandatory=1
+             AND (grade_id=? OR grade_id IS NULL OR grade_id=0)"
+        )->execute([$ayId,$gradeId])
+            ? $pdo->query("SELECT COALESCE(SUM(amount),0) FROM fee_structures
+                           WHERE academic_year_id=$ayId AND is_active=1 AND is_mandatory=1
+                           AND (grade_id=$gradeId OR grade_id IS NULL OR grade_id=0)")->fetchColumn()
+            : 0.0;
+
+        if ($feeTotal <= 0) return 0.0; // no fees configured
+
+        // Total paid
+        $paid = (float)$pdo->query(
+            "SELECT COALESCE(SUM(amount),0) FROM payments
+             WHERE student_id=$studentId AND academic_year_id=$ayId"
+        )->fetchColumn();
+
+        return max(0.0, $feeTotal - $paid);
+    } catch (Throwable $e) {
+        return 0.0; // fail open — never block on DB error
+    }
+}
+
+/**
+ * Returns true if student owes ANY fees for the current academic year.
+ * Used to block gradesheet/report card access.
+ */
+function studentOwesFees(int $studentId, ?int $ayId = null): bool {
+    $ayId = $ayId ?? currentAcademicYearId();
+    // Allow override via school setting: fee_block_documents = 1 (default on)
+    if (setting('fee_block_documents','1') !== '1') return false;
+    return studentOwedAmount($studentId, $ayId) > 0;
+}
+
+// ── Activity window helpers ───────────────────────────────────
+/**
+ * Returns the currently open window type for a period, or null if none.
+ * Window types: notes_open | notes_review | test | marks_entry
+ */
+function currentPeriodWindow(int $periodId): ?string {
+    try {
+        $p = db()->query("SELECT window_notes_open, window_notes_review, window_test, window_marks_entry
+                          FROM periods WHERE id=$periodId LIMIT 1")->fetch();
+        if (!$p) return null;
+        if ($p['window_marks_entry'])  return 'marks_entry';
+        if ($p['window_test'])         return 'test';
+        if ($p['window_notes_review']) return 'notes_review';
+        if ($p['window_notes_open'])   return 'notes_open';
+    } catch (Throwable $e) {}
+    return null;
+}
+
+/**
+ * Returns the current open period for an academic year, or null.
+ */
+function currentOpenPeriod(int $ayId): ?array {
+    try {
+        return db()->query(
+            "SELECT p.* FROM periods p
+             JOIN semesters s ON s.id=p.semester_id
+             WHERE s.academic_year_id=$ayId AND p.is_current=1 LIMIT 1"
+        )->fetch() ?: null;
+    } catch (Throwable $e) { return null; }
+}
+
+/**
+ * Returns label for a window type.
+ */
+function windowLabel(string $type): string {
+    return match($type) {
+        'notes_open'   => 'Note Period',
+        'notes_review' => 'Note Review',
+        'test'         => 'Test / Exam',
+        'marks_entry'  => 'Marks Submission',
+        default        => ucfirst($type),
+    };
+}
+
+/**
+ * Opens a specific window on a period, closes all other windows on that period.
+ * Logs to period_activity_log.
+ */
+function openPeriodWindow(int $periodId, string $windowType, string $note = ''): void {
+    $pdo = db();
+    $uid = currentUserId();
+    $now = date('Y-m-d H:i:s');
+    // Close all windows on this period first
+    $pdo->prepare("UPDATE periods SET
+        window_notes_open=0, window_notes_review=0,
+        window_test=0, window_marks_entry=0
+        WHERE id=?")->execute([$periodId]);
+    // Open the requested window
+    $col    = 'window_'.$windowType; // e.g. window_marks_entry
+    $colAt  = $col.'_at';
+    $colBy  = $col.'_by';
+    $pdo->prepare("UPDATE periods SET `$col`=1, `$colAt`=?, `$colBy`=? WHERE id=?")
+        ->execute([$now, $uid ?: null, $periodId]);
+    // Log it
+    try {
+        $pdo->prepare("INSERT INTO period_activity_log (period_id,window_type,action,done_by,done_at,note) VALUES (?,?,?,?,?,?)")
+            ->execute([$periodId, $windowType, 'open', $uid ?: null, $now, $note]);
+    } catch (Throwable $e) {}
+}
+
+/**
+ * Closes ALL windows on a period.
+ */
+function closeAllPeriodWindows(int $periodId, string $note = ''): void {
+    $pdo = db();
+    $uid = currentUserId();
+    $pdo->prepare("UPDATE periods SET
+        window_notes_open=0, window_notes_review=0,
+        window_test=0, window_marks_entry=0
+        WHERE id=?")->execute([$periodId]);
+    try {
+        $pdo->prepare("INSERT INTO period_activity_log (period_id,window_type,action,done_by,note) VALUES (?,?,?,?,?)")
+            ->execute([$periodId, 'all', 'close', $uid ?: null, $note]);
+    } catch (Throwable $e) {}
+}
