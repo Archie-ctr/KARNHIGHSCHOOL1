@@ -1,7 +1,7 @@
 <?php
 // ── Process POST first — BEFORE any output ────────────────────
 require_once dirname(__DIR__).'/config/db.php';
-requireAuth(); requireRole(['sys_admin','super_admin','principal']);
+requireAuth(); requireRole(['sys_admin','super_admin','principal','school_admin']);
 $pdo = db();
 $tab = $_GET['tab'] ?? 'school';
 

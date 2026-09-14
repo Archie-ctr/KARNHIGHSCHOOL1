@@ -1,7 +1,9 @@
 <?php
+require_once dirname(__DIR__).'/config/db.php';
+requireAuth(); requireRole(['sys_admin','super_admin','principal','ict_officer']);
+
 $pageTitle='Audit Logs'; $activeAdmin='audit_logs';
 require_once dirname(__DIR__).'/includes/admin_header.php';
-requireRole(['sys_admin','super_admin','principal','ict_officer']);
 $pdo=db();
 $q=trim($_GET['q']??''); $module=trim($_GET['module']??''); $action=trim($_GET['action_f']??'');
 $page=max(1,(int)($_GET['page']??1)); $per=30;

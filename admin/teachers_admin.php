@@ -23,17 +23,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                       trim($_POST['specialization']??'')?:null,$_POST['employment_date']?:null,'Active']);
         // Create user account for teacher
         if (trim($_POST['email']??'')) {
-            $hash = password_hash('1234', PASSWORD_BCRYPT);
+            // Generate a random temporary password (teacher must change on first login)
+            $tempPwd = bin2hex(random_bytes(5)); // 10-char hex e.g. "a3f7c2e1b4"
+            $hash = password_hash($tempPwd, PASSWORD_BCRYPT);
             $roleId = (int)$pdo->query("SELECT id FROM roles WHERE name='teacher' LIMIT 1")->fetchColumn();
             try {
                 $pdo->prepare("INSERT INTO users (name,email,password_hash,role_id) VALUES (?,?,?,?)")
                    ->execute([trim($_POST['first_name']).' '.trim($_POST['last_name']),trim($_POST['email']),$hash,$roleId]);
                 $uid=(int)$pdo->lastInsertId();
                 $pdo->prepare("UPDATE teachers SET user_id=? WHERE teacher_id=?")->execute([$uid,$tid]);
-            } catch (PDOException $e) { /* email already in use — skip */ }
+            } catch (PDOException $e) { $tempPwd = null; /* email already in use — skip */ }
         }
         auditLog('create','teachers','teacher',(int)$pdo->lastInsertId(),'','Teacher ID: '.$tid);
-        flash('success','Teacher added. ID: '.$tid.'. Default password: 1234');
+        $pwdNote = ($tempPwd ?? null) ? ' Temp password: <strong>'.$tempPwd.'</strong> (share privately — teacher must change on login)' : '';
+        flash('success','Teacher added. ID: '.$tid.'.'.$pwdNote);
 
     } elseif ($action === 'status' && $canStatus) {
         $id = (int)($_POST['teacher_id'] ?? 0);

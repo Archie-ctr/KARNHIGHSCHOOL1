@@ -1,7 +1,7 @@
 <?php
 // ── CSV EXPORTS — must run BEFORE any HTML output ─────────────
 require_once dirname(__DIR__).'/config/db.php';
-requireAuth();
+requireAuth(); requireStaff(); // staff only — students/parents must not export data
 
 $pdo   = db();
 $ayId  = currentAcademicYearId();

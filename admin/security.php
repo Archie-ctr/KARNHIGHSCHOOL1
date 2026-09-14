@@ -1,8 +1,10 @@
 <?php
+require_once dirname(__DIR__).'/config/db.php';
+requireAuth(); requireRole(['sys_admin','super_admin']);
+
 $pageTitle   = 'Security';
 $activeAdmin = 'security';
 require_once dirname(__DIR__).'/includes/admin_header.php';
-requireRole(['sys_admin','super_admin']);
 
 $pdo = db();
 $tab = $_GET['tab'] ?? 'login_history';

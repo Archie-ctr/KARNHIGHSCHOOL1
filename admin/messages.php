@@ -1,4 +1,7 @@
 <?php
+require_once dirname(__DIR__).'/config/db.php';
+requireAuth(); requireStaff(); // all staff can message; students/parents excluded
+
 $pageTitle='Messages'; $activeAdmin='messages';
 require_once dirname(__DIR__).'/includes/admin_header.php';
 $pdo=db();

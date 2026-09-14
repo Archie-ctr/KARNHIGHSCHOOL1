@@ -1,4 +1,7 @@
 <?php
+require_once dirname(__DIR__).'/config/db.php';
+requireAuth(); requireRole(['sys_admin','super_admin','school_admin','principal','vice_principal','registrar']);
+
 $pageTitle   = 'Subjects';
 $activeAdmin = 'subjects';
 require_once dirname(__DIR__).'/includes/admin_header.php';
