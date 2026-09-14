@@ -150,44 +150,128 @@ function fv($v,bool $showRed=true):string{
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{font-family:Arial,sans-serif;font-size:9.5pt;color:#000;background:#e0e0e0}
-/* ── Print pages ── */
-.page{width:190mm;min-height:120mm;background:#fff;margin:8px auto;padding:0;position:relative;box-shadow:0 1px 6px rgba(0,0,0,.3)}
-/* Logo watermark */
-.page-wm{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:55%;opacity:.05;pointer-events:none;user-select:none;z-index:0}
-/* FRONT page — two-panel card layout */
-.card-front{display:flex;flex-direction:column;border:2px solid #000;margin:4mm}
-.card-header{padding:2.5mm 3mm 1.5mm;border-bottom:1.5px solid #000}
-.card-header-row{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
-.card-title{font-size:10.5pt;font-weight:700;text-align:center;margin-bottom:2mm;letter-spacing:.02em}
-.hn{font-size:9.5pt} .hl{border-bottom:1px solid #000;min-width:100px;display:inline-block;padding-bottom:0}
-/* Dual panel grid */
-.panels{display:grid;grid-template-columns:1fr 1fr;border-top:1.5px solid #000}
-.panel{position:relative}
-.panel+.panel{border-left:2px solid #000}
-/* Table inside panels */
-.rt{width:100%;border-collapse:collapse;font-size:8.5pt}
-.rt th,.rt td{border:0.75px solid #999;padding:1mm 1.5mm;text-align:center;line-height:1.2}
-.rt th{background:#fff;font-weight:700;font-size:8pt}
-.rt td.subj{text-align:left;font-size:8pt;padding-left:1.5mm;white-space:nowrap}
-.rt tr.section-row td,.rt tr.section-row th{background:#f0f0f0;font-weight:700}
-.rt tr.total-row td{font-weight:700;border-top:1px solid #000}
-/* Grading footer */
-.card-footer{border-top:2px solid #000;padding:2mm 3mm;text-align:center;font-size:8.5pt;font-weight:700;letter-spacing:.02em}
-/* Promotion stamp */
-.promo-stamp{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-8deg);
-    border:3px solid #1a5a9a;border-radius:4px;padding:4px 10px;
-    color:#1a5a9a;font-size:13pt;font-weight:900;letter-spacing:.12em;
-    opacity:.6;white-space:nowrap;pointer-events:none;z-index:10;
-    text-shadow:0 0 2px #1a5a9a44}
 
-/* ── BACK PAGE — Promotion Statement ── */
-.card-back{border:2px solid #000;margin:4mm;padding:4mm 5mm;min-height:100mm;display:flex;flex-direction:column;gap:3mm}
+/* ── Print page shell ── */
+.page{
+  width:270mm;
+  background:#fff;
+  margin:10px auto;
+  padding:0;
+  position:relative;
+  box-shadow:0 1px 8px rgba(0,0,0,.3);
+}
+/* Logo watermark */
+.page-wm{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:45%;opacity:.05;
+  pointer-events:none;user-select:none;z-index:0;
+}
+
+/* ── Card wrapper ── */
+.card{
+  position:relative;
+  border:2px solid #000;
+  margin:5mm;
+  display:flex;
+  flex-direction:column;
+}
+
+/* ── School header ── */
+.school-header{
+  text-align:center;
+  padding:3mm 4mm 2mm;
+  border-bottom:2px solid #000;
+}
+.school-header .sname{font-size:13pt;font-weight:900;letter-spacing:.04em;text-transform:uppercase}
+.school-header .smotto{font-size:8pt;font-style:italic;margin-top:1mm;color:#333}
+.school-header .sdoc{font-size:9.5pt;font-weight:700;text-transform:uppercase;margin-top:1.5mm;letter-spacing:.08em}
+
+/* ── Student info row ── */
+.student-info{
+  display:flex;flex-wrap:wrap;gap:2mm 8mm;
+  padding:2mm 4mm;
+  border-bottom:1.5px solid #000;
+  font-size:8.5pt;
+}
+.student-info span{white-space:nowrap}
+.ul{border-bottom:1px solid #000;display:inline-block;min-width:90px;padding-bottom:0;font-weight:700}
+
+/* ── Two-semester side-by-side layout ── */
+.semesters{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+}
+.semester{position:relative;overflow:hidden}
+.semester+.semester{border-left:2px solid #000}
+.sem-title{
+  background:#1a2744;color:#fff;
+  text-align:center;font-size:8.5pt;font-weight:800;
+  padding:1.5mm;letter-spacing:.1em;
+  text-transform:uppercase;
+}
+
+/* ── Marks table ── */
+.rt{width:100%;border-collapse:collapse;font-size:7.8pt}
+.rt th,.rt td{
+  border:0.6px solid #aaa;
+  padding:.8mm 1mm;
+  text-align:center;
+  line-height:1.25;
+}
+.rt th{background:#f5f5f5;font-weight:700;font-size:7.5pt}
+.rt td.subject{text-align:left;padding-left:1.5mm;white-space:nowrap;font-size:7.6pt}
+/* summary rows */
+.rt tr.average td{background:#eef4ff;font-weight:700;font-size:7.5pt}
+.rt tr.rank    td{background:#f9f9f9;font-weight:700;font-size:7.5pt}
+.rt tr.conduct td{background:#f9f9f9}
+.rt tr.present td{background:#f9f9f9}
+.rt tr.absent  td{background:#fff3f3}
+/* failing mark */
+.fail{color:#cc0000;font-weight:700}
+
+/* ── PASSED stamp ── */
+.stamp{
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%) rotate(-10deg);
+  z-index:20;pointer-events:none;
+}
+.stamp span{
+  display:block;
+  border:4px solid #1a5a9a;
+  border-radius:6px;
+  padding:5px 18px;
+  color:#1a5a9a;
+  font-size:22pt;font-weight:900;
+  letter-spacing:.18em;
+  opacity:.45;
+  text-shadow:0 0 4px #1a5a9a33;
+  white-space:nowrap;
+}
+
+/* ── Grading legend ── */
+.grading{
+  border-top:2px solid #000;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0;
+  padding:2mm 4mm;
+  font-size:7.6pt;
+}
+.grading>div{padding:0 2mm}
+.grading>div+div{border-left:1px solid #ccc}
+.grading h3{font-size:7.8pt;font-weight:800;text-transform:uppercase;margin-bottom:1.5mm;letter-spacing:.06em}
+.grading p{margin:0.6mm 0;line-height:1.4}
+
+/* ── BACK PAGE ── */
+.card-back{border:2px solid #000;margin:5mm;padding:4mm 5mm;min-height:110mm;display:flex;flex-direction:column;gap:3mm}
 .back-title{font-size:13pt;font-weight:700;text-align:center;text-decoration:underline;margin-bottom:2mm}
 .back-body{font-size:9.5pt;line-height:1.7}
 .back-name{font-size:11pt;border-bottom:1px solid #000;display:inline-block;min-width:160px;margin:1mm 0}
 .back-grade{font-size:11pt;border-bottom:1px solid #000;display:inline-block;min-width:80px;margin:1mm 0}
-.option-row{display:flex;align-items:flex-start;gap:4px;margin:1mm 0;font-size:9.5pt}
-.option-letter{width:16px;height:16px;border-radius:50%;border:1.5px solid #000;display:flex;align-items:center;justify-content:center;font-size:8pt;font-weight:700;flex-shrink:0;margin-top:1px}
+.option-row{display:flex;align-items:flex-start;gap:4px;margin:1.5mm 0;font-size:9.5pt}
+.option-letter{width:17px;height:17px;border-radius:50%;border:1.5px solid #000;display:flex;align-items:center;justify-content:center;font-size:8pt;font-weight:700;flex-shrink:0;margin-top:1px}
 .option-letter.chosen{background:#000;color:#fff}
 .sig-area{display:flex;flex-direction:column;gap:6mm;margin-top:3mm}
 .sig-line{border-top:1px solid #000;width:180px;padding-top:1mm;font-size:8.5pt}
@@ -196,20 +280,18 @@ html,body{font-family:Arial,sans-serif;font-size:9.5pt;color:#000;background:#e0
 
 /* ── Print ── */
 @media print{
-    html,body{background:#fff;padding:0}
-    .page{box-shadow:none;width:190mm;margin:0 auto}
-    .no-print{display:none}
-    .page-break{page-break-before:always}
-    @page{size:A5 landscape;margin:6mm}
+  html,body{background:#fff;padding:0}
+  .page{box-shadow:none;width:270mm;margin:0 auto}
+  .no-print{display:none}
+  .page-break{page-break-before:always}
+  @page{size:A4 landscape;margin:6mm}
 }
 </style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════════
-     PRINT BUTTON
-══════════════════════════════════════════════ -->
-<div class="no-print" style="width:190mm;margin:10px auto;display:flex;gap:8px;flex-wrap:wrap">
+<!-- Print toolbar -->
+<div class="no-print" style="width:270mm;margin:10px auto;display:flex;gap:8px;flex-wrap:wrap">
   <button onclick="window.print()"
     style="padding:8px 18px;background:#ac2443;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:700">
     🖨️ Print Both Pages (Front &amp; Back)
@@ -230,47 +312,52 @@ html,body{font-family:Arial,sans-serif;font-size:9.5pt;color:#000;background:#e0
 <div class="page">
 <img class="page-wm" src="<?=BASE_URL?>/assets/images/logo.png" alt=""
      onerror="this.src='<?=BASE_URL?>/assets/images/logo.jpg'"/>
-<div class="card-front">
 
-  <!-- Header: student info + grade + year -->
-  <div class="card-header">
-    <div style="text-align:center;font-size:10pt;font-weight:700;margin-bottom:2mm"><?=e($school)?></div>
-    <div style="display:flex;flex-wrap:wrap;gap:2mm 8mm;font-size:9pt">
-      <span><strong>Student:</strong> <span class="hl"><?=e($studentFullName)?></span></span>
-      <span><strong>Grade:</strong> <span class="hl"><?=e($student['grade_name']??'—').($student['class_name']?' '.e($student['class_name']):'')?></span></span>
-      <span><strong>School Year:</strong> <span class="hl"><?=e($ay)?></span></span>
-    </div>
+<div class="card">
+
+  <!-- School name / header -->
+  <div class="school-header">
+    <div class="sname"><?=e($school)?></div>
+    <div class="smotto"><?=e($motto)?></div>
+    <div class="sdoc">Academic Progress Report Card &mdash; <?=e($ay)?></div>
   </div>
 
-  <!-- Dual panel: Semester 1 (left) | Semester 2 (right) -->
-  <div class="panels">
+  <!-- Student info strip -->
+  <div class="student-info">
+    <span>Student: <span class="ul"><?=e($studentFullName)?></span></span>
+    <span>Grade: <span class="ul"><?=e($student['grade_name']??'—')?><?=$student['class_name']?' &mdash; '.e($student['class_name']):''?></span></span>
+    <span>Student ID: <span class="ul"><?=e($student['student_id']??'—')?></span></span>
+    <span>Academic Year: <span class="ul"><?=e($ay)?></span></span>
+  </div>
 
-    <!-- LEFT — Semester 1 -->
-    <div class="panel">
-      <?php if(strtolower($promoStatus)==='promoted'||strtolower($promoStatus)==='graduated'):?>
-      <div class="promo-stamp">PROMOTED</div>
+  <!-- Two-semester tables -->
+  <div class="semesters">
+
+    <!-- ── FIRST SEMESTER ── -->
+    <div class="semester">
+      <?php if(in_array(strtolower($promoStatus),['promoted','graduated'])):?>
+      <div class="stamp"><span>PASSED</span></div>
       <?php endif;?>
+
+      <div class="sem-title">First Semester</div>
       <table class="rt">
         <thead>
           <tr>
-            <th colspan="6" style="font-size:9pt;padding:1.5mm">1<sup>st</sup> SEMESTER</th>
-          </tr>
-          <tr>
-            <th class="subj" style="text-align:left;width:32%">Subjects</th>
-            <th>1<sup>st</sup><br>Pd.</th>
-            <th>2<sup>nd</sup><br>Pd.</th>
-            <th>3<sup>rd</sup><br>Pd.</th>
-            <th>Sem.<br>Ex.</th>
-            <th>Sem.<br>Ave.</th>
+            <th class="subject" style="text-align:left;width:35%">SUBJECTS</th>
+            <th>1<sup>ST</sup><br>PD</th>
+            <th>2<sup>ND</sup><br>PD</th>
+            <th>3<sup>RD</sup><br>PD</th>
+            <th>EXAM</th>
+            <th>SEM.<br>AVE.</th>
           </tr>
         </thead>
         <tbody>
           <?php foreach($subjects as $sub):
-            $d=$subData[$sub['id']];
-            [$p1,$p2,$p3,$se1]=$d['s1'];
+            $d  = $subData[$sub['id']];
+            [$p1,$p2,$p3,$se1] = $d['s1'];
           ?>
           <tr>
-            <td class="subj"><?=e($sub['name'])?></td>
+            <td class="subject"><?=e($sub['name'])?></td>
             <td><?=fv($p1)?></td>
             <td><?=fv($p2)?></td>
             <td><?=fv($p3)?></td>
@@ -278,67 +365,75 @@ html,body{font-family:Arial,sans-serif;font-size:9.5pt;color:#000;background:#e0
             <td><?=fv($d['sa1'])?></td>
           </tr>
           <?php endforeach;?>
-          <!-- Aggregate -->
-          <tr class="total-row">
-            <td class="subj">Aggregate</td>
-            <td colspan="4"></td>
-            <td><?=$agg1>0?round($agg1,0):''?></td>
+          <tr class="average">
+            <td class="subject">Average</td>
+            <?php
+              // per-period averages for sem1
+              $s1cols = [0,1,2,3]; // indices of p1,p2,p3,se1
+              foreach($s1cols as $ci):
+                $vals=array_filter(array_map(fn($sub)=>$subData[$sub['id']]['s1'][$ci]??null,$subjects),fn($v)=>$v!==null);
+                $avg=count($vals)?round(array_sum($vals)/count($vals),1):null;
+            ?>
+            <td><?=$avg!==null?$avg.'%':''?></td>
+            <?php endforeach;?>
+            <td><?=$classAvgSem1!==null?$classAvgSem1.'%':''?></td>
           </tr>
-          <!-- Average -->
-          <tr class="total-row">
-            <td class="subj">Average</td>
-            <td colspan="4"></td>
-            <td><?=$classAvgSem1!==null?$classAvgSem1:''?></td>
+          <tr class="rank">
+            <td class="subject">Rank</td>
+            <?php
+              // show rank once spanning all columns — use colspan via repeated cells
+              $rankStr = $rank ?? '';
+              for($i=0;$i<4;$i++) echo "<td>$rankStr</td>";
+            ?>
+            <td><?=$rankStr?></td>
           </tr>
-          <!-- Rank -->
-          <tr><td class="subj">Rank</td><td colspan="5"><?=$rank??''?></td></tr>
-          <!-- Conduct/Behavior -->
-          <tr>
-            <td class="subj">Conduct/Behavior</td>
-            <td colspan="5"><?=e($rc['conduct']??'')?></td>
+          <tr class="conduct">
+            <td class="subject">Conduct</td>
+            <?php for($i=0;$i<4;$i++) echo '<td>'.e($rc['conduct']??'✓').'</td>';?>
+            <td></td>
           </tr>
-          <!-- Days Absent -->
-          <tr>
-            <td class="subj">Day Absent</td>
-            <td colspan="5"><?=$rc['days_absent']??''?></td>
+          <tr class="present">
+            <td class="subject">Days Present</td>
+            <?php
+              $dp=$rc['days_present']??'';
+              for($i=0;$i<4;$i++) echo "<td>$dp</td>";
+            ?>
+            <td></td>
           </tr>
-          <!-- Days Present -->
-          <tr>
-            <td class="subj">Day Present</td>
-            <td colspan="5"><?=$rc['days_present']??''?></td>
-          </tr>
-          <!-- Times Tardy -->
-          <tr>
-            <td class="subj">Times/Tardy</td>
-            <td colspan="5"><?=$rc['days_tardy']??''?></td>
+          <tr class="absent">
+            <td class="subject">Days Absent</td>
+            <?php
+              $da=$rc['days_absent']??'0';
+              for($i=0;$i<4;$i++) echo "<td>$da</td>";
+            ?>
+            <td><?=$da?></td>
           </tr>
         </tbody>
       </table>
-    </div><!-- /LEFT panel -->
+    </div><!-- /first semester -->
 
-    <!-- RIGHT — Semester 2 + Yearly -->
-    <div class="panel">
-      <?php if(strtolower($promoStatus)==='promoted'||strtolower($promoStatus)==='graduated'):?>
-      <div class="promo-stamp">PROMOTED</div>
+    <!-- ── SECOND SEMESTER ── -->
+    <div class="semester">
+      <?php if(in_array(strtolower($promoStatus),['promoted','graduated'])):?>
+      <div class="stamp"><span>PASSED</span></div>
       <?php endif;?>
+
+      <div class="sem-title">Second Semester</div>
       <table class="rt">
         <thead>
           <tr>
-            <th colspan="7" style="font-size:9pt;padding:1.5mm">2<sup>nd</sup> SEMESTER</th>
-          </tr>
-          <tr>
-            <th>4<sup>th</sup><br>Pd.</th>
-            <th>5<sup>th</sup><br>Pd.</th>
-            <th>6<sup>th</sup><br>Pd.</th>
-            <th>Sem<br>Ex.</th>
-            <th>Sem.<br>Ave.</th>
-            <th>Yrly.<br>Ave.</th>
+            <th>4<sup>TH</sup><br>PD</th>
+            <th>5<sup>TH</sup><br>PD</th>
+            <th>6<sup>TH</sup><br>PD</th>
+            <th>EXAM</th>
+            <th>SEM.<br>AVE.</th>
+            <th>YRLY<br>AVE.</th>
           </tr>
         </thead>
         <tbody>
           <?php foreach($subjects as $sub):
-            $d=$subData[$sub['id']];
-            [$p4,$p5,$p6,$se2]=$d['s2'];
+            $d  = $subData[$sub['id']];
+            [$p4,$p5,$p6,$se2] = $d['s2'];
           ?>
           <tr>
             <td><?=fv($p4)?></td>
@@ -346,40 +441,67 @@ html,body{font-family:Arial,sans-serif;font-size:9.5pt;color:#000;background:#e0
             <td><?=fv($p6)?></td>
             <td><?=fv($se2)?></td>
             <td><?=fv($d['sa2'])?></td>
-            <td><?=fv($d['ya'])?></td>
+            <td style="font-weight:700"><?=fv($d['ya'])?></td>
           </tr>
           <?php endforeach;?>
-          <!-- Aggregate -->
-          <tr class="total-row">
-            <td colspan="4"></td>
-            <td><?=$agg2>0?round($agg2,0):''?></td>
-            <td></td>
+          <tr class="average">
+            <?php
+              $s2cols=[0,1,2,3];
+              foreach($s2cols as $ci):
+                $vals=array_filter(array_map(fn($sub)=>$subData[$sub['id']]['s2'][$ci]??null,$subjects),fn($v)=>$v!==null);
+                $avg=count($vals)?round(array_sum($vals)/count($vals),1):null;
+            ?>
+            <td><?=$avg!==null?$avg.'%':''?></td>
+            <?php endforeach;?>
+            <td><?=$classAvgSem2!==null?$classAvgSem2.'%':''?></td>
+            <td style="font-weight:800"><?=$overallAvg!==null?$overallAvg.'%':''?></td>
           </tr>
-          <!-- Average -->
-          <tr class="total-row">
-            <td colspan="4"></td>
-            <td><?=$classAvgSem2!==null?$classAvgSem2:''?></td>
-            <td style="font-weight:800;font-size:9.5pt"><?=$overallAvg!==null?$overallAvg:''?></td>
+          <tr class="rank">
+            <?php for($i=0;$i<5;$i++) echo '<td>'.($rank??'').'</td>';?>
+            <td><?=$rank??''?></td>
           </tr>
-          <!-- Rank -->
-          <tr><td colspan="6"><?=$rank??''?></td></tr>
-          <!-- Conduct -->
-          <tr><td colspan="6"><?=e($rc['conduct']??'')?></td></tr>
-          <!-- Days Absent -->
-          <tr><td colspan="6"><?=$rc['days_absent']??''?></td></tr>
-          <!-- Days Present -->
-          <tr><td colspan="6"><?=$rc['days_present']??''?></td></tr>
-          <!-- Times Tardy -->
-          <tr><td colspan="6"><?=$rc['days_tardy']??''?></td></tr>
+          <tr class="conduct">
+            <?php for($i=0;$i<5;$i++) echo '<td>'.e($rc['conduct']??'✓').'</td>';?>
+            <td>✓</td>
+          </tr>
+          <tr class="present">
+            <?php
+              $dp=$rc['days_present']??'';
+              for($i=0;$i<4;$i++) echo "<td>$dp</td>";
+            ?>
+            <td>✓</td><td>✓</td>
+          </tr>
+          <tr class="absent">
+            <?php
+              $da=$rc['days_absent']??'0';
+              for($i=0;$i<5;$i++) echo "<td>$da</td>";
+            ?>
+            <td><?=$da?></td>
+          </tr>
         </tbody>
       </table>
-    </div><!-- /RIGHT panel -->
-  </div><!-- /panels -->
+    </div><!-- /second semester -->
 
-  <!-- Footer -->
-  <div class="card-footer">ANY GRADE BELOW 70% IS A FAILING GRADE</div>
+  </div><!-- /semesters -->
 
-</div><!-- /card-front -->
+  <!-- Grading system legend -->
+  <div class="grading">
+    <div>
+      <h3>Grading System</h3>
+      <p>95 – 100 &nbsp; Principal's List (Excellent)</p>
+      <p>90 – 94 &nbsp;&nbsp; High Honor (Very Good)</p>
+      <p>85 – 89 &nbsp;&nbsp; Honor (Good)</p>
+    </div>
+    <div>
+      <h3>&nbsp;</h3>
+      <p>80 – 84 &nbsp;&nbsp; Satisfactorily (Fairly Good)</p>
+      <p>75 – 79 &nbsp;&nbsp; Needs Help (Fair-pass)</p>
+      <p>73 – 74 &nbsp;&nbsp; Needs Help (Weak Pass)</p>
+      <p>72 &amp; Below &nbsp; Fail</p>
+    </div>
+  </div>
+
+</div><!-- /card -->
 </div><!-- /page 1 -->
 
 
