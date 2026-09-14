@@ -106,10 +106,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // ── Normal page render ────────────────────────────────────────
+requireRole(['principal','vice_principal','registrar','super_admin','sys_admin','school_admin']);
 $pageTitle   = 'WASSCE / WACE Clearance';
 $activeAdmin = 'wassce_clearance';
 require_once dirname(__DIR__).'/includes/admin_header.php';
-requireRole(['principal','vice_principal','registrar','super_admin','sys_admin','school_admin']);
 
 $pdo    = db();
 $ayId   = currentAcademicYearId();

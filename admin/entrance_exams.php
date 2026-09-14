@@ -1,8 +1,10 @@
 <?php
+require_once dirname(__DIR__).'/config/db.php';
+requireAuth(); requireRole(['sys_admin','super_admin','school_admin','principal','registrar','academic_dean']);
+
 $pageTitle   = 'Entrance Exams';
 $activeAdmin = 'entrance_exams';
 require_once dirname(__DIR__).'/includes/admin_header.php';
-requireRole(['principal','registrar','academic_dean','super_admin']);
 
 $pdo  = db();
 $ayId = currentAcademicYearId();

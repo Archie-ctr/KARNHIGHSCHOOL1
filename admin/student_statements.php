@@ -1,7 +1,9 @@
 <?php
+require_once dirname(__DIR__).'/config/db.php';
+requireAuth(); requireRole(['sys_admin','super_admin','school_admin','principal','accountant']);
+
 $pageTitle='Student Statements'; $activeAdmin='finance';
 require_once dirname(__DIR__).'/includes/admin_header.php';
-requireRole(['accountant','principal','super_admin']);
 $pdo=db(); $ayId=currentAcademicYearId();
 
 $q=trim($_GET['q']??''); $stdId=(int)($_GET['student_id']??0);
