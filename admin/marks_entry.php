@@ -23,6 +23,16 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
             $ok=$pdo->prepare("SELECT COUNT(*) FROM teacher_assignments WHERE teacher_id=? AND class_id=? AND subject_id=? AND academic_year_id=?");
             $ok->execute([$teacher['id'],$clsId,$subId,$ayId]);
             if (!(int)$ok->fetchColumn()) { flash('error','You are not assigned to this class and subject.'); redirect(BASE_URL.'/admin/marks_entry.php'); }
+
+            // Block entry if the period is not currently open
+            $periodOpen = (int)$pdo->prepare(
+                "SELECT COUNT(*) FROM assessment_configs ac JOIN periods p ON p.id=ac.period_id
+                 WHERE ac.id=? AND ac.is_active=1 AND p.is_current=1"
+            )->execute([$cfgId]) ? $pdo->query("SELECT COUNT(*) FROM assessment_configs ac JOIN periods p ON p.id=ac.period_id WHERE ac.id=$cfgId AND ac.is_active=1 AND p.is_current=1")->fetchColumn() : 0;
+            if (!$periodOpen) {
+                flash('error', 'This assessment period is not currently open. Please wait for the admin to open it.');
+                redirect(BASE_URL.'/admin/marks_entry.php');
+            }
         }
 
         $maxM=(float)($pdo->query("SELECT max_marks FROM assessment_configs WHERE id=$cfgId")->fetchColumn()??100);
@@ -84,8 +94,21 @@ if ($isTeacher) {
     $classes=$pdo->prepare("SELECT id,name FROM classes WHERE academic_year_id=? ORDER BY name")->execute([$ayId])?$pdo->query("SELECT id,name FROM classes WHERE academic_year_id=$ayId ORDER BY name")->fetchAll():[];
 }
 $subjects=$pdo->query("SELECT id,name FROM subjects WHERE is_active=1 ORDER BY name")->fetchAll();
-$configs =$pdo->prepare("SELECT id,name,max_marks FROM assessment_configs WHERE academic_year_id=? AND is_active=1 ORDER BY sequence");
-$configs->execute([$ayId]); $configs=$configs->fetchAll();
+// Teachers only see the currently open period (is_active=1 AND period is_current=1)
+// Admins/coordinators see all active configs
+if ($isTeacher) {
+    $configs = $pdo->prepare(
+        "SELECT ac.id, ac.name, ac.max_marks
+         FROM assessment_configs ac
+         JOIN periods p ON p.id=ac.period_id
+         WHERE ac.academic_year_id=? AND ac.is_active=1 AND p.is_current=1
+         ORDER BY ac.sequence"
+    );
+    $configs->execute([$ayId]); $configs=$configs->fetchAll();
+} else {
+    $configs = $pdo->prepare("SELECT id,name,max_marks FROM assessment_configs WHERE academic_year_id=? AND is_active=1 ORDER BY sequence");
+    $configs->execute([$ayId]); $configs=$configs->fetchAll();
+}
 
 $selClass=(int)($_GET['class_id']??0);
 $selSub  =(int)($_GET['subject_id']??0);
@@ -136,6 +159,37 @@ require_once dirname(__DIR__).'/includes/admin_header.php';
   <?=workflowBadge(STATUS_DRAFT)?> → <?=workflowBadge(STATUS_SUBMITTED)?> → <?=workflowBadge(STATUS_REVIEW)?> → <?=workflowBadge(STATUS_APPROVED)?>
   <span style="margin-left:8px;color:var(--ink-faint)">or</span> <?=workflowBadge(STATUS_RETURNED)?> → <?=workflowBadge(STATUS_RESUBMIT)?>
 </div>
+
+<?php
+// ── Entry window notice ───────────────────────────────────────
+if ($isTeacher) {
+    if (empty($configs)) {
+        echo '<div style="background:#fef3c7;border:1px solid #fbbf24;border-radius:var(--radius);
+                          padding:18px 20px;margin-bottom:20px;display:flex;align-items:flex-start;gap:12px">
+              <span style="font-size:24px">🔒</span>
+              <div>
+                <strong style="font-size:14px;color:#92400e">Marks Entry is Currently Closed</strong>
+                <p style="font-size:13px;color:#78350f;margin-top:4px">
+                  No assessment period is open right now. The admin will open a period when it is time to enter marks.
+                  You will be notified when entry opens.
+                </p>
+              </div>
+            </div>';
+    } else {
+        $openName = $configs[0]['name'] ?? '';
+        echo '<div style="background:#d1fae5;border:1px solid #6ee7b7;border-radius:var(--radius);
+                          padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px">
+              <span style="font-size:22px">🟢</span>
+              <div>
+                <strong style="font-size:13.5px;color:#065f46">Entry Open: '.e($openName).'</strong>
+                <p style="font-size:12.5px;color:#047857;margin-top:2px">
+                  You can now enter and submit marks for this period.
+                </p>
+              </div>
+            </div>';
+    }
+}
+?>
 
 <!-- Selector -->
 <form method="get" class="filter-row" style="margin-bottom:20px">
